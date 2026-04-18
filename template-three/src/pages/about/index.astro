@@ -1,0 +1,29 @@
+---
+/**
+ * About page — who we are.
+ *
+ * Nav + Footer come from Layout automatically. Section rhythm alternates
+ * surface → bg → surface → bg so the dark footer finishes the page cleanly.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import AboutHeader from "@/components/about/AboutHeader.astro";
+import OurStory from "@/components/about/OurStory.astro";
+import TeamGrid from "@/components/about/TeamGrid.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`About — ${business.name}`}
+  description={`Meet the team behind ${business.name} — ${business.tagline}`}
+>
+  <AboutHeader />
+  <OurStory />
+  <TeamGrid />
+  <CheckAvailability
+    heading="Paratus laborare nobiscum?"
+    subtext="Lorem ipsum dolor sit amet — voca hodie et conveni gregem."
+  />
+</Layout>

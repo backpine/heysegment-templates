@@ -1,0 +1,85 @@
+---
+/**
+ * Other service areas — clean text list of sibling cities.
+ *
+ * No cards, no per-city links. The template only ships a single location
+ * page, so turning every city name into a link would create broken or
+ * misleading affordances. Instead, we list the other cities as plain text
+ * for geographic signalling and route visitors to the main coverage map
+ * for the full picture.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  currentArea?: string;
+  overviewHref?: string;
+  overviewLabel?: string;
+}
+
+const {
+  eyebrow = "Other Areas",
+  heading = "Servimus et urbes vicinas.",
+  subtext =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit — eandem curam per omnes urbes in regione nostra.",
+  currentArea,
+  overviewHref = "/service-area",
+  overviewLabel = "View our full coverage map",
+} = Astro.props;
+
+const others = business.serviceAreas.filter((area) => area !== currentArea);
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-4xl mx-auto px-6 lg:px-10 text-center">
+
+    {eyebrow && (
+      <div class="inline-flex items-center justify-center gap-2.5 mb-4">
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+          {eyebrow}
+        </span>
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      </div>
+    )}
+
+    <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+      {heading}
+    </h2>
+
+    {subtext && (
+      <p class="font-body text-base text-text-soft mt-4 leading-relaxed">
+        {subtext}
+      </p>
+    )}
+
+    <!-- Plain-text city list — just names, separated by generous spacing -->
+    <ul
+      class="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-left"
+      role="list"
+    >
+      {others.map((area) => (
+        <li class="flex items-center gap-2.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-brand shrink-0" aria-hidden="true"></span>
+          <span class="font-body text-sm text-text">{area}</span>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Overview CTA -->
+    <div class="mt-12 pt-8 border-t border-border">
+      <a
+        href={overviewHref}
+        class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand hover:gap-3 transition-all duration-150"
+      >
+        {overviewLabel}
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>

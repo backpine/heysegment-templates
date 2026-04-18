@@ -1,0 +1,64 @@
+---
+/**
+ * Example location page — Dolorville.
+ *
+ * This is the reference implementation shipped with the template. To add a
+ * second location page:
+ *   1. Duplicate this directory and rename it to the new slug.
+ *   2. Add a matching entry to `business.locations` in src/data/business.ts
+ *      (the nav dropdown picks it up automatically).
+ *   3. Tweak defaults or pass props below to tailor copy per area.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import LocationHero from "@/components/service-area/location/LocationHero.astro";
+import LocationIntro from "@/components/service-area/location/LocationIntro.astro";
+import LocalPresence from "@/components/service-area/location/LocalPresence.astro";
+import OtherAreas from "@/components/service-area/location/OtherAreas.astro";
+import PopularServices from "@/components/home/PopularServices.astro";
+import ReviewsFeatured from "@/components/reviews/ReviewsFeatured.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+
+const location = business.locations.find((l) => l.slug === "dolorville");
+if (!location) {
+  throw new Error(
+    'Missing location data for "dolorville" in business.locations. ' +
+      'Add an entry to src/data/business.ts or rename this page.',
+  );
+}
+---
+
+<Layout
+  title={`${location.name} — ${business.name}`}
+  description={`${business.name} serves ${location.name}. ${location.tagline}`}
+>
+  <LocationHero
+    heading={location.name}
+    tagline={location.tagline}
+  />
+
+  <LocationIntro
+    areaName={location.name}
+    body={location.intro}
+    neighborhoods={location.neighborhoods}
+  />
+
+  <LocalPresence areaName={location.name} />
+
+  <PopularServices
+    eyebrow={`Services in ${location.name}`}
+    heading={`Quod optime facimus in ${location.name}.`}
+    subtext="Lorem ipsum dolor sit amet — same team, same pricing, same response times across the entire service zone."
+  />
+
+  <ReviewsFeatured
+    eyebrow={`Reviews near ${location.name}`}
+    heading={`Vox vicini in ${location.name}.`}
+  />
+
+  <OtherAreas currentArea={location.name} />
+
+  <CheckAvailability />
+</Layout>

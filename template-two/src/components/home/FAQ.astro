@@ -1,0 +1,114 @@
+---
+/**
+ * Home-page FAQ section — uses native <details>/<summary> for zero-JS
+ * accessibility. Questions are flattened from business.faqs by default,
+ * then capped so the home page stays tight. Full list lives at /faq.
+ */
+import { business } from "@/data/business";
+
+interface Question {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  questions?: Question[];
+  limit?: number;
+  viewAllHref?: string;
+}
+
+const allQuestions: Question[] = business.faqs.flatMap((cat) => cat.questions);
+
+const {
+  eyebrow = "Frequently Asked",
+  heading = "Interrogationes communissimae.",
+  subtext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit — if your question isn't listed, give us a call.",
+  questions = allQuestions,
+  limit = 6,
+  viewAllHref = "/faq",
+} = Astro.props;
+
+const shown = questions.slice(0, limit);
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-3xl mx-auto px-6 lg:px-10">
+
+    <!-- Header -->
+    <div class="text-center mb-14">
+      {eyebrow && (
+        <div class="inline-flex items-center justify-center gap-2.5 mb-4">
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+      <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">{heading}</h2>
+      {subtext && (
+        <p class="font-body text-base text-text-soft mt-3 leading-relaxed">{subtext}</p>
+      )}
+    </div>
+
+    <!-- Questions — native details/summary, divided by hairlines (no cards) -->
+    <div class="divide-y divide-border border-y border-border">
+      {shown.map((item) => (
+        <details class="group">
+          <summary class="flex items-start justify-between gap-4 cursor-pointer list-none py-5">
+            <span class="font-body font-semibold text-base text-text group-open:text-brand transition-colors pr-2">
+              {item.question}
+            </span>
+            <span class="shrink-0 mt-0.5" aria-hidden="true">
+              <svg
+                class="w-5 h-5 text-text-soft group-open:rotate-45 group-open:text-brand transition-all duration-200"
+                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </span>
+          </summary>
+          <p class="font-body text-base text-text-soft leading-relaxed pb-6 pr-9">
+            {item.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+
+    <!-- View all + contact CTA — no card, just centered actions -->
+    <div class="mt-12 text-center">
+      {questions.length > limit && (
+        <a
+          href={viewAllHref}
+          class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand hover:gap-3 transition-all duration-150"
+        >
+          See all questions
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      )}
+
+      <div class="mt-8 pt-8 border-t border-border">
+        <p class="font-body text-base text-text font-medium">Still have questions?</p>
+        <p class="font-body text-sm text-text-soft mt-1">
+          We're happy to talk through your specific situation over the phone.
+        </p>
+        <a
+          href={phoneHref}
+          class="inline-flex items-center gap-2 mt-5 bg-brand text-brand-fg font-body font-semibold text-sm px-6 py-3 rounded-md hover:bg-brand/90 transition-colors shadow-sm"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+          </svg>
+          Call {business.phone}
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>

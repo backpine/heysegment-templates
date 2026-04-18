@@ -1,0 +1,129 @@
+---
+/**
+ * Service detail page hero — two-up with copy on the left and a service
+ * photo placeholder on the right.
+ *
+ * Different from the full-bleed LocationHero pattern: this hero is meant
+ * to lead with specific selling points for THIS service, not create a
+ * dramatic location impression. Copy carries the weight; the image is
+ * supporting evidence of the work.
+ *
+ * Owns its top-of-page nav clearance (pt-28 lg:pt-36) and paints its own
+ * bg-surface so the translucent nav pill floats over it cleanly.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  eyebrow?: string;
+  heading: string;
+  tagline?: string;
+  keyPoints?: string[];
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = "Our Services",
+  heading,
+  tagline,
+  keyPoints = [],
+  primaryCta = { label: "Request a quote", href: business.ctaHref },
+  secondaryCta = {
+    label: `Call ${business.phone}`,
+    href: "tel:+1" + business.phone.replace(/\D/g, ""),
+  },
+  imageSrc,
+  imageAlt = "Service in progress",
+  imageLabel = "Service Photo",
+} = Astro.props;
+---
+
+<section class="relative overflow-hidden bg-surface">
+  <!-- Ambient brand glow -->
+  <div
+    class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-16 lg:pb-24">
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+      <!-- Copy -->
+      <div class="lg:col-span-6">
+
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-5">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h1 class="font-heading text-3xl sm:text-4xl lg:text-hero text-text leading-[1.05] tracking-tight">
+          {heading}
+        </h1>
+
+        {tagline && (
+          <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-xl">
+            {tagline}
+          </p>
+        )}
+
+        <!-- Key points -->
+        {keyPoints.length > 0 && (
+          <ul class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5" role="list">
+            {keyPoints.map((point) => (
+              <li class="flex items-start gap-2.5">
+                <svg class="w-5 h-5 shrink-0 text-brand mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span class="font-body text-base text-text">{point}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <!-- CTAs -->
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-10">
+          <a
+            href={primaryCta.href}
+            class="inline-flex items-center justify-center gap-2 bg-brand text-brand-fg font-body font-semibold text-base px-6 py-3.5 rounded-md shadow-sm hover:bg-brand/90 transition-colors"
+          >
+            {primaryCta.label}
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+          <a
+            href={secondaryCta.href}
+            class="inline-flex items-center gap-2 font-body font-semibold text-text underline decoration-brand decoration-2 underline-offset-[6px] hover:decoration-brand/60 transition-colors"
+          >
+            <svg class="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            {secondaryCta.label}
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Image placeholder -->
+      <div class="lg:col-span-6">
+        <ImagePlaceholder
+          aspect="5/4"
+          imageSrc={imageSrc}
+          imageAlt={imageAlt}
+          label={imageLabel}
+          hint={`A photo of ${heading.toLowerCase()} in progress fits here.`}
+          bloomPosition="tl"
+        />
+      </div>
+
+    </div>
+  </div>
+</section>

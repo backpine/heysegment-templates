@@ -1,0 +1,111 @@
+---
+/**
+ * How we work — horizontal 4-step timeline.
+ *
+ * Deliberately NOT another "sticky heading left + numbered list right"
+ * layout — the template already uses that pattern in WhyUs, CoverageDetails,
+ * and WhatsIncluded. This section gets its own visual vocabulary: a row of
+ * four steps with connector line on desktop, stacking to a vertical rail
+ * below lg. No cards, no shadows — just numbers, typography, and a thin
+ * line that threads the steps together.
+ */
+interface Step {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  steps?: Step[];
+}
+
+const {
+  eyebrow = "How We Work",
+  heading = "Processus simplex, resultatum honestum.",
+  subtext =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit — four steps from first call to final walkthrough.",
+  steps = [
+    {
+      title: "Contactus initialis",
+      description:
+        "Voca aut scribe. Respondemus intra horam in tempore laboris, saepe celerius.",
+    },
+    {
+      title: "Inspectio et propositio",
+      description:
+        "Venimus ad locum, inspicimus opus, et propositionem scriptam offerimus — sine pretio.",
+    },
+    {
+      title: "Labor ipse",
+      description:
+        "Grex noster peritus, licentiatus, et asecuritatus laborat efficienter et honeste.",
+    },
+    {
+      title: "Sequitura et garantia",
+      description:
+        "Sequimur opus post diem, et omnis labor cum garantia unius anni tegitur.",
+    },
+  ],
+} = Astro.props;
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Header -->
+    <div class="max-w-2xl mb-16 lg:mb-20">
+      {eyebrow && (
+        <div class="inline-flex items-center gap-2.5 mb-4">
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+        </div>
+      )}
+      <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+        {heading}
+      </h2>
+      {subtext && (
+        <p class="font-body text-base lg:text-lg text-text-soft mt-4 leading-relaxed">
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- Timeline -->
+    <div class="relative">
+      <!-- Horizontal connector (lg+) threads through step numbers at y=20px -->
+      <div
+        class="hidden lg:block absolute left-0 right-0 top-[20px] h-px bg-border"
+        aria-hidden="true"
+      ></div>
+
+      <ol
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-10"
+        role="list"
+      >
+        {steps.map((step, i) => (
+          <li class="relative">
+            <!-- Number disc — sits on the connector line -->
+            <div
+              class="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-brand-tint text-brand font-heading text-lg leading-none ring-8 ring-surface tabular-nums"
+              aria-hidden="true"
+            >
+              {String(i + 1).padStart(2, "0")}
+            </div>
+
+            <h3 class="mt-6 font-heading text-xl text-text leading-snug">
+              {step.title}
+            </h3>
+            <p class="mt-3 font-body text-base text-text-soft leading-relaxed">
+              {step.description}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+  </div>
+</section>

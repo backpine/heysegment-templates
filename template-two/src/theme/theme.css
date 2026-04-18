@@ -1,0 +1,60 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   THEME
+   Edit this file to restyle the site. Each token maps directly to a Tailwind
+   utility class: --color-brand → bg-brand, text-brand, border-brand.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Fonts are self-hosted via Astro's Google Font Provider.
+   The source of truth is src/theme/font-manifest.json, and astro.config.mjs
+   derives its fonts array from that manifest. Keep the theme tokens below
+   pointing at the provider variables rather than storing literal font stacks. */
+
+@theme {
+
+  /* ── Brand ──────────────────────────────────────────────────────────────────
+     The one color that defines the business identity.
+     Used for: buttons, links, active nav, accent borders.                    */
+  --color-brand:      #2563eb;  /* main brand color */
+  --color-brand-fg:   #ffffff;  /* text/icons on top of brand color */
+  --color-brand-tint: #eff6ff;  /* very light brand — backgrounds, badges */
+
+  /* ── Page ───────────────────────────────────────────────────────────────────
+     The base layer of every page.                                            */
+  --color-bg:      #fafafa;  /* page background */
+  --color-surface: #ffffff;  /* cards, modals, panels — sits on top of bg */
+  --color-border:  #e5e5e5;  /* dividers, input outlines */
+
+  /* ── Text ───────────────────────────────────────────────────────────────────
+     Two text colors covers the vast majority of cases.                       */
+  --color-text:      #171717;  /* headings, body copy, labels */
+  --color-text-soft: #737373;  /* captions, helper text, secondary info */
+
+  /* ── Fonts ──────────────────────────────────────────────────────────────────
+     heading: used on h1–h3, hero text, section titles
+     body:    everything else — paragraphs, labels, buttons, nav
+     Values come from the provider vars wired from font-manifest.json.       */
+  --font-heading: var(--font-provider-heading);
+  --font-body:    var(--font-provider-body);
+
+  /* ── Type scale ─────────────────────────────────────────────────────────────
+     Seven sizes. sm → base → lg covers UI. xl → hero covers sections.       */
+  --text-sm:   0.875rem;  /* 14px — captions, labels, fine print */
+  --text-base: 1rem;      /* 16px — body copy */
+  --text-lg:   1.25rem;   /* 20px — lead paragraphs, card titles */
+  --text-xl:   1.625rem;  /* 26px — subheadings */
+  --text-2xl:  2.125rem;  /* 34px — section headings */
+  --text-3xl:  2.875rem;  /* 46px — page headings */
+  --text-hero: 3.75rem;   /* 60px — hero headline */
+
+  /* ── Radius ─────────────────────────────────────────────────────────────────
+     Three steps. sm for small UI, md for most things, lg for big panels.    */
+  --radius-sm: 0.375rem;  /*  6px — inputs, small buttons, tags */
+  --radius-md: 0.625rem;  /* 10px — cards, buttons */
+  --radius-lg: 1rem;      /* 16px — feature panels, hero cards */
+
+  /* ── Shadow ─────────────────────────────────────────────────────────────────
+     Two levels. sm for subtle depth, md for cards that need more presence.  */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+
+}

@@ -1,0 +1,86 @@
+---
+/**
+ * Location intro — second section on a location page. An editorial split
+ * with a local-work photo placeholder on the left and detailed copy on
+ * the right. Optionally lists neighborhoods served within the area.
+ */
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  eyebrow?: string;
+  areaName: string;
+  heading?: string;
+  body: string;
+  neighborhoods?: string[];
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = "About the Area",
+  areaName,
+  heading,
+  body,
+  neighborhoods = [],
+  imageSrc,
+  imageAlt = "Crew on-site",
+  imageLabel = "Local Job Photo",
+} = Astro.props;
+
+const resolvedHeading = heading ?? `Noster labor in ${areaName}.`;
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
+
+      <!-- Image placeholder -->
+      <ImagePlaceholder
+        aspect="4/3"
+        imageSrc={imageSrc}
+        imageAlt={imageAlt}
+        label={imageLabel}
+        hint={`A photo of a job you've done in ${areaName} fits here.`}
+        bloomPosition="tr"
+      />
+
+      <!-- Copy -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+          {resolvedHeading}
+        </h2>
+
+        <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed">
+          {body}
+        </p>
+
+        {neighborhoods.length > 0 && (
+          <div class="mt-10 pt-8 border-t border-border">
+            <p class="font-body text-xs font-semibold tracking-widest uppercase text-text-soft mb-5">
+              Neighborhoods we serve in {areaName}
+            </p>
+            <ul class="grid grid-cols-2 gap-x-6 gap-y-2.5" role="list">
+              {neighborhoods.map((n) => (
+                <li class="flex items-center gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-brand shrink-0" aria-hidden="true"></span>
+                  <span class="font-body text-sm text-text">{n}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+    </div>
+  </div>
+</section>

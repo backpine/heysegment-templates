@@ -1,0 +1,117 @@
+---
+/**
+ * Team grid — 3-column editorial lineup of team members.
+ *
+ * Each member is a portrait image placeholder + name + role + bio, arranged
+ * in a 3-col grid on lg and a single column on mobile. No card backgrounds;
+ * the photo itself anchors each cell.
+ *
+ * Image placeholders show "Photo of {name}" so a site owner knows exactly
+ * which person belongs in which slot.
+ */
+import { business } from "@/data/business";
+
+interface TeamMember {
+  name: string;
+  role: string;
+  bio: string;
+  initials?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  members?: TeamMember[];
+}
+
+const {
+  eyebrow = "Our Team",
+  heading = "Homines qui laborem faciunt.",
+  subtext =
+    "Lorem ipsum dolor sit amet — omnes licentiati, asecuritati, et ante primum diem per nos probati.",
+  members = business.team,
+} = Astro.props;
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Section header -->
+    <div class="max-w-2xl mb-14 lg:mb-20">
+      {eyebrow && (
+        <div class="inline-flex items-center gap-2.5 mb-4">
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+        </div>
+      )}
+      <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">{heading}</h2>
+      {subtext && (
+        <p class="font-body text-base lg:text-lg text-text-soft mt-4 leading-relaxed">
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- Grid -->
+    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-14" role="list">
+      {members.map((member) => (
+        <li>
+          <!-- Portrait placeholder -->
+          <figure class="relative mb-6">
+            <div
+              class="relative aspect-[4/5] rounded-xl overflow-hidden ring-1 ring-border/60 bg-gradient-to-br from-brand-tint/60 via-surface to-brand-tint/30"
+            >
+              {member.imageSrc ? (
+                <img
+                  src={member.imageSrc}
+                  alt={member.imageAlt ?? `Photo of ${member.name}`}
+                  class="absolute inset-0 w-full h-full object-cover"
+                />
+              ) : (
+                <>
+                  <!-- Soft brand bloom -->
+                  <div
+                    class="absolute -top-12 -right-12 w-52 h-52 rounded-full bg-brand/10 blur-3xl pointer-events-none"
+                    aria-hidden="true"
+                  ></div>
+                  <!-- Large initials as a fallback visual -->
+                  {member.initials && (
+                    <span
+                      class="absolute inset-0 flex items-center justify-center font-heading text-[6rem] leading-none text-brand/20 select-none"
+                      aria-hidden="true"
+                    >
+                      {member.initials}
+                    </span>
+                  )}
+                  <!-- Placeholder label -->
+                  <div class="absolute bottom-4 inset-x-0 flex flex-col items-center gap-1 text-center">
+                    <span class="font-body text-[10px] font-semibold tracking-[0.2em] uppercase text-brand/80">
+                      Photo of {member.name}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          </figure>
+
+          <!-- Meta -->
+          <h3 class="font-heading text-xl text-text leading-snug">
+            {member.name}
+          </h3>
+          <p class="font-body text-xs font-semibold tracking-widest uppercase text-brand mt-1.5">
+            {member.role}
+          </p>
+          <p class="font-body text-sm text-text-soft mt-3 leading-relaxed">
+            {member.bio}
+          </p>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>

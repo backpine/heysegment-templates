@@ -1,0 +1,73 @@
+---
+/**
+ * FAQ page header — text-forward utility header.
+ *
+ * No image placeholder — the questions below are the content. Stats row
+ * gives the header enough visual weight without borrowing from other
+ * page-header patterns on the site.
+ *
+ * Owns its own top clearance (pt-28 lg:pt-36) for the floating nav pill.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+}
+
+const {
+  eyebrow = "Common Questions",
+  heading = "Interrogationes frequentissimae.",
+  subtext =
+    "Lorem ipsum dolor sit amet — answers to the things customers ask us most. If yours isn't here, give us a call and we'll walk you through it.",
+} = Astro.props;
+
+const totalQuestions = business.faqs.reduce(
+  (sum, cat) => sum + cat.questions.length,
+  0,
+);
+const totalCategories = business.faqs.length;
+---
+
+<section class="bg-surface">
+  <div class="relative max-w-4xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-16 lg:pb-20 text-center">
+
+    {eyebrow && (
+      <div class="inline-flex items-center justify-center gap-2.5 mb-5">
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+          {eyebrow}
+        </span>
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      </div>
+    )}
+
+    <h1 class="font-heading text-3xl sm:text-4xl lg:text-hero text-text leading-[1.05] tracking-tight">
+      {heading}
+    </h1>
+
+    {subtext && (
+      <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-2xl mx-auto">
+        {subtext}
+      </p>
+    )}
+
+    <!-- Stats row -->
+    <dl class="mt-12 pt-8 border-t border-border flex flex-wrap justify-center gap-x-10 gap-y-5">
+      <div>
+        <dt class="font-heading text-2xl text-text leading-none">{totalQuestions}</dt>
+        <dd class="font-body text-sm text-text-soft mt-2">Questions answered</dd>
+      </div>
+      <div>
+        <dt class="font-heading text-2xl text-text leading-none">{totalCategories}</dt>
+        <dd class="font-body text-sm text-text-soft mt-2">Categories</dd>
+      </div>
+      <div>
+        <dt class="font-heading text-2xl text-text leading-none">&lt; 1 hr</dt>
+        <dd class="font-body text-sm text-text-soft mt-2">Phone response</dd>
+      </div>
+    </dl>
+
+  </div>
+</section>

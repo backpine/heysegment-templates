@@ -1,0 +1,75 @@
+---
+/**
+ * Our story — image placeholder on the left, narrative on the right.
+ *
+ * Alternates from the AboutHeader (image right) so the eye moves down the
+ * page. The image slot is tall (aspect-4/5) to suit portraits of a founder
+ * or a vintage shot of the shop — the kinds of photos that carry a story.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  bodySecond?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = business.story.eyebrow,
+  heading = business.story.heading,
+  body = business.story.body,
+  bodySecond = business.story.bodySecond,
+  imageSrc,
+  imageAlt = "Our founder",
+  imageLabel = "Founder Photo",
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
+
+      <!-- Image placeholder -->
+      <ImagePlaceholder
+        aspect="4/5"
+        imageSrc={imageSrc}
+        imageAlt={imageAlt}
+        label={imageLabel}
+        hint="A portrait of your founder or a vintage shop photo fits here."
+        bloomPosition="br"
+      />
+
+      <!-- Narrative -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+          {heading}
+        </h2>
+
+        <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed">
+          {body}
+        </p>
+
+        {bodySecond && (
+          <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed">
+            {bodySecond}
+          </p>
+        )}
+      </div>
+
+    </div>
+  </div>
+</section>

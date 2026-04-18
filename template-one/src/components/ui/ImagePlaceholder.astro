@@ -1,0 +1,94 @@
+---
+/**
+ * Image placeholder — the canonical "photo goes here" slot used across the
+ * template. When `imageSrc` is provided it fills the frame; otherwise a
+ * gradient + brand-bloom placeholder renders with a small label and hint so
+ * whoever ships the site knows exactly what photo belongs in each slot.
+ *
+ * All heroes, intros, and content sections with images in the template use
+ * this component, so the placeholder language is consistent everywhere.
+ */
+interface Props {
+  /** One of the pre-registered aspect ratios. */
+  aspect?: "5/4" | "4/3" | "4/5" | "1/1" | "16/9" | "square";
+  imageSrc?: string;
+  imageAlt?: string;
+  /** Uppercase tracking-wide label shown inside the placeholder. */
+  label?: string;
+  /** Body-text hint shown below the label (max ~22 characters per line). */
+  hint?: string;
+  /** Which corner the brand bloom radiates from. */
+  bloomPosition?: "tl" | "tr" | "bl" | "br";
+}
+
+const {
+  aspect = "5/4",
+  imageSrc,
+  imageAlt = "",
+  label,
+  hint,
+  bloomPosition = "tl",
+} = Astro.props;
+
+// Literal class strings so the Tailwind JIT picks them up.
+const aspectClass = {
+  "5/4": "aspect-[5/4]",
+  "4/3": "aspect-[4/3]",
+  "4/5": "aspect-[4/5]",
+  "1/1": "aspect-square",
+  square: "aspect-square",
+  "16/9": "aspect-video",
+}[aspect];
+
+const bloomPositionClass = {
+  tl: "-top-16 -left-16",
+  tr: "-top-16 -right-16",
+  bl: "-bottom-16 -left-16",
+  br: "-bottom-16 -right-16",
+}[bloomPosition];
+---
+
+<figure class="relative">
+  <div
+    class:list={[
+      "relative overflow-hidden rounded-xl ring-1 ring-border/60",
+      "bg-gradient-to-br from-brand-tint/60 via-surface to-brand-tint/30",
+      aspectClass,
+    ]}
+  >
+    {imageSrc ? (
+      <img
+        src={imageSrc}
+        alt={imageAlt}
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+    ) : (
+      <>
+        <!-- Soft brand bloom -->
+        <div
+          class:list={[
+            "absolute w-72 h-72 rounded-full bg-brand/10 blur-3xl pointer-events-none",
+            bloomPositionClass,
+          ]}
+          aria-hidden="true"
+        ></div>
+
+        <!-- Label + hint, centered -->
+        {(label || hint) && (
+          <div class="relative h-full flex flex-col items-center justify-center gap-3 text-center px-6">
+            {label && (
+              <span class="font-body text-xs font-semibold tracking-[0.2em] uppercase text-brand/80">
+                {label}
+              </span>
+            )}
+            {hint && (
+              <span class="font-body text-xs text-text-soft max-w-[22ch]">
+                {hint}
+              </span>
+            )}
+          </div>
+        )}
+      </>
+    )}
+  </div>
+</figure>

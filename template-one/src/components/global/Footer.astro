@@ -1,0 +1,191 @@
+---
+/**
+ * Site-wide footer with embedded map on the right.
+ *
+ * Left column: brand, contact, link groups, service areas.
+ * Right column: live map loaded client-side via heysegment-sdk.
+ *
+ * Used by Layout.astro — rendered on every page automatically.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  businessName?: string;
+  tagline?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  hours?: Array<{ days: string; time: string }>;
+  links?: Array<{ label: string; href: string }>;
+  serviceAreas?: string[];
+}
+
+const {
+  businessName = business.name,
+  tagline = business.tagline,
+  phone = business.phone,
+  email = business.email,
+  address = business.address.full,
+  hours = business.hours,
+  links = business.nav,
+  serviceAreas = business.serviceAreas,
+} = Astro.props;
+
+const phoneHref = "tel:+1" + phone.replace(/\D/g, "");
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-text text-surface">
+  {/* Bottom padding is larger below lg so the floating mobile/tablet action
+      bar in Nav.astro (lg:hidden) doesn't cover the copyright row. Keep this
+      breakpoint in sync with the bar's `lg:hidden` in Nav.astro. */}
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 pt-16 lg:pt-20 pb-28 lg:pb-8">
+
+    <!-- Two-column main layout: content left, map right -->
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 pb-12 border-b border-surface/10">
+
+      <!-- LEFT COLUMN: content -->
+      <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-10">
+
+        <!-- Brand + contact block -->
+        <div class="sm:col-span-2">
+          <p class="font-heading text-2xl text-surface">{businessName}</p>
+          <p class="font-body text-sm text-surface/55 mt-3 max-w-md leading-relaxed">
+            {tagline}
+          </p>
+
+          <div class="mt-6 space-y-3">
+            <a
+              href={phoneHref}
+              class="inline-flex items-center gap-2.5 font-body text-sm font-semibold text-surface hover:text-brand-tint transition-colors"
+            >
+              <svg class="w-4 h-4 text-brand-tint/70 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+              </svg>
+              {phone}
+            </a>
+            <a
+              href={`mailto:${email}`}
+              class="flex items-center gap-2.5 font-body text-sm text-surface/60 hover:text-surface transition-colors w-fit"
+            >
+              <svg class="w-4 h-4 text-surface/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              {email}
+            </a>
+            <p class="flex items-start gap-2.5 font-body text-sm text-surface/60">
+              <svg class="w-4 h-4 mt-0.5 text-surface/35 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {address}
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div>
+          <p class="font-body text-xs font-semibold tracking-widest uppercase text-surface/40 mb-5">
+            Navigation
+          </p>
+          <ul class="space-y-3" role="list">
+            {links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="font-body text-sm text-surface/65 hover:text-surface transition-colors"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Hours -->
+        <div>
+          <p class="font-body text-xs font-semibold tracking-widest uppercase text-surface/40 mb-5">
+            Hours
+          </p>
+          <ul class="space-y-3" role="list">
+            {hours.map((row) => (
+              <li class="font-body text-sm">
+                <p class="text-surface/85">{row.days}</p>
+                <p class="text-surface/50">{row.time}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Service areas -->
+        <div class="sm:col-span-2">
+          <p class="font-body text-xs font-semibold tracking-widest uppercase text-surface/40 mb-5">
+            Service Areas
+          </p>
+          <ul class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2" role="list">
+            {serviceAreas.map((area) => (
+              <li class="font-body text-sm text-surface/60">{area}</li>
+            ))}
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: map -->
+      <div class="lg:col-span-5 flex flex-col">
+        <p class="font-body text-xs font-semibold tracking-widest uppercase text-surface/40 mb-5">
+          Find Us
+        </p>
+        <div
+          id="footer-map"
+          class="relative flex-1 min-h-[280px] lg:min-h-[360px] rounded-lg overflow-hidden ring-1 ring-surface/10 bg-surface/5"
+        >
+          <div class="absolute inset-0 flex items-center justify-center text-surface/40 text-sm">
+            <span>Loading map…</span>
+          </div>
+        </div>
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-brand-tint hover:text-surface transition-colors w-fit"
+        >
+          Get directions
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-8">
+      <p class="font-body text-xs text-surface/35">
+        &copy; {year} {businessName}. All rights reserved.
+      </p>
+      <div class="flex items-center gap-5">
+        <a href="/privacy" class="font-body text-xs text-surface/35 hover:text-surface/60 transition-colors">Privacy</a>
+        <a href="/terms" class="font-body text-xs text-surface/35 hover:text-surface/60 transition-colors">Terms</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  import { siteInfo } from "@/lib/sdk";
+
+  const container = document.getElementById("footer-map");
+  if (container) {
+    const { data, error } = await siteInfo.getMapUrl();
+
+    if (error) {
+      container.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-surface/40 text-sm"><span>${error.message}</span></div>`;
+    } else if (data.mapUrl === null) {
+      container.style.display = "none";
+    } else {
+      container.innerHTML = `<iframe title="Business location map" width="100%" height="100%" style="border:0; display:block; min-height:100%;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="${data.mapUrl}"></iframe>`;
+    }
+  }
+</script>

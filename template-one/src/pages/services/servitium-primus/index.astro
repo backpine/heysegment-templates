@@ -1,0 +1,58 @@
+---
+/**
+ * Example service detail page — Servitium Primus.
+ *
+ * This is the reference implementation shipped with the template. To add a
+ * second service page:
+ *   1. Duplicate this directory and rename it to the new slug.
+ *   2. Add a matching entry to `business.serviceDetails` in
+ *      src/data/business.ts (the nav dropdown picks it up automatically).
+ *   3. Tweak defaults or pass props below to tailor copy per service.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import ServiceHero from "@/components/services/service/ServiceHero.astro";
+import WhatsIncluded from "@/components/services/service/WhatsIncluded.astro";
+import RelatedServices from "@/components/services/service/RelatedServices.astro";
+import ReviewsStrip from "@/components/reviews/ReviewsStrip.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+
+const detail = business.serviceDetails.find((d) => d.slug === "servitium-primus");
+if (!detail) {
+  throw new Error(
+    'Missing service detail for "servitium-primus" in business.serviceDetails. ' +
+      "Add an entry to src/data/business.ts or rename this page.",
+  );
+}
+
+// Key points in the hero mirror the included titles — single source of
+// truth in serviceDetails. Capped at 4 so the hero stays scannable.
+const keyPoints = detail.included.map((i) => i.title).slice(0, 4);
+---
+
+<Layout
+  title={`${detail.name} — ${business.name}`}
+  description={`${business.name} — ${detail.tagline}`}
+>
+  <ServiceHero
+    heading={detail.name}
+    tagline={detail.tagline}
+    keyPoints={keyPoints}
+  />
+
+  <WhatsIncluded
+    serviceName={detail.name}
+    items={detail.included}
+  />
+
+  <ReviewsStrip />
+
+  <RelatedServices currentSlug={detail.slug} />
+
+  <CheckAvailability
+    heading={`Paratus pro ${detail.name}?`}
+    subtext="Lorem ipsum dolor sit amet — voca pro propositione gratuita, aut scribe si quaestiones habes."
+  />
+</Layout>

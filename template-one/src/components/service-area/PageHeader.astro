@@ -1,0 +1,104 @@
+---
+/**
+ * Service area page header — two-up hero with copy on the left and a local
+ * area photo placeholder on the right.
+ *
+ * Owns its own top clearance (pt-28 lg:pt-36) for the floating nav pill,
+ * per the layout contract documented in nav-002.astro. Image placeholder
+ * follows the same visual language as the home-page Hero so the template's
+ * photo slots are consistent across pages.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  stats?: Stat[];
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = "Service Area",
+  heading = "Ubi laboramus.",
+  subtext =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt — same team, same pricing, same response times across the whole coverage zone.",
+  stats = [
+    { value: String(business.serviceAreas.length), label: "Cities served" },
+    { value: "30-mile", label: "Coverage radius" },
+    { value: "24/7", label: "Emergency response" },
+  ],
+  imageSrc,
+  imageAlt = "Local area photo",
+  imageLabel = "Local Area Photo",
+} = Astro.props;
+---
+
+<section class="relative overflow-hidden bg-surface">
+  <!-- Ambient brand glow — same treatment as the home hero -->
+  <div
+    class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-16 lg:pb-24">
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+      <!-- Copy -->
+      <div class="lg:col-span-6">
+
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-5">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h1 class="font-heading text-3xl sm:text-4xl lg:text-hero text-text leading-[1.05] tracking-tight">
+          {heading}
+        </h1>
+
+        {subtext && (
+          <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-xl">
+            {subtext}
+          </p>
+        )}
+
+        {stats.length > 0 && (
+          <dl class="mt-10 pt-8 border-t border-border flex flex-wrap gap-x-10 gap-y-5">
+            {stats.map((stat) => (
+              <div>
+                <dt class="font-heading text-2xl text-text leading-none">{stat.value}</dt>
+                <dd class="font-body text-sm text-text-soft mt-2">{stat.label}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+      </div>
+
+      <!-- Image placeholder — clearly shows where a local area photo goes -->
+      <div class="lg:col-span-6">
+        <ImagePlaceholder
+          aspect="5/4"
+          imageSrc={imageSrc}
+          imageAlt={imageAlt}
+          label={imageLabel}
+          hint="A neighborhood shot, skyline, or local landmark fits here."
+          bloomPosition="tr"
+        />
+      </div>
+
+    </div>
+  </div>
+</section>

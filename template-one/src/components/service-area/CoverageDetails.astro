@@ -1,0 +1,122 @@
+---
+/**
+ * Coverage details — "what to expect" when you're in our coverage zone.
+ *
+ * Editorial two-up spread that mirrors the home-page WhyUs rhythm:
+ *   Left  — eyebrow, heading, body, image placeholder (a service-vehicle /
+ *           on-site photo slot)
+ *   Right — numbered fact list, hairline dividers, no cards
+ * The facts answer the four questions every prospect asks before booking:
+ * response time, pricing consistency, scheduling, emergencies.
+ */
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface CoverageFact {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  facts?: CoverageFact[];
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = "What to Expect",
+  heading = "Quid expectare debeas.",
+  body =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Eadem cura, eadem pretia, idem grex — sine discrimine urbis.",
+  facts = [
+    {
+      title: "Tempus responsionis",
+      description:
+        "Lorem ipsum dolor sit amet — responsio intra duas horas pro casibus urgentibus, eadem die pro servitiis regularibus.",
+    },
+    {
+      title: "Pretia uniformia",
+      description:
+        "Consectetur adipiscing elit. Eadem pretia per omnes urbes in regione nostra — nulla pretia additicia pro locis remotis.",
+    },
+    {
+      title: "Horarium flexibile",
+      description:
+        "Sed do eiusmod tempor incididunt. Eligas horam quae tibi convenit — matutina, post meridiem, aut vespertina.",
+    },
+    {
+      title: "Servitium subitum",
+      description:
+        "Ut enim ad minim veniam. Dispositio emergentiarum 24 horas per diem pro omnibus urbibus in zona nostra.",
+    },
+  ],
+  imageSrc,
+  imageAlt = "Service vehicle or crew on-site",
+  imageLabel = "On-Site Photo",
+} = Astro.props;
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start">
+
+      <!-- LEFT: eyebrow + heading + body + image placeholder -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+          {heading}
+        </h2>
+
+        {body && (
+          <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-lg">
+            {body}
+          </p>
+        )}
+
+        <!-- Image placeholder -->
+        <div class="mt-10">
+          <ImagePlaceholder
+            aspect="4/3"
+            imageSrc={imageSrc}
+            imageAlt={imageAlt}
+            label={imageLabel}
+            hint="A photo of your service vehicle or crew on a job fits here."
+            bloomPosition="bl"
+          />
+        </div>
+      </div>
+
+      <!-- RIGHT: numbered facts list -->
+      <ol class="lg:pt-2" role="list">
+        {facts.map((fact, i) => (
+          <li class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 py-7 border-t border-border first:border-t-0 lg:first:border-t lg:first:pt-7">
+            <span
+              class="font-heading text-xl text-brand leading-none pt-1.5 tabular-nums"
+              aria-hidden="true"
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <h3 class="font-heading text-xl text-text leading-snug">
+              {fact.title}
+            </h3>
+            <p class="col-start-2 font-body text-base text-text-soft leading-relaxed">
+              {fact.description}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+    </div>
+  </div>
+</section>

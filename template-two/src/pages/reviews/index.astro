@@ -1,0 +1,33 @@
+---
+/**
+ * Reviews page — the full wall of Google reviews.
+ *
+ * ReviewsHeader opens with the aggregate rating as the hero visual, then
+ * ReviewsMasonry shows every review in the list. CheckAvailability closes.
+ * Nav + Footer come from Layout automatically.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import ReviewsHeader from "@/components/reviews/ReviewsHeader.astro";
+import ReviewsMasonry from "@/components/reviews/ReviewsMasonry.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`Reviews — ${business.name}`}
+  description={`Read ${business.reviews.total}+ Google reviews for ${business.name}.`}
+>
+  <ReviewsHeader />
+
+  <ReviewsMasonry
+    eyebrow="Every Review"
+    heading="Verba ipsorum clientium."
+  />
+
+  <CheckAvailability
+    heading="Join the list."
+    subtext="Lorem ipsum dolor sit amet — voca hodie et videbis quare tantum clientes nos laudent."
+  />
+</Layout>

@@ -1,0 +1,208 @@
+---
+/**
+ * Reviews — single-spotlight pull quote. Used on the location detail pages.
+ *
+ * One review is centered in an editorial pull-quote format with a soft
+ * decorative quotation mark behind it. Dot navigation below cycles through
+ * the set; Prev/Next arrows work with keyboard too. No cards — just big
+ * typography, the stars, and the attribution.
+ *
+ * Reviews are stacked in a CSS grid so the container auto-sizes to the
+ * tallest quote and content doesn't jump when you navigate.
+ */
+import { business } from "@/data/business";
+import GoogleLogo from "@/components/ui/GoogleLogo.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface Review {
+  name: string;
+  rating: number;
+  text: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  rating?: number;
+  total?: number;
+  reviews?: Review[];
+}
+
+const {
+  eyebrow = "Google Reviews",
+  heading = "Voces clientium nostrorum.",
+  rating = business.reviews.rating,
+  total = business.reviews.total,
+  reviews = business.reviews.items,
+} = Astro.props;
+---
+
+<section class="bg-surface py-20 lg:py-28" aria-label="Customer reviews">
+  <div class="max-w-4xl mx-auto px-6 lg:px-10 text-center">
+
+    <!-- Header -->
+    <div class="inline-flex items-center justify-center gap-2.5 mb-4">
+      <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+        {eyebrow}
+      </span>
+      <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+    </div>
+
+    <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+      {heading}
+    </h2>
+
+    <!-- Google rating summary -->
+    <div class="mt-5 inline-flex items-center gap-3">
+      <GoogleLogo class="w-6 h-6" />
+      <span class="font-heading text-xl text-text leading-none">{rating.toFixed(1)}</span>
+      <StarRating ariaLabel={`${rating} out of 5 stars`} />
+      <span class="font-body text-sm text-text-soft">
+        · {total}+ reviews on <span class="font-semibold text-text">Google</span>
+      </span>
+    </div>
+
+    <!-- Spotlight stack — all reviews share one grid cell so the container
+         sizes to the tallest quote and swaps without layout shift. -->
+    <div
+      class="relative mt-14 lg:mt-16 spotlight-stack"
+      data-spotlight
+      role="group"
+      aria-roledescription="carousel"
+      aria-label="Featured reviews"
+    >
+      <!-- Decorative quotation mark behind the quote -->
+      <span
+        class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 font-heading text-[10rem] leading-none text-brand/[0.06] select-none"
+        aria-hidden="true"
+      >
+        &ldquo;
+      </span>
+
+      {reviews.map((review, i) => (
+        <article
+          class="spotlight-item relative transition-opacity duration-300"
+          data-index={i}
+          aria-hidden={i === 0 ? "false" : "true"}
+        >
+          <StarRating count={review.rating} class="flex justify-center gap-1" starClass="w-5 h-5" />
+
+          <!-- Quote -->
+          <blockquote class="mt-6 font-heading text-2xl sm:text-3xl text-text leading-[1.25] text-balance max-w-3xl mx-auto">
+            &ldquo;{review.text}&rdquo;
+          </blockquote>
+
+          <!-- Attribution -->
+          <footer class="mt-8 font-body text-sm">
+            <span class="font-semibold text-text">— {review.name}</span>
+            <span class="text-text-soft">&nbsp;·&nbsp;via Google</span>
+          </footer>
+        </article>
+      ))}
+    </div>
+
+    <!-- Navigation -->
+    <div class="mt-12 flex items-center justify-center gap-5">
+      <button
+        type="button"
+        data-spotlight-prev
+        aria-label="Previous review"
+        class="w-10 h-10 flex items-center justify-center rounded-full border border-border bg-surface text-text-soft hover:text-text hover:border-text/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+
+      <div class="flex items-center gap-2" role="tablist" aria-label="Review indicators">
+        {reviews.map((_, i) => (
+          <button
+            type="button"
+            data-spotlight-dot={i}
+            role="tab"
+            aria-label={`Review ${i + 1} of ${reviews.length}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            class="spotlight-dot w-2 h-2 rounded-full bg-border transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          ></button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        data-spotlight-next
+        aria-label="Next review"
+        class="w-10 h-10 flex items-center justify-center rounded-full border border-border bg-surface text-text-soft hover:text-text hover:border-text/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* Stack all spotlight items in one grid cell so the section sizes to the
+     tallest quote and swapping items never shifts layout below. */
+  .spotlight-stack {
+    display: grid;
+    grid-template-areas: "stack";
+  }
+  .spotlight-stack > .spotlight-item {
+    grid-area: stack;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .spotlight-stack > .spotlight-item[data-active] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .spotlight-dot[aria-selected="true"] {
+    background-color: var(--color-brand);
+    width: 1.5rem;
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-spotlight]");
+  if (root) {
+    const items = [...root.querySelectorAll<HTMLElement>(".spotlight-item")];
+    const dots = [...document.querySelectorAll<HTMLElement>("[data-spotlight-dot]")];
+    const prev = document.querySelector<HTMLElement>("[data-spotlight-prev]");
+    const next = document.querySelector<HTMLElement>("[data-spotlight-next]");
+    const total = items.length;
+    let current = 0;
+
+    function go(index: number) {
+      current = ((index % total) + total) % total;
+      items.forEach((item, i) => {
+        const active = i === current;
+        if (active) item.setAttribute("data-active", "");
+        else item.removeAttribute("data-active");
+        item.setAttribute("aria-hidden", active ? "false" : "true");
+      });
+      dots.forEach((dot, i) => {
+        dot.setAttribute("aria-selected", i === current ? "true" : "false");
+      });
+    }
+
+    prev?.addEventListener("click", () => go(current - 1));
+    next?.addEventListener("click", () => go(current + 1));
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => go(i));
+    });
+
+    // Left/right arrow keys navigate when any control in the group has focus
+    root.parentElement?.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") { e.preventDefault(); go(current - 1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); go(current + 1); }
+    });
+
+    // Kick things off
+    go(0);
+  }
+</script>

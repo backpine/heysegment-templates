@@ -1,0 +1,25 @@
+---
+/**
+ * Home page — the canonical composition for every site that ships on this
+ * template. Sections read from src/data/business.ts so re-skinning a site
+ * is a single-file swap.
+ */
+import Layout from "@/layouts/Layout.astro";
+import Hero from "@/components/home/Hero.astro";
+import PopularServices from "@/components/home/PopularServices.astro";
+import ReviewsMasonry from "@/components/reviews/ReviewsMasonry.astro";
+import WhyUs from "@/components/home/WhyUs.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`${business.name} — ${business.tagline}`}
+  description={business.tagline}
+>
+  <Hero />
+  <PopularServices />
+  <ReviewsMasonry />
+  <WhyUs />
+  <FAQ />
+</Layout>

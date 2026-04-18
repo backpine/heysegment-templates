@@ -1,0 +1,114 @@
+---
+/**
+ * Reason to choose us — editorial two-up spread.
+ *
+ * Left column: eyebrow, heading, body, a placeholder image for the team or
+ * workshop, then a CTA. Right column: a numbered vertical list of reasons,
+ * each separated only by a hairline — no cards, no icon noise, just rhythm.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Feature {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  body?: string;
+  features?: Feature[];
+  ctaHref?: string;
+  ctaLabel?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  imageLabel?: string;
+}
+
+const {
+  eyebrow = business.whyChooseUs.eyebrow,
+  heading = business.whyChooseUs.heading,
+  body = business.whyChooseUs.body,
+  features = business.whyChooseUs.features,
+  ctaHref = business.ctaHref,
+  ctaLabel = "Talk to us today",
+  imageSrc,
+  imageAlt = "Our team at work",
+  imageLabel = "Team Photo",
+} = Astro.props;
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start">
+
+      <!-- LEFT: statement + image placeholder + CTA -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
+          {heading}
+        </h2>
+
+        <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-lg">
+          {body}
+        </p>
+
+        <!-- Image placeholder -->
+        <div class="mt-10">
+          <ImagePlaceholder
+            aspect="4/3"
+            imageSrc={imageSrc}
+            imageAlt={imageAlt}
+            label={imageLabel}
+            hint="A photo of your team, shop, or crew on-site fits here."
+            bloomPosition="br"
+          />
+        </div>
+      </div>
+
+      <!-- RIGHT: numbered list + centered CTA below -->
+      <div class="lg:pt-2">
+        <ol role="list">
+          {features.map((feature, i) => (
+            <li class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 py-7 border-t border-border first:border-t-0 lg:first:border-t lg:first:pt-7">
+              <span
+                class="font-heading text-xl text-brand leading-none pt-1.5 tabular-nums"
+                aria-hidden="true"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="font-heading text-xl text-text leading-snug">
+                {feature.title}
+              </h3>
+              <p class="col-start-2 font-body text-base text-text-soft leading-relaxed">
+                {feature.description}
+              </p>
+            </li>
+          ))}
+        </ol>
+
+        <div class="mt-10 flex justify-center">
+          <a
+            href={ctaHref}
+            class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand hover:gap-3 transition-all duration-150"
+          >
+            {ctaLabel}
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

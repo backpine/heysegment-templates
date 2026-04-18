@@ -1,0 +1,539 @@
+---
+/**
+ * Floating pill navbar — persists across every page via Layout.astro.
+ *
+ * Supports two kinds of nav items:
+ *   - Simple link:      { label, href }
+ *   - Dropdown parent:  { label, href, children: [{ label, href }, ...] }
+ *
+ * Responsive tiers:
+ *   lg  (>=1024) — Logo + name | centered nav | phone + CTA (all in pill)
+ *   md  (>=768)  — Logo + name | right-aligned nav | floating bottom pill
+ *   <md          — Logo        | hamburger          | floating bottom pill
+ *
+ * See LAYOUT CONTRACT in component-lab nav-002.astro for clearance rules.
+ */
+import { business } from "@/data/business";
+
+interface NavChild {
+  label: string;
+  href: string;
+}
+interface NavLink {
+  label: string;
+  href: string;
+  children?: NavChild[];
+}
+
+interface Props {
+  businessName?: string;
+  phone?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+  links?: NavLink[];
+}
+
+const {
+  businessName = business.name,
+  phone = business.phone,
+  ctaHref = business.ctaHref,
+  ctaLabel = business.ctaLabel,
+  links = business.nav,
+} = Astro.props;
+
+const phoneHref = "tel:+1" + phone.replace(/\D/g, "");
+
+// Stable IDs for aria-controls wiring. Index is fine — order is stable
+// within a single render.
+const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
+---
+
+<!-- Skip link -->
+<a
+  href="#main-content"
+  class="fixed top-0 left-0 z-[100] -translate-y-full bg-brand text-brand-fg text-sm font-semibold px-5 py-3 rounded-br-lg focus:translate-y-0 transition-transform"
+>
+  Skip to main content
+</a>
+
+<!-- Floating pill navbar -->
+<div class="fixed top-3 inset-x-0 z-50 px-3 sm:px-5 lg:px-8">
+  <header
+    data-navbar
+    class="mx-auto max-w-6xl bg-surface/75 backdrop-blur-xl rounded-2xl border border-border/30 shadow-sm transition-all duration-300 data-[scrolled]:bg-surface/92 data-[scrolled]:border-border/60 data-[scrolled]:shadow-md"
+  >
+    <div class="px-4 sm:px-5">
+      <div class="flex items-center h-14">
+
+        <!-- Logo + business name -->
+        <a
+          href="/"
+          class="flex items-center gap-2.5 shrink-0 lg:flex-1 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand rounded-sm"
+          aria-label={`${businessName} — Home`}
+        >
+          <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
+            <svg class="w-[18px] h-[18px] text-brand-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <span class="font-heading text-lg text-text">
+            {businessName}
+          </span>
+        </a>
+
+        <!-- Desktop / tablet nav -->
+        <nav
+          class="hidden md:flex items-center gap-0.5 md:ml-auto lg:ml-0"
+          aria-label="Main navigation"
+        >
+          {links.map((link, i) => (
+            link.children && link.children.length > 0 ? (
+              <div class="relative" data-dropdown>
+                <button
+                  type="button"
+                  data-dropdown-trigger
+                  aria-expanded="false"
+                  aria-controls={idFor("desk", i)}
+                  class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {link.label}
+                  <svg data-dropdown-chevron class="w-4 h-4 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+                <div
+                  id={idFor("desk", i)}
+                  data-dropdown-menu
+                  class="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 invisible -translate-y-1 pointer-events-none transition-all duration-150"
+                >
+                  <div class="w-56 bg-surface/95 backdrop-blur-xl rounded-xl border border-border/50 shadow-lg p-1.5">
+                    {link.children.map((child) => (
+                      <a
+                        href={child.href}
+                        class="block px-3 py-2.5 text-sm text-text-soft rounded-lg hover:bg-brand-tint hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <a
+                href={link.href}
+                class="px-3 py-1.5 text-sm font-medium text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              >
+                {link.label}
+              </a>
+            )
+          ))}
+        </nav>
+
+        <!-- Desktop phone + CTA — shrink-0 on each so they keep their natural
+             width when the center nav gets wide. whitespace-nowrap keeps the
+             phone number and CTA label on a single line inside each pill. -->
+        <div class="hidden lg:flex items-center gap-2.5 lg:flex-1 justify-end min-w-0">
+          <a
+            href={phoneHref}
+            class="inline-flex items-center gap-2 shrink-0 px-3 py-1.5 text-sm font-medium text-text-soft whitespace-nowrap rounded-full hover:text-text hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+            </svg>
+            {phone}
+          </a>
+          <a
+            href={ctaHref}
+            class="shrink-0 bg-brand text-brand-fg text-sm font-semibold px-5 py-2 whitespace-nowrap rounded-full hover:bg-brand/90 active:bg-brand/80 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            {ctaLabel}
+          </a>
+        </div>
+
+        <!-- Hamburger (mobile only) -->
+        <button
+          type="button"
+          data-menu-toggle
+          class="md:hidden ml-auto -mr-1 w-10 h-10 flex items-center justify-center rounded-full text-text hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          aria-expanded="false"
+          aria-controls="nav-mobile-menu"
+          aria-label="Open navigation menu"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+</div>
+
+<!-- Mobile slide-out menu -->
+<div
+  id="nav-mobile-menu"
+  data-mobile-menu
+  class="fixed inset-0 z-[60]"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation menu"
+  hidden
+  inert
+>
+  <div
+    data-menu-backdrop
+    class="absolute inset-0 bg-text/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+  ></div>
+
+  <aside
+    data-menu-panel
+    class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-surface shadow-xl translate-x-full transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-y-auto overscroll-contain"
+  >
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-heading text-lg text-text">Menu</span>
+        <button
+          type="button"
+          data-menu-close
+          class="w-11 h-11 flex items-center justify-center rounded-full text-text-soft hover:text-text hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          aria-label="Close navigation menu"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav aria-label="Mobile navigation">
+        <ul class="space-y-1" role="list">
+          {links.map((link, i) => (
+            link.children && link.children.length > 0 ? (
+              <li>
+                <button
+                  type="button"
+                  data-accordion-trigger
+                  aria-expanded="false"
+                  aria-controls={idFor("mob", i)}
+                  class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-text rounded-lg hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {link.label}
+                  <svg data-accordion-chevron class="w-5 h-5 text-text-soft transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+                <div id={idFor("mob", i)} data-accordion-panel aria-hidden="true">
+                  <div>
+                    <ul class="pl-3 pb-1 space-y-0.5" role="list">
+                      {link.children.map((child) => (
+                        <li>
+                          <a href={child.href} class="block px-3 py-2.5 text-sm text-text-soft rounded-lg hover:bg-brand-tint hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                            {child.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a
+                  href={link.href}
+                  class="block px-3 py-3 text-base font-medium text-text rounded-lg hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {link.label}
+                </a>
+              </li>
+            )
+          ))}
+        </ul>
+      </nav>
+
+      <div class="mt-6 pt-6 border-t border-border">
+        <a
+          href={phoneHref}
+          class="flex items-center gap-3 px-3 py-3 text-base font-medium text-text rounded-lg hover:bg-text/5 transition-colors"
+        >
+          <svg class="w-5 h-5 text-brand" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+          </svg>
+          {phone}
+        </a>
+        <a
+          href={ctaHref}
+          class="mt-3 flex items-center justify-center bg-brand text-brand-fg text-sm font-semibold px-5 py-3 rounded-md hover:bg-brand/90 transition-colors"
+        >
+          {ctaLabel}
+        </a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Floating bottom pill (tablet + mobile) -->
+<div
+  data-floating-bar
+  class="fixed bottom-3 inset-x-0 z-40 px-3 sm:px-5 lg:hidden"
+  style="padding-bottom: env(safe-area-inset-bottom, 0px);"
+>
+  <div class="mx-auto max-w-md bg-brand/90 backdrop-blur-lg rounded-2xl shadow-lg border border-brand-fg/10">
+    <div class="px-4 py-3 flex items-center gap-4">
+      <a
+        href={phoneHref}
+        class="inline-flex items-center gap-2.5 text-sm font-medium text-brand-fg/90 hover:text-brand-fg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg rounded-sm"
+      >
+        <span class="w-9 h-9 rounded-full bg-brand-fg/15 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-brand-fg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        {phone}
+      </a>
+      <a
+        href={ctaHref}
+        class="ml-auto bg-surface text-brand text-sm font-bold px-6 py-2.5 rounded-full hover:bg-surface/90 active:bg-surface/80 transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg"
+      >
+        {ctaLabel}
+      </a>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  [data-accordion-panel] {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms ease;
+  }
+  [data-accordion-panel][data-open] {
+    grid-template-rows: 1fr;
+  }
+  [data-accordion-panel] > * {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-dropdown-menu],
+    [data-menu-panel],
+    [data-menu-backdrop],
+    [data-accordion-panel],
+    [data-dropdown-chevron],
+    [data-accordion-chevron] {
+      transition-duration: 0s !important;
+    }
+  }
+</style>
+
+<script>
+  function trapFocus(container: HTMLElement) {
+    const sel =
+      'a[href]:not([hidden]):not([inert]), button:not([disabled]):not([hidden]):not([inert]), [tabindex]:not([tabindex="-1"]):not([hidden]):not([inert])';
+
+    function handler(e: KeyboardEvent) {
+      if (e.key !== "Tab") return;
+      const focusables = [...container.querySelectorAll<HTMLElement>(sel)].filter(
+        (el) => el.offsetParent !== null
+      );
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    container.addEventListener("keydown", handler);
+    return () => container.removeEventListener("keydown", handler);
+  }
+
+  // ---------------------------------------------------------------
+  // Desktop / tablet dropdowns
+  // ---------------------------------------------------------------
+  const dropdowns = document.querySelectorAll<HTMLElement>("[data-dropdown]");
+
+  function closeDropdown(dd: HTMLElement) {
+    dd.removeAttribute("data-open");
+    const t = dd.querySelector<HTMLElement>("[data-dropdown-trigger]");
+    const m = dd.querySelector<HTMLElement>("[data-dropdown-menu]");
+    const c = dd.querySelector<HTMLElement>("[data-dropdown-chevron]");
+    if (t) t.setAttribute("aria-expanded", "false");
+    if (m) {
+      m.classList.add("opacity-0", "invisible", "-translate-y-1", "pointer-events-none");
+      m.classList.remove("opacity-100", "visible", "translate-y-0", "pointer-events-auto");
+    }
+    if (c) c.style.transform = "";
+  }
+
+  dropdowns.forEach((dropdown) => {
+    const trigger = dropdown.querySelector<HTMLElement>("[data-dropdown-trigger]");
+    if (!trigger) return;
+    const triggerEl = trigger;
+    const menu = dropdown.querySelector<HTMLElement>("[data-dropdown-menu]");
+    const chevron = dropdown.querySelector<HTMLElement>("[data-dropdown-chevron]");
+    const menuLinks = menu ? [...menu.querySelectorAll<HTMLAnchorElement>("a")] : [];
+    let hoverTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function open() {
+      clearTimeout(hoverTimer);
+      dropdowns.forEach((d) => { if (d !== dropdown) closeDropdown(d); });
+      dropdown.setAttribute("data-open", "");
+      triggerEl.setAttribute("aria-expanded", "true");
+      if (menu) {
+        menu.classList.remove("opacity-0", "invisible", "-translate-y-1", "pointer-events-none");
+        menu.classList.add("opacity-100", "visible", "translate-y-0", "pointer-events-auto");
+      }
+      if (chevron) chevron.style.transform = "rotate(180deg)";
+    }
+
+    function close() {
+      hoverTimer = setTimeout(() => closeDropdown(dropdown), 150);
+    }
+
+    dropdown.addEventListener("mouseenter", open);
+    dropdown.addEventListener("mouseleave", close);
+
+    trigger.addEventListener("click", (e: MouseEvent) => {
+      e.stopPropagation();
+      triggerEl.getAttribute("aria-expanded") === "true" ? closeDropdown(dropdown) : open();
+    });
+
+    trigger.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        triggerEl.getAttribute("aria-expanded") === "true" ? closeDropdown(dropdown) : open();
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        open();
+        menuLinks[0]?.focus();
+      }
+      if (e.key === "Escape") {
+        closeDropdown(dropdown);
+        triggerEl.focus();
+      }
+    });
+
+    menuLinks.forEach((link, i) => {
+      link.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          menuLinks[(i + 1) % menuLinks.length].focus();
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          menuLinks[(i - 1 + menuLinks.length) % menuLinks.length].focus();
+        } else if (e.key === "Escape") {
+          closeDropdown(dropdown);
+          triggerEl.focus();
+        }
+      });
+    });
+  });
+
+  document.addEventListener("click", (e: MouseEvent) => {
+    const target = e.target;
+    dropdowns.forEach((dd) => {
+      if (!(target instanceof Node) || !dd.contains(target)) closeDropdown(dd);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Mobile slide-out menu
+  // ---------------------------------------------------------------
+  const menuToggle = document.querySelector<HTMLElement>("[data-menu-toggle]");
+  const mobileMenu = document.querySelector<HTMLElement>("[data-mobile-menu]");
+  const menuPanel = mobileMenu?.querySelector<HTMLElement>("[data-menu-panel]") ?? null;
+  const menuClose = mobileMenu?.querySelector<HTMLElement>("[data-menu-close]") ?? null;
+  const menuBackdrop = mobileMenu?.querySelector<HTMLElement>("[data-menu-backdrop]") ?? null;
+  let removeTrap: (() => void) | null = null;
+
+  function openMobileMenu() {
+    if (!mobileMenu || !menuPanel || !menuBackdrop || !menuToggle) return;
+    mobileMenu.removeAttribute("hidden");
+    mobileMenu.removeAttribute("inert");
+    void mobileMenu.offsetHeight;
+    menuPanel.classList.remove("translate-x-full");
+    menuPanel.classList.add("translate-x-0");
+    menuBackdrop.classList.remove("opacity-0");
+    menuBackdrop.classList.add("opacity-100");
+    menuToggle.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+    menuClose?.focus();
+    removeTrap = trapFocus(mobileMenu);
+  }
+
+  function closeMobileMenu() {
+    if (!mobileMenu || !menuPanel || !menuBackdrop || !menuToggle) return;
+    menuPanel.classList.remove("translate-x-0");
+    menuPanel.classList.add("translate-x-full");
+    menuBackdrop.classList.remove("opacity-100");
+    menuBackdrop.classList.add("opacity-0");
+    menuToggle.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+    if (removeTrap) { removeTrap(); removeTrap = null; }
+    menuToggle.focus();
+    setTimeout(() => {
+      if (menuToggle.getAttribute("aria-expanded") !== "true") {
+        mobileMenu.setAttribute("hidden", "");
+        mobileMenu.setAttribute("inert", "");
+      }
+    }, 350);
+  }
+
+  menuToggle?.addEventListener("click", openMobileMenu);
+  menuClose?.addEventListener("click", closeMobileMenu);
+  menuBackdrop?.addEventListener("click", closeMobileMenu);
+
+  // ---------------------------------------------------------------
+  // Mobile accordions
+  // ---------------------------------------------------------------
+  document.querySelectorAll<HTMLElement>("[data-accordion-trigger]").forEach((trigger) => {
+    const panelId = trigger.getAttribute("aria-controls");
+    const panel = panelId ? document.getElementById(panelId) : null;
+    const chevron = trigger.querySelector<HTMLElement>("[data-accordion-chevron]");
+
+    trigger.addEventListener("click", () => {
+      const isOpen = trigger.getAttribute("aria-expanded") === "true";
+      trigger.setAttribute("aria-expanded", String(!isOpen));
+
+      if (panel) {
+        if (isOpen) {
+          panel.removeAttribute("data-open");
+          panel.setAttribute("aria-hidden", "true");
+        } else {
+          panel.setAttribute("data-open", "");
+          panel.setAttribute("aria-hidden", "false");
+        }
+      }
+      if (chevron) {
+        chevron.style.transform = isOpen ? "" : "rotate(180deg)";
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key === "Escape" && menuToggle?.getAttribute("aria-expanded") === "true") {
+      closeMobileMenu();
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Scroll detection — solidify floating pill on scroll
+  // ---------------------------------------------------------------
+  const header = document.querySelector<HTMLElement>("[data-navbar]");
+  if (header) {
+    const onScroll = () => {
+      header.toggleAttribute("data-scrolled", window.scrollY > 10);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+</script>

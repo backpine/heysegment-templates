@@ -1,0 +1,94 @@
+---
+/**
+ * 404 — themed not-found page.
+ *
+ * Uses Layout so Nav + Footer render around it. Owns its own nav clearance
+ * (pt-28 lg:pt-36) like every other top-of-page section per the layout
+ * contract. No image placeholder — a 404 should feel clean and direct, not
+ * decorative.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// Quick links back into the site — mirror the primary nav entries so
+// visitors land somewhere useful regardless of why the URL broke.
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "Services", href: "/services" },
+  { label: "Service Area", href: "/service-area" },
+  { label: "Reviews", href: "/reviews" },
+  { label: "FAQ", href: "/faq" },
+];
+---
+
+<Layout
+  title={`Page not found — ${business.name}`}
+  description="The page you're looking for isn't here."
+  robots="noindex"
+>
+  <section class="relative bg-surface">
+    <div class="relative max-w-3xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-20 lg:pb-28 min-h-[70vh] flex flex-col items-center justify-center text-center">
+
+      <!-- Oversized 404 numeral -->
+      <p
+        class="font-heading text-[6rem] sm:text-[8rem] lg:text-[10rem] leading-none text-brand tracking-tight select-none"
+        aria-hidden="true"
+      >
+        404
+      </p>
+
+      <div class="inline-flex items-center gap-2.5 mt-6">
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+          Page not found
+        </span>
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      </div>
+
+      <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl text-text leading-[1.05] tracking-tight mt-5">
+        Haec pagina migravit.
+      </h1>
+
+      <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-xl">
+        Lorem ipsum dolor sit amet — non invenimus quod quaerebas. Forsan URL mutatus est, forsan pagina abiit. Tentate unum ex liquidis infra, aut voca nos.
+      </p>
+
+      <!-- Quick links -->
+      <nav aria-label="Site navigation" class="mt-10">
+        <ul class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3" role="list">
+          {quickLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="inline-flex items-center font-body text-sm font-semibold text-text hover:text-brand transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand rounded-sm"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <!-- Phone CTA -->
+      <div class="mt-12 pt-8 border-t border-border w-full max-w-sm">
+        <p class="font-body text-sm text-text-soft">
+          Or reach the team directly:
+        </p>
+        <a
+          href={phoneHref}
+          class="inline-flex items-center gap-2 mt-3 bg-brand text-brand-fg font-body font-semibold text-sm px-5 py-3 rounded-md hover:bg-brand/90 transition-colors"
+        >
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+          </svg>
+          Call {business.phone}
+        </a>
+      </div>
+
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,26 @@
+---
+/**
+ * Service area page — where the business operates.
+ *
+ * Nav and Footer come from Layout.astro automatically. Sections read from
+ * src/data/business.ts so swapping a site is a single-file change.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import PageHeader from "@/components/service-area/PageHeader.astro";
+import ServiceMap from "@/components/service-area/ServiceMap.astro";
+import CoverageDetails from "@/components/service-area/CoverageDetails.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`Service Area — ${business.name}`}
+  description={`Cities served by ${business.name}, coverage map, and what to expect.`}
+>
+  <PageHeader />
+  <ServiceMap />
+  <CoverageDetails />
+  <CheckAvailability />
+</Layout>

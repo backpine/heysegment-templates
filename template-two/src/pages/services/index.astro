@@ -1,0 +1,34 @@
+---
+/**
+ * Services overview page — catalog of every service we offer.
+ *
+ * Nav + Footer come from Layout automatically. Section rhythm alternates
+ * surface → bg → surface → bg so the dark footer finishes the page cleanly.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import ServicesHeader from "@/components/services/ServicesHeader.astro";
+import ServicesList from "@/components/services/ServicesList.astro";
+import HowWeWork from "@/components/services/HowWeWork.astro";
+import ReviewsMarquee from "@/components/reviews/ReviewsMarquee.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`Services — ${business.name}`}
+  description={`Every service offered by ${business.name}. Licensed, insured, and backed by a 1-year guarantee.`}
+>
+  <ServicesHeader />
+  <ServicesList />
+  <HowWeWork />
+  <ReviewsMarquee
+    eyebrow="Work We've Done"
+    heading="Quid clientes de opere nostro dicunt."
+  />
+  <CheckAvailability
+    heading="Don't see the service you need?"
+    subtext="Lorem ipsum dolor sit amet — give us a call and we'll tell you whether it's in our wheelhouse."
+  />
+</Layout>

@@ -1,0 +1,28 @@
+---
+/**
+ * FAQ page — full categorized question list.
+ *
+ * FAQHeader opens with stats + framing, FAQList renders every category
+ * from business.faqs using native <details>/<summary> (zero JS),
+ * CheckAvailability closes with the phone/contact CTA.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import FAQHeader from "@/components/faq/FAQHeader.astro";
+import FAQList from "@/components/faq/FAQList.astro";
+import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import { business } from "@/data/business";
+---
+
+<Layout
+  title={`FAQ — ${business.name}`}
+  description={`Answers to the most common questions about ${business.name}.`}
+>
+  <FAQHeader />
+  <FAQList />
+  <CheckAvailability
+    heading="Still have questions?"
+    subtext="Lorem ipsum dolor sit amet — phones answered in under an hour during business hours, often in minutes."
+  />
+</Layout>

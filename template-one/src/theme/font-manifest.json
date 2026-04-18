@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "provider": "google",
+  "body": {
+    "name": "Inter",
+    "weights": [400, 500, 600, 700],
+    "fallback": ["system-ui", "sans-serif"],
+    "cssVariable": "--font-provider-body"
+  },
+  "heading": {
+    "name": "DM Serif Display",
+    "weights": [400],
+    "fallback": ["Georgia", "serif"],
+    "cssVariable": "--font-provider-heading"
+  }
+}
