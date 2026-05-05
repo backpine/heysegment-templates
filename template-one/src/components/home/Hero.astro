@@ -1,125 +1,325 @@
 ---
 /**
- * Hero — image on the right, copy on the left.
+ * Hero, full-bleed background photo with dark overlay.
  *
- * The image column renders an obvious placeholder that makes it clear where
- * a real photo should go. Local-business sites live or die on strong imagery.
+ * Two layout variants, controlled by `showForm`:
+ *
+ *   showForm = false (default) , single-column, headline + tagline +
+ *                                trust markers + primary CTA pill.
+ *
+ *   showForm = true            , two-column on lg+, headline + tagline +
+ *                                trust markers LEFT, compact "Get a
+ *                                Free Quote" form RIGHT. Primary CTA
+ *                                pill is OMITTED in this mode because
+ *                                the form is the CTA. Use this on the
+ *                                home page to maximize conversion off
+ *                                the hero image.
+ *
+ * H1 STRATEGY (compact, local-SEO-optimized):
+ *   The H1 is rendered as a small "pill" badge near the top of the hero,
+ *   NOT a giant headline. It contains the local-SEO keyword pattern
+ *   ("Top Rated [Service] in [City], [State]") so Google reads the right
+ *   keywords, but visually it's compact, freeing the main visual space
+ *   for the brand-emotional tagline.
+ *
+ *   This keeps the hero short while still ranking the page locally.
+ *
+ * The big visual element is the brand tagline, rendered as a styled <p>.
+ * Trust markers row includes the review-count badge.
  */
 import { business } from "@/data/business";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
 
-interface Stat {
-  value: string;
+interface TrustMarker {
   label: string;
 }
 
 interface Props {
-  eyebrow?: string;
-  headline?: string;
-  subtext?: string;
+  /** H1 (rendered as a compact pill). Pattern: "Top Rated [Service] in [City], [State]". */
+  h1Pill?: string;
+  /** Big visual tagline beneath the H1, the emotional hook. */
+  tagline?: string;
   primaryCta?: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  stats?: Stat[];
-  imageSrc?: string;
-  imageAlt?: string;
-  imageLabel?: string;
+  trustMarkers?: TrustMarker[];
+  backgroundImage?: string | null;
+  /** Placeholder note shown when no backgroundImage is supplied. */
+  placeholderHint?: string;
+  /** When true, splits the hero into headline-LEFT + form-RIGHT layout
+   *  and OMITS the primary CTA pill (the form replaces it). */
+  showForm?: boolean;
+  /** Form post target for the quote form, defaults to "#". */
+  formAction?: string;
 }
 
+const primaryCategory = business.services.find((s) => s.tier === "category");
+const city = business.address?.city;
+const state = business.address?.state;
+const reviewTotal = business.reviews?.total ?? 0;
+
+// Default H1 pill, combines a superlative + service + city/state into one
+// SEO-rich line.
+const defaultH1Service = primaryCategory?.name ?? "Exterior Cleaning";
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+const defaultH1Pill = `Top Rated ${defaultH1Service} in ${cityState}`;
+
 const {
-  eyebrow = "Licensed · Insured · Local",
-  headline = "Lorem ipsum dolor sit amet consectetur.",
-  subtext = "Adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
-  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
-  secondaryCta = { label: "View Services", href: "/services" },
-  stats = business.stats.slice(0, 3),
-  imageSrc,
-  imageAlt = "Business hero image",
-  imageLabel = "Hero Image",
+  h1Pill = defaultH1Pill,
+  tagline = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  primaryCta = { label: "Get A Fast Quote", href: business.ctaHref },
+  trustMarkers = (business as { heroTrust?: TrustMarker[] }).heroTrust ?? [
+    { label: "Trust Signal 1" },
+    { label: "Trust Signal 2" },
+    { label: "Trust Signal 3" },
+    { label: "Trust Signal 4" },
+  ],
+  backgroundImage = null,
+  placeholderHint = "Wide hero photo, technician at work on a home exterior, sky background, golden-hour light",
+  showForm = false,
+  formAction = "#",
 } = Astro.props;
 
-const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+// Service options pulled from business categories so the form dropdown
+// auto-stays in sync with the rest of the site.
+const serviceOptions = business.services
+  .filter((s) => s.tier === "category")
+  .map((s) => ({ value: s.slug, label: s.name }));
 ---
 
-<section class="relative overflow-hidden bg-surface">
-  <!-- Ambient brand glow — ties copy and image together visually -->
+<section class="relative bg-text overflow-hidden isolate">
+
+  {/* Background image OR placeholder */}
+  {backgroundImage ? (
+    <img
+      src={backgroundImage}
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover z-0"
+      aria-hidden="true"
+    />
+  ) : (
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          HERO BACKGROUND
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          {placeholderHint}
+        </p>
+      </div>
+    </div>
+  )}
+
+  {/* Dark gradient overlay so copy stays readable */}
   <div
-    class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
+    class="absolute inset-0 z-10 bg-gradient-to-r from-text/90 via-text/65 to-text/30"
     aria-hidden="true"
   ></div>
 
-  {/* Top padding clears the floating nav pill (~4.25rem) + breathing room.
-      The section's bg-surface paints the whole area, so the translucent pill
-      floats over the hero cleanly — no color break at the top of the page. */}
-  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-16 lg:pb-24">
-    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+  {/* Content. With form, bottom padding shrinks because the form fills
+      out the hero vertical space, no need for extra teal padding below. */}
+  <div
+    class:list={[
+      "relative z-20 max-w-7xl mx-auto px-6 lg:px-10",
+      showForm
+        ? "pt-32 lg:pt-40 pb-24 lg:pb-28"
+        : "pt-40 lg:pt-56 pb-28 lg:pb-40",
+    ]}
+  >
+    <div class:list={showForm ? "grid lg:grid-cols-12 gap-10 lg:gap-12 items-center" : ""}>
 
-      <!-- Copy -->
-      <div class="lg:col-span-6">
+      {/* LEFT col (or full width when no form) */}
+      <div class:list={showForm ? "lg:col-span-7" : "max-w-3xl"}>
 
-        {eyebrow && (
-          <div class="inline-flex items-center gap-2.5 mb-6">
-            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
-            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
-              {eyebrow}
-            </span>
+        {/* H1 rendered as a compact pill, local SEO keyword + visual badge.
+            This IS the page H1 element semantically; it's just styled small. */}
+        <h1
+          class="inline-block bg-brand text-brand-fg font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-pill shadow-md mb-6"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {h1Pill}
+        </h1>
+
+        {/* Brand-emotional tagline, the big visual element. */}
+        <p
+          class:list={[
+            "font-heading font-extrabold text-brand-fg leading-[1.05] tracking-tight",
+            showForm
+              ? "text-3xl sm:text-4xl lg:text-5xl"
+              : "text-4xl sm:text-5xl lg:text-6xl",
+          ]}
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="100"
+        >
+          {tagline.split(" REVIVE ").length > 1 ? (
+            <>
+              {tagline.split(" REVIVE ")[0]}{" "}
+              <span class="text-brand italic">REVIVE</span>{" "}
+              {tagline.split(" REVIVE ")[1]}
+            </>
+          ) : (
+            tagline
+          )}
+        </p>
+
+        {/* Trust markers, 4 consistent checkbox pills in a 2x2 grid. */}
+        <ul
+          class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-xl"
+          role="list"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {trustMarkers.map((marker) => (
+            <li class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand-fg whitespace-nowrap">
+              <svg
+                class="w-5 h-5 text-brand shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              {marker.label}
+            </li>
+          ))}
+        </ul>
+
+        {/* Primary CTA pill, ONLY when there's no form, otherwise the
+            form is the conversion target and a button next to it would
+            create a redundant double-CTA. */}
+        {!showForm && (
+          <div class="mt-8" data-reveal data-reveal-from="up" data-reveal-delay="400">
+            <a
+              href={primaryCta.href}
+              class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
+            >
+              {primaryCta.label}
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
           </div>
         )}
 
-        <h1 class="font-heading text-3xl sm:text-4xl lg:text-hero text-text leading-[1.05] tracking-tight">
-          {headline}
-        </h1>
+      </div>
 
-        <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-xl">
-          {subtext}
-        </p>
+      {/* RIGHT col, compact "small but mighty" quote form. Only when
+          showForm=true. Designed to read as a conversion card sitting
+          on top of the hero photo, not a sidebar block of text. */}
+      {showForm && (
+        <div
+          class="lg:col-span-5 mt-10 lg:mt-0"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          <form
+            action={formAction}
+            method="post"
+            class="bg-surface rounded-2xl shadow-2xl ring-1 ring-border p-5 lg:p-6"
+            aria-label="Get a free quote"
+          >
+            {/* Form heading, centered. Eyebrow removed, the H2 + subhead
+                are enough to introduce the form without stacking three
+                lines of text. */}
+            <div class="mb-5 text-center">
+              <h2 class="font-heading font-extrabold text-2xl lg:text-3xl text-text leading-tight">
+                Get A Free Quote
+              </h2>
+              <p class="font-body text-sm text-text-soft mt-1.5">
+                Same-day response, usually within an hour.
+              </p>
+            </div>
 
-        <!-- CTAs -->
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-9">
-          <a
-            href={primaryCta.href}
-            class="inline-flex items-center justify-center gap-2 bg-brand text-brand-fg font-body font-semibold text-base px-6 py-3.5 rounded-md shadow-sm hover:bg-brand/90 transition-colors"
-          >
-            {primaryCta.label}
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </a>
-          <a
-            href={phoneHref}
-            class="inline-flex items-center gap-2 font-body font-semibold text-text underline decoration-brand decoration-2 underline-offset-[6px] hover:decoration-brand/60 transition-colors"
-          >
-            <svg class="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            Call {business.phone}
-          </a>
+            <div class="space-y-2.5">
+              <!-- Full Name -->
+              <label class="block">
+                <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+                  Full Name <span class="text-brand">*</span>
+                </span>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  autocomplete="name"
+                  placeholder="Your full name"
+                  class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+                />
+              </label>
+
+              <!-- Phone -->
+              <label class="block">
+                <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+                  Phone <span class="text-brand">*</span>
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  autocomplete="tel"
+                  placeholder="(555) 555-5555"
+                  class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+                />
+              </label>
+
+              <!-- Service Needed -->
+              <label class="block">
+                <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+                  Service Needed
+                </span>
+                <select
+                  name="service"
+                  class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3 py-2 text-base text-text focus:ring-2 focus:ring-brand focus:outline-none transition-shadow appearance-none bg-[url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2364748b%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em_1.25em] pr-10"
+                >
+                  <option value="" disabled selected>Choose a service…</option>
+                  {serviceOptions.map((opt) => (
+                    <option value={opt.value}>{opt.label}</option>
+                  ))}
+                  <option value="not-sure">Not sure yet</option>
+                </select>
+              </label>
+
+              <!-- Short message / details -->
+              <label class="block">
+                <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+                  What do you need?
+                </span>
+                <textarea
+                  name="message"
+                  rows="2"
+                  placeholder="Briefly describe what you're looking for"
+                  class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow resize-y"
+                ></textarea>
+              </label>
+            </div>
+
+            <!-- SMS consent -->
+            <label class="flex items-start gap-2.5 mt-4 cursor-pointer">
+              <input
+                type="checkbox"
+                name="sms_consent"
+                value="yes"
+                class="mt-0.5 w-4 h-4 rounded text-brand border-border focus:ring-2 focus:ring-brand cursor-pointer shrink-0"
+              />
+              <span class="font-body text-xs text-text-soft leading-snug">
+                I agree to receive SMS messages from {business.name} about my quote. Reply STOP to opt out.
+              </span>
+            </label>
+
+            <!-- Submit, slightly larger so it reads as the primary
+                 page CTA, not just a form footer. -->
+            <button
+              type="submit"
+              class="mt-5 w-full inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-7 py-4 rounded-pill shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all"
+            >
+              Send My Quote Request
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
+          </form>
         </div>
-
-        <!-- Stats row — plain text, no cards -->
-        {stats.length > 0 && (
-          <dl class="mt-12 pt-8 border-t border-border flex flex-wrap gap-x-10 gap-y-5">
-            {stats.map((stat) => (
-              <div>
-                <dt class="font-heading text-2xl text-text leading-none">{stat.value}</dt>
-                <dd class="font-body text-sm text-text-soft mt-2">{stat.label}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-
-      </div>
-
-      <!-- Image placeholder — clearly shows where a real photo goes -->
-      <div class="lg:col-span-6">
-        <ImagePlaceholder
-          aspect="5/4"
-          imageSrc={imageSrc}
-          imageAlt={imageAlt}
-          label={imageLabel}
-          hint="A photo of your team, storefront, or best work fits here."
-          bloomPosition="tl"
-        />
-      </div>
+      )}
 
     </div>
   </div>

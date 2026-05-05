@@ -1,0 +1,161 @@
+---
+/**
+ * ServiceIconsStrip, single-line sliding marquee of category services.
+ *
+ * Sits directly below the hero (Revive style). White rounded card on a
+ * light background, overlapping the hero by `-mt-20 lg:-mt-28`. Inside
+ * the card, a horizontal infinite-scroll marquee runs through every
+ * service category at a slow, readable pace. Each tile has a unique
+ * icon disc + service name, and clicking the tile jumps to the
+ * matching service detail page.
+ *
+ * Why a marquee instead of a static N-up grid:
+ *   - Adapts to ANY service count (3, 5, 7) without breaking the
+ *     layout. Adding a 6th service tomorrow just adds another tile,
+ *     it doesn't force a row break.
+ *   - Always reads as a single line, no wrapping to a second row.
+ *   - The slow side-to-side motion adds an "alive" feel to the page
+ *     without being distracting.
+ *
+ * Marquee mechanics (same pattern as ResultsGrid):
+ *   - Tiles array is rendered TWICE in the track for a seamless loop.
+ *   - Track translates from 0 to -50% on a slow linear loop.
+ *   - Uniform per-tile width with zero margin (no flex gap) so the
+ *     spacing pattern repeats exactly across the loop boundary.
+ *   - `:hover` on the wrapper pauses the animation so visitors can
+ *     read and click any tile.
+ *   - Respects `prefers-reduced-motion`.
+ */
+import { business } from "@/data/business";
+
+interface Item {
+  name: string;
+  slug: string;
+  icon?: string;
+}
+
+interface Props {
+  label?: string;
+  items?: Item[];
+  /** Seconds for one full marquee loop. Slower = more readable. */
+  durationSeconds?: number;
+}
+
+const categories = business.services.filter((s) => s.tier === "category");
+
+const {
+  label = `Core ${business.name.split(" ")[0]} Services`,
+  items = categories.map((c) => ({
+    name: c.name,
+    slug: c.slug,
+    icon: (c as { icon?: string }).icon,
+  })),
+  durationSeconds = 35,
+} = Astro.props;
+
+// Icon registry, simple inline SVGs keyed by category icon name. Add
+// new keys here as new service types are introduced. Every service in
+// `business.services` has its own unique icon by convention.
+const iconFor = (key: string | undefined) => {
+  switch (key) {
+    case "spray":
+      return "M12 3v3m0 12v3M5.636 5.636l2.122 2.122m8.485 8.485l2.122 2.122M3 12h3m12 0h3M5.636 18.364l2.122-2.122m8.485-8.485l2.122-2.122M9 12a3 3 0 116 0 3 3 0 01-6 0z";
+    case "house":
+      return "M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10";
+    case "roof":
+      return "M2 12L12 4l10 8M5 11v9h14v-9";
+    case "gutter":
+      return "M3 7h18M5 7v6a4 4 0 004 4h6a4 4 0 004-4V7M9 17v4M15 17v4";
+    case "wrench":
+      return "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z";
+    case "pin":
+      return "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z";
+    default:
+      return "M5 13l4 4L19 7";
+  }
+};
+
+// Render tiles twice for the seamless loop.
+const trackTiles = [...items, ...items];
+---
+
+<section class="bg-bg pt-10 lg:pt-14 pb-2 relative">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10">
+
+    {/* Marquee card, overlaps the hero by -mt-20 lg:-mt-28 */}
+    <div class="services-marquee-group bg-surface rounded-2xl shadow-lg ring-1 ring-border/60 -mt-20 lg:-mt-28 relative z-30 overflow-hidden">
+
+      {/* Edge fades, soft hint that there's more content scrolling */}
+      <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 lg:w-20 bg-gradient-to-r from-surface to-transparent" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 lg:w-20 bg-gradient-to-l from-surface to-transparent" aria-hidden="true"></div>
+
+      <ul
+        class="services-marquee-track flex w-max py-5 lg:py-6"
+        role="list"
+        style={`animation-duration: ${durationSeconds}s;`}
+      >
+        {trackTiles.map((item, i) => (
+          <li
+            class="shrink-0 w-[180px] lg:w-[200px]"
+            aria-hidden={i >= items.length ? "true" : undefined}
+          >
+            <a
+              href={`/services/${item.slug}`}
+              class="group flex flex-col items-center gap-3 py-3 px-4 text-center hover:bg-brand-tint transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand rounded-xl mx-2"
+            >
+              <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand text-brand-fg group-hover:scale-110 transition-transform shrink-0">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d={iconFor(item.icon)} />
+                </svg>
+              </span>
+              <span class="font-heading font-bold text-sm lg:text-base text-text leading-tight whitespace-nowrap">
+                {item.name}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+    </div>
+
+    {label && (
+      <p class="text-center font-body text-xs font-semibold tracking-widest uppercase text-brand mt-6">
+        {label}
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  /* Slow auto-scroll, animation-duration is supplied inline (per-instance). */
+  .services-marquee-track {
+    animation-name: services-marquee;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+  @keyframes services-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* -50% = exactly one full duplicated half-width, lines up
+         tile (N+itemsCount) with original tile N. Because every tile
+         has the same fixed width with uniform internal margins, the
+         spacing pattern repeats cleanly across the loop boundary. */
+      transform: translateX(-50%);
+    }
+  }
+  /* Pause on hover anywhere on the strip, so visitors can read and click. */
+  .services-marquee-group:hover .services-marquee-track,
+  .services-marquee-group:focus-within .services-marquee-track {
+    animation-play-state: paused;
+  }
+  /* Honor user motion preferences. */
+  @media (prefers-reduced-motion: reduce) {
+    .services-marquee-track {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>

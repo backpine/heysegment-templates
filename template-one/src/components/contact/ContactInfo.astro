@@ -1,0 +1,172 @@
+---
+/**
+ * ContactInfo, compact "ways to reach us" block below the contact hero.
+ *
+ * Replaces the old big-sidebar of contact methods. Three contact-method
+ * cards (phone, email, address) in a row + a small hours strip
+ * underneath. Anyone who'd rather call or email instead of fill the
+ * form has the info one scroll below the fold.
+ *
+ * Reads `business.phone`, `business.email`, `business.address`,
+ * `business.hours`.
+ */
+import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+const mailtoHref = `mailto:${business.email}`;
+const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address.full)}`;
+---
+
+{/* bg-surface (not bg-bg) so the section's color matches the
+    `bgFrom="surface"` of the TestimonialsTeal wave divider that
+    follows. With both halves on the same surface tone, the wave
+    transitions cleanly into the teal section without a visible
+    white "strip" between them. The bottom border is also dropped
+    for the same reason, no hairline to read as a section break. */}
+<section class="bg-surface py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-2xl mx-auto text-center mb-10 lg:mb-12">
+      <div
+        class="inline-flex items-center justify-center gap-2.5 mb-3"
+        data-reveal
+        data-reveal-from="up"
+      >
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+          Other Ways To Reach Us
+        </span>
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      </div>
+      <h2
+        class="font-heading font-extrabold text-2xl lg:text-3xl text-text leading-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        Prefer the phone? Email? Just walk in?
+      </h2>
+    </div>
+
+    <!-- 3 contact-method cards -->
+    <ul
+      class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6"
+      role="list"
+    >
+      <!-- Phone -->
+      <li
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="200"
+      >
+        <a
+          href={phoneHref}
+          class="group block bg-surface ring-1 ring-border rounded-2xl p-6 lg:p-7 hover:ring-brand/50 hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand mb-4 group-hover:bg-brand group-hover:text-brand-fg transition-colors">
+            <svg class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+          <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-1">
+            Call
+          </p>
+          <p class="font-heading font-extrabold text-lg lg:text-xl text-text leading-snug">
+            {business.phone}
+          </p>
+          <p class="font-body text-sm text-text-soft mt-2 leading-snug">
+            Real person picks up during business hours.
+          </p>
+        </a>
+      </li>
+
+      <!-- Email -->
+      <li
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="300"
+      >
+        <a
+          href={mailtoHref}
+          class="group block bg-surface ring-1 ring-border rounded-2xl p-6 lg:p-7 hover:ring-brand/50 hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand mb-4 group-hover:bg-brand group-hover:text-brand-fg transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </span>
+          <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-1">
+            Email
+          </p>
+          <p class="font-heading font-extrabold text-base lg:text-lg text-text leading-snug break-all">
+            {business.email}
+          </p>
+          <p class="font-body text-sm text-text-soft mt-2 leading-snug">
+            Same-day response, usually within an hour.
+          </p>
+        </a>
+      </li>
+
+      <!-- Address / Directions -->
+      <li
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="375"
+      >
+        <a
+          href={directionsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group block bg-surface ring-1 ring-border rounded-2xl p-6 lg:p-7 hover:ring-brand/50 hover:shadow-lg hover:-translate-y-1 transition-all"
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand mb-4 group-hover:bg-brand group-hover:text-brand-fg transition-colors">
+            <svg class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 2a6 6 0 00-6 6c0 4.314 6 10 6 10s6-5.686 6-10a6 6 0 00-6-6zm0 8a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+          </span>
+          <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-1">
+            Visit / Directions
+          </p>
+          <p class="font-heading font-bold text-base text-text leading-snug">
+            {business.address.full}
+          </p>
+          <p class="font-body text-sm text-text-soft mt-2 leading-snug inline-flex items-center gap-1">
+            Get directions
+            <span aria-hidden="true">→</span>
+          </p>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Hours strip -->
+    {business.hours && business.hours.length > 0 && (
+      <div
+        class="mt-10 lg:mt-12 bg-surface rounded-2xl ring-1 ring-border p-6 lg:p-7"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="450"
+      >
+        <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-4 text-center">
+          Hours of Operation
+        </p>
+        <ul
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3"
+          role="list"
+        >
+          {business.hours.map((row) => (
+            <li class="flex items-baseline justify-between gap-3">
+              <span class="font-body font-semibold text-sm text-text">
+                {row.days}
+              </span>
+              <span class="font-body text-sm text-text-soft tabular-nums">
+                {row.time}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+  </div>
+</section>

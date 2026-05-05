@@ -12,22 +12,24 @@
 @theme {
 
   /* ── Brand ──────────────────────────────────────────────────────────────────
-     The one color that defines the business identity.
-     Used for: buttons, links, active nav, accent borders.                    */
-  --color-brand:      #2563eb;  /* main brand color */
+     Revive-style teal/cyan palette. Brighter & more saturated than baseline
+     cyan-600 to better match the punchy teal Revive Services uses sitewide. */
+  --color-brand:      #0EA5C9;  /* primary teal — buttons, links, accents */
   --color-brand-fg:   #ffffff;  /* text/icons on top of brand color */
-  --color-brand-tint: #eff6ff;  /* very light brand — backgrounds, badges */
+  --color-brand-tint: #ECFEFF;  /* pale cyan — backgrounds, badges */
+  --color-brand-deep: #0B7A95;  /* darker teal — hover states, depth */
+  --color-brand-dark: #0A1628;  /* deep navy — utility bar, footer */
 
   /* ── Page ───────────────────────────────────────────────────────────────────
      The base layer of every page.                                            */
-  --color-bg:      #fafafa;  /* page background */
+  --color-bg:      #f8fafc;  /* page background — slightly cooler than neutral */
   --color-surface: #ffffff;  /* cards, modals, panels — sits on top of bg */
-  --color-border:  #e5e5e5;  /* dividers, input outlines */
+  --color-border:  #e2e8f0;  /* dividers, input outlines */
 
   /* ── Text ───────────────────────────────────────────────────────────────────
      Two text colors covers the vast majority of cases.                       */
-  --color-text:      #171717;  /* headings, body copy, labels */
-  --color-text-soft: #737373;  /* captions, helper text, secondary info */
+  --color-text:      #0f172a;  /* deep navy — headings, body copy, labels */
+  --color-text-soft: #64748b;  /* slate — captions, helper text, secondary info */
 
   /* ── Fonts ──────────────────────────────────────────────────────────────────
      heading: used on h1–h3, hero text, section titles
@@ -47,10 +49,12 @@
   --text-hero: 3.75rem;   /* 60px — hero headline */
 
   /* ── Radius ─────────────────────────────────────────────────────────────────
-     Three steps. sm for small UI, md for most things, lg for big panels.    */
-  --radius-sm: 0.375rem;  /*  6px — inputs, small buttons, tags */
-  --radius-md: 0.625rem;  /* 10px — cards, buttons */
-  --radius-lg: 1rem;      /* 16px — feature panels, hero cards */
+     Slightly rounder than baseline for the friendly Revive feel — pill-style
+     buttons (radius-pill) and rounded service cards.                        */
+  --radius-sm: 0.5rem;    /*  8px — inputs, small buttons, tags */
+  --radius-md: 0.75rem;   /* 12px — cards, buttons */
+  --radius-lg: 1.25rem;   /* 20px — feature panels, hero cards */
+  --radius-pill: 9999px;  /* pill — primary CTAs */
 
   /* ── Shadow ─────────────────────────────────────────────────────────────────
      Two levels. sm for subtle depth, md for cards that need more presence.  */

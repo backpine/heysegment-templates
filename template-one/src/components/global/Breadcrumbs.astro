@@ -1,0 +1,105 @@
+---
+/**
+ * Breadcrumbs, small hierarchy trail near the top of every page
+ * except home. Renders both the visible trail AND a JSON-LD
+ * BreadcrumbList schema block that Google reads for rich-result
+ * search snippets.
+ *
+ * Variants:
+ *   "light" (default) , standalone strip with bg-bg, used between
+ *                       Nav and a light-bg hero.
+ *   "overlay"         , transparent background and light-on-dark
+ *                       text, designed to sit INSIDE a dark hero
+ *                       section (so the hero can paint edge-to-edge
+ *                       to the very top of the page with the
+ *                       breadcrumbs floating over it).
+ *
+ * Usage:
+ *   <Breadcrumbs trail={[...]} variant="overlay" />
+ *
+ * "Home" is always prepended automatically, don't include it in the
+ * trail prop. The last item in the trail is rendered as the current
+ * page (not a link).
+ */
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  trail: Crumb[];
+  variant?: "light" | "overlay";
+}
+
+const { trail, variant = "light" } = Astro.props;
+
+const allCrumbs: Crumb[] = [{ label: "Home", href: "/" }, ...trail];
+
+// Build JSON-LD BreadcrumbList, Google uses this to render breadcrumb
+// trails in search snippets instead of raw URLs.
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "";
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: allCrumbs.map((crumb, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: crumb.label,
+    item: `${siteUrl}${crumb.href}`,
+  })),
+};
+
+const isOverlay = variant === "overlay";
+const navClass = isOverlay
+  ? "bg-transparent"
+  : "bg-bg border-b border-border/60";
+const olTextClass = isOverlay
+  ? "text-brand-fg/70"
+  : "text-text-soft";
+const linkHoverClass = isOverlay
+  ? "hover:text-brand-fg focus-visible:outline-brand-fg"
+  : "hover:text-brand focus-visible:outline-brand";
+const currentClass = isOverlay ? "text-brand-fg" : "text-text";
+const sepClass = isOverlay ? "text-brand-fg/40" : "text-text-soft/60";
+---
+
+<nav
+  aria-label="Breadcrumb"
+  class:list={[navClass]}
+>
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-3">
+    <ol class:list={["flex items-center flex-wrap gap-x-1.5 gap-y-1 font-body text-sm", olTextClass]} role="list">
+      {allCrumbs.map((crumb, i) => {
+        const isLast = i === allCrumbs.length - 1;
+        return (
+          <>
+            <li>
+              {isLast ? (
+                <span class:list={["font-medium", currentClass]} aria-current="page">{crumb.label}</span>
+              ) : (
+                <a
+                  href={crumb.href}
+                  class:list={["transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 rounded-sm", linkHoverClass]}
+                >
+                  {crumb.label}
+                </a>
+              )}
+            </li>
+            {!isLast && (
+              <li aria-hidden="true" class:list={[sepClass]}>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02z" clip-rule="evenodd"/>
+                </svg>
+              </li>
+            )}
+          </>
+        );
+      })}
+    </ol>
+  </div>
+</nav>
+
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(schema)}
+/>

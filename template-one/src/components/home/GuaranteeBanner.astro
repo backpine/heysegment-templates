@@ -1,0 +1,95 @@
+---
+/**
+ * GuaranteeBanner, full-bleed photo background (the team) with a teal
+ * gradient wash on top and a centered headline + CTA.
+ *
+ * The Revive version uses a wide team photo (everyone in branded uniform
+ * standing in front of vehicles); we render a placeholder note in that
+ * spirit. The teal gradient ensures text is readable regardless of the
+ * underlying photo.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  backgroundImage?: string | null;
+  placeholderHint?: string;
+}
+
+const {
+  eyebrow = `Try ${business.address?.city ?? "Our"}'s Best, Risk-Free`,
+  heading = "100% Satisfaction Guaranteed.",
+  ctaLabel = business.ctaLabel,
+  ctaHref = business.ctaHref,
+  backgroundImage = null,
+  placeholderHint = "Wide team photo, full crew in branded uniform standing in front of fleet of trucks",
+} = Astro.props;
+---
+
+<section class="relative bg-text text-brand-fg overflow-hidden isolate">
+
+  {backgroundImage ? (
+    <img
+      src={backgroundImage}
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover z-0"
+      aria-hidden="true"
+    />
+  ) : (
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[280px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          BG: TEAM PHOTO
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          {placeholderHint}
+        </p>
+      </div>
+    </div>
+  )}
+
+  <!-- Teal wash overlay -->
+  <div
+    class="absolute inset-0 z-10 bg-gradient-to-r from-brand/85 via-brand/70 to-brand/40"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Content -->
+  <div class="relative z-20 max-w-5xl mx-auto px-6 lg:px-10 py-20 lg:py-28 text-center">
+
+    {eyebrow && (
+      <p
+        class="font-body text-sm font-semibold tracking-widest uppercase text-brand-fg/85 mb-4"
+        data-reveal
+        data-reveal-from="up"
+      >
+        {eyebrow}
+      </p>
+    )}
+
+    <h2
+      class="font-heading font-extrabold text-4xl lg:text-6xl text-brand-fg leading-[1.05] max-w-3xl mx-auto"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="100"
+    >
+      {heading}
+    </h2>
+
+    <div class="mt-10" data-reveal data-reveal-from="up" data-reveal-delay="200">
+      <a
+        href={ctaHref}
+        class="inline-flex items-center gap-2 bg-brand-fg text-brand font-body font-bold text-sm tracking-widest uppercase px-8 py-4 rounded-pill shadow-xl hover:bg-brand-tint hover:scale-[1.02] transition-all"
+      >
+        {ctaLabel}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,131 @@
+---
+/**
+ * ValuesGrid, the "what we believe" section, 4-up grid of brand-value
+ * cards. Each card has a brand-tint icon disc + title + short
+ * description.
+ *
+ * Visual treatment intentionally distinct from WhatMakesUsDifferent
+ * (which is photo-forward) and ServiceBenefits (which is pill-forward),
+ * this section keeps it tight and scannable, the icon-disc card is the
+ * visual anchor.
+ *
+ * Reads `business.values`. Auto-distributes to 1/2/4 columns
+ * responsive.
+ */
+import { business } from "@/data/business";
+
+interface Value {
+  title: string;
+  description: string;
+  icon?: "shield" | "wrench" | "check" | "calendar" | "phone" | "quote";
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  /** Italic-accent line shown beneath the heading. */
+  accent?: string;
+  items?: Value[];
+}
+
+const data = (business as { values?: Value[] }).values;
+
+const {
+  eyebrow = "What We Believe",
+  heading,
+  accent = "The values that guide every job.",
+  items = data ?? [],
+} = Astro.props;
+
+const iconPath: Record<NonNullable<Value["icon"]>, string> = {
+  shield: "M9 12l2 2 4-4M12 2L4 6v6c0 5.5 3.84 10.74 8 12 4.16-1.26 8-6.5 8-12V6l-8-4z",
+  wrench: "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z",
+  check: "M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+  calendar: "M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z",
+  phone: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z",
+  quote: "M3 5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM8 11h8M8 15h5",
+};
+
+// Responsive grid columns adapt to count, so 3 values center as a row
+// of 3 instead of left-aligning in a 4-col grid with an empty cell.
+const gridColsClass =
+  items.length === 1
+    ? "grid-cols-1 max-w-sm mx-auto"
+    : items.length === 2
+    ? "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto"
+    : items.length === 3
+    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto"
+    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+---
+
+<section class="bg-surface py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-14 lg:mb-16">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+
+      {heading && (
+        <h2
+          class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1]"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="100"
+        >
+          {heading}
+        </h2>
+      )}
+
+      {accent && (
+        <p
+          class="font-heading font-bold italic text-xl lg:text-2xl text-brand mt-4 leading-snug"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {accent}
+        </p>
+      )}
+    </div>
+
+    <!-- Value cards -->
+    <ul
+      class:list={["grid gap-5 lg:gap-6", gridColsClass]}
+      role="list"
+    >
+      {items.map((item, i) => (
+        <li
+          class="group bg-bg ring-1 ring-border rounded-2xl p-6 lg:p-7 hover:ring-brand/50 hover:shadow-lg hover:-translate-y-1 transition-all"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300"}
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand mb-5 group-hover:bg-brand group-hover:text-brand-fg transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d={iconPath[item.icon ?? "check"]} />
+            </svg>
+          </span>
+          <h3 class="font-heading font-bold text-lg text-text leading-snug">
+            {item.title}
+          </h3>
+          <p class="font-body text-sm text-text-soft mt-3 leading-relaxed">
+            {item.description}
+          </p>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>

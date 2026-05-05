@@ -1,25 +1,59 @@
 ---
 /**
- * Home page — the canonical composition for every site that ships on this
- * template. Sections read from src/data/business.ts so re-skinning a site
- * is a single-file swap.
+ * Home page, Revive-style composition.
+ *
+ * Section order (top to bottom):
+ *   1. Hero                  , full-bleed background photo + dark overlay
+ *   2. ServiceIconsStrip     , white floating card with 4 service icons (overlaps hero bottom)
+ *   3. WelcomeIntro          , two-column intro + Google rating + photo collage
+ *   4. ServiceCardsTeal      , 4-card service grid on teal background (wave dividers)
+ *   5. TrustChecklist        , split: house photo + 8 trust pill items
+ *   6. GuaranteeBanner       , full-bleed team photo with teal wash + CTA
+ *   7. WhatMakesUsDifferent  , 3-up photo cards with floating number badges
+ *   8. ProcessSteps          , 3-step "Easy as 1-2-3" process
+ *   9. TestimonialsTeal      , teal section with 3 white review cards (wave dividers)
+ *  10. ResultsGrid           , 3x2 before/after thumbnail grid
+ *  11. ServiceAreaMap        , coverage map + teal CTA panel + vehicle photo
+ *  12. FAQ                   , frequently asked questions
+ *  13. FinalCTA              , full-bleed brand-color closer above footer
  */
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/home/Hero.astro";
-import PopularServices from "@/components/home/PopularServices.astro";
-import ReviewsMasonry from "@/components/reviews/ReviewsMasonry.astro";
-import WhyUs from "@/components/home/WhyUs.astro";
+import ServiceIconsStrip from "@/components/home/ServiceIconsStrip.astro";
+import WelcomeIntro from "@/components/home/WelcomeIntro.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ServiceCardsTeal from "@/components/home/ServiceCardsTeal.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import GuaranteeBanner from "@/components/home/GuaranteeBanner.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import ResultsGrid from "@/components/home/ResultsGrid.astro";
+import ServiceAreaMap from "@/components/home/ServiceAreaMap.astro";
 import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
 ---
 
 <Layout
-  title={`${business.name} — ${business.tagline}`}
+  title={`${business.name}, ${business.tagline}`}
   description={business.tagline}
 >
-  <Hero />
-  <PopularServices />
-  <ReviewsMasonry />
-  <WhyUs />
+  <Hero showForm={true} />
+  <ServiceIconsStrip />
+  <WelcomeIntro />
+  <ServiceCardsTeal />
+  <TrustChecklist />
+  <GuaranteeBanner />
+  <WhatMakesUsDifferent />
+  <ProcessSteps />
+  <TestimonialsTeal />
+  <ResultsGrid />
+  <ServiceAreaMap />
   <FAQ />
+  <FinalCTA
+    eyebrow={null}
+    heading="Lorem ipsum dolor sit amet?"
+    subtext="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+  />
 </Layout>

@@ -8,3 +8,87 @@
     color: var(--color-text);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SCROLL-REVEAL ANIMATION SYSTEM
+   Universal directive — add `data-reveal` to any element and it animates in
+   when scrolled into view. Optional modifiers:
+     data-reveal-from="left"|"right"|"up"|"down"  (default: up)
+     data-reveal-delay="0"|"50"|"75"|"100"|"125"|"150"|"175"|"200"|"225"|
+                       "250"|"275"|"300"|"350"|"375"|"400"|"450"|"500"|
+                       "525"|"600"|"675"|"700"|"800"|"1000"  (ms)
+     data-reveal-duration="700"|"900"|"1200"  (ms; default 700)
+   The IntersectionObserver in src/scripts/scroll-reveal.ts toggles
+   `data-reveal-visible` on each element when it enters the viewport.
+───────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition-property: opacity, transform;
+    transition-duration: 700ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal][data-reveal-from="left"]  { transform: translateX(-48px); }
+  [data-reveal][data-reveal-from="right"] { transform: translateX(48px); }
+  [data-reveal][data-reveal-from="up"]    { transform: translateY(28px); }
+  [data-reveal][data-reveal-from="down"]  { transform: translateY(-28px); }
+
+  /* Stagger registry, kept comprehensive so any component can compute
+     `i * STEP` for sequential reveals (75ms, 100ms, 150ms, etc.) and
+     have every step actually honored, instead of unmatched values
+     silently falling through to 0 and breaking the visual order. */
+  [data-reveal][data-reveal-delay="50"]   { transition-delay: 50ms; }
+  [data-reveal][data-reveal-delay="75"]   { transition-delay: 75ms; }
+  [data-reveal][data-reveal-delay="100"]  { transition-delay: 100ms; }
+  [data-reveal][data-reveal-delay="125"]  { transition-delay: 125ms; }
+  [data-reveal][data-reveal-delay="150"]  { transition-delay: 150ms; }
+  [data-reveal][data-reveal-delay="175"]  { transition-delay: 175ms; }
+  [data-reveal][data-reveal-delay="200"]  { transition-delay: 200ms; }
+  [data-reveal][data-reveal-delay="225"]  { transition-delay: 225ms; }
+  [data-reveal][data-reveal-delay="250"]  { transition-delay: 250ms; }
+  [data-reveal][data-reveal-delay="275"]  { transition-delay: 275ms; }
+  [data-reveal][data-reveal-delay="300"]  { transition-delay: 300ms; }
+  [data-reveal][data-reveal-delay="350"]  { transition-delay: 350ms; }
+  [data-reveal][data-reveal-delay="375"]  { transition-delay: 375ms; }
+  [data-reveal][data-reveal-delay="400"]  { transition-delay: 400ms; }
+  [data-reveal][data-reveal-delay="450"]  { transition-delay: 450ms; }
+  [data-reveal][data-reveal-delay="500"]  { transition-delay: 500ms; }
+  [data-reveal][data-reveal-delay="525"]  { transition-delay: 525ms; }
+  [data-reveal][data-reveal-delay="600"]  { transition-delay: 600ms; }
+  [data-reveal][data-reveal-delay="675"]  { transition-delay: 675ms; }
+  [data-reveal][data-reveal-delay="700"]  { transition-delay: 700ms; }
+  [data-reveal][data-reveal-delay="800"]  { transition-delay: 800ms; }
+  [data-reveal][data-reveal-delay="1000"] { transition-delay: 1000ms; }
+
+  [data-reveal][data-reveal-duration="900"]  { transition-duration: 900ms; }
+  [data-reveal][data-reveal-duration="1200"] { transition-duration: 1200ms; }
+
+  [data-reveal][data-reveal-visible] {
+    opacity: 1 !important;
+    transform: translate(0, 0) !important;
+  }
+
+  /* Driving vehicle — slides in from far left (off-screen) like it's
+     driving up to the section. Pair with data-reveal-from="left" plus
+     data-reveal-vehicle for the longer slide distance. */
+  [data-reveal][data-reveal-vehicle] {
+    transform: translateX(-120%);
+    transition-duration: 1400ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-reveal][data-reveal-vehicle][data-reveal-visible] {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Respect prefers-reduced-motion — skip every animation and reveal
+   instantly. Critical for accessibility. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition-duration: 0s !important;
+  }
+}

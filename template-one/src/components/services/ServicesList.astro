@@ -1,13 +1,13 @@
 ---
 /**
- * Services list — the full catalog for the /services overview page.
+ * Services list, the full catalog for the /services overview page.
  *
  * 2-column editorial grid (vs. the home page's 3-column `PopularServices`)
  * to give each item more breathing room and make this feel like a proper
  * catalog page rather than a summary teaser.
  *
  * `Learn more →` only renders on services that have a matching entry in
- * `business.serviceDetails` — the home page does the same, so no link on
+ * `business.serviceDetails`, the home page does the same, so no link on
  * the site ever points at a 404.
  */
 import { business } from "@/data/business";
@@ -27,9 +27,9 @@ interface Props {
 
 const {
   eyebrow = "All Services",
-  heading = "Quod facimus, facimus bene.",
+  heading = "What we do, we do well.",
   subtext =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit — every service backed by the same crew, pricing, and guarantee.",
+    "Every service backed by the same crew, the same honest pricing, and the same full written warranty.",
   services = business.services,
 } = Astro.props;
 
@@ -57,7 +57,7 @@ const detailSlugs = new Set(business.serviceDetails.map((d) => d.slug));
       )}
     </div>
 
-    <!-- 2-col editorial grid — no cards, hairline-anchored rows -->
+    <!-- 2-col editorial grid, no cards, hairline-anchored rows -->
     <ul class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-14" role="list">
       {services.map((service, i) => (
         <li class="pt-6 border-t-2 border-brand/25">

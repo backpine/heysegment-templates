@@ -1,0 +1,141 @@
+---
+/**
+ * CommunityInvolvement, the local-trust angle for the About page.
+ *
+ * Centered editorial section with eyebrow + italic-accent heading +
+ * lead paragraph, then a multi-column partner list (sponsorships,
+ * charities, school programs, events). Uses the CSS multicolumn
+ * pattern from LocationAbout's neighborhood/landmark lists so it stays
+ * anti-fragile to long partner names without rows going uneven.
+ *
+ * Reads `business.community`. Bg-bg by default so it slots cleanly
+ * between two contrast sections (TrustChecklist above, ServiceAreaMap
+ * below, both bg-bg, but this section sits in a tinted card to
+ * differentiate visually).
+ */
+import { business } from "@/data/business";
+
+interface Partner {
+  name: string;
+  role?: string;
+}
+
+interface Community {
+  eyebrow?: string;
+  heading?: string;
+  accent?: string;
+  lead?: string;
+  partners?: Partner[];
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  accent?: string;
+  lead?: string;
+  partners?: Partner[];
+}
+
+const data = (business as { community?: Community }).community ?? {};
+
+const {
+  eyebrow = data.eyebrow ?? "In the Community",
+  heading = data.heading ?? "Rooted in the community we serve.",
+  accent = data.accent,
+  lead = data.lead,
+  partners = data.partners ?? [],
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="text-center mb-12 lg:mb-14">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+
+      <h2
+        class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+
+      {accent && (
+        <p
+          class="font-heading font-bold italic text-xl lg:text-2xl text-brand mt-4 leading-snug"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {accent}
+        </p>
+      )}
+
+      {lead && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-2xl mx-auto"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          {lead}
+        </p>
+      )}
+    </div>
+
+    <!-- Partner / sponsorship list, multicolumn so long names don't blow
+         out the row, mirrors the LocationAbout neighborhood pattern. -->
+    {partners.length > 0 && (
+      <div
+        class="bg-surface rounded-2xl ring-1 ring-border p-6 lg:p-8"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="375"
+      >
+        <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-5 text-center">
+          Who We Support
+        </p>
+        <ul class="columns-1 sm:columns-2 gap-x-8" role="list">
+          {partners.map((partner) => (
+            <li class="break-inside-avoid flex items-start gap-3 py-2.5">
+              <svg
+                class="w-5 h-5 text-brand shrink-0 mt-0.5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 0 0 .95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 0 0-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 0 0-1.176 0l-2.8 2.034c-.785.57-1.84-.197-1.54-1.118l1.07-3.292a1 1 0 0 0-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 0 0 .951-.69l1.07-3.292Z"/>
+              </svg>
+              <div class="min-w-0">
+                <p class="font-body font-semibold text-base text-text leading-snug">
+                  {partner.name}
+                </p>
+                {partner.role && (
+                  <p class="font-body text-sm text-text-soft mt-0.5">
+                    {partner.role}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+  </div>
+</section>

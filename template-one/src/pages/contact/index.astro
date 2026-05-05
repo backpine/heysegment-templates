@@ -1,0 +1,61 @@
+---
+/**
+ * Contact page, conversion-focused.
+ *
+ * Composition is intentionally tight, the hero IS the page, and the
+ * sections below the hero exist to push hesitant visitors over the
+ * line:
+ *
+ *   1. ContactHero          , dark navy hero with H1 + tagline LEFT,
+ *                             compact "small but mighty" quote form RIGHT
+ *   2. ContactInfo          , phone / email / address / hours blocks
+ *                             for visitors who'd rather call or email
+ *   3. TestimonialsTeal     , reused, social proof
+ *   4. WhatMakesUsDifferent , reused, 3 differentiators
+ *   5. FinalCTA             , reused, dual CTA closer
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import ContactHero from "@/components/contact/ContactHero.astro";
+import ContactInfo from "@/components/contact/ContactInfo.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
+import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+---
+
+<Layout
+  title={`Contact ${business.name}, Get a Fast Quote`}
+  description={`Get a fast, free quote from ${business.name}. ${business.tagline}`}
+>
+  {/* 1. Contact hero with the form INSIDE on the right side. */}
+  <ContactHero
+    tagline="Get a fast, free quote."
+    subtext="Tell us about your project. We respond same day, usually within an hour. No spam, no pressure, no obligation."
+    breadcrumbs={[{ label: "Contact", href: "/contact" }]}
+  />
+
+  {/* 2. Other ways to reach us, sits BELOW the hero (not in a sidebar). */}
+  <ContactInfo />
+
+  {/* 3. Reviews, social proof. The bottom wave's bgFrom is set to
+       "surface" so it matches the WhatMakesUsDifferent section below
+       (which is bg-surface), no visible color strip between the
+       teal wave and the next section. */}
+  <TestimonialsTeal bottomWaveBg="surface" />
+
+  {/* 4. The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* 5. Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    eyebrow={null}
+    heading={`Ready to get your quote?`}
+    subtext="Free quote. Honest pricing. Real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
+</Layout>

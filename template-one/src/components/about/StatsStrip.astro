@@ -1,0 +1,89 @@
+---
+/**
+ * StatsStrip, full-bleed dark navy band of big-number trust signals.
+ *
+ * Visual treatment is intentionally bold and short, ONE row of 4 huge
+ * numbers (e.g. "10+ years", "5,000+ jobs", "5.0★", "100%"), each with
+ * a small label underneath. Sits between two white sections to act as
+ * a punchy "trust by numbers" break in the page rhythm.
+ *
+ * Reads `business.stats` (array of `{ value, label }`).
+ */
+import { business } from "@/data/business";
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  items?: Stat[];
+}
+
+const data = (business as { stats?: Stat[] }).stats;
+
+const {
+  eyebrow,
+  heading,
+  items = data ?? [],
+} = Astro.props;
+---
+
+<section class="bg-text text-brand-fg py-16 lg:py-20 relative overflow-hidden">
+
+  {/* Decorative ambient glow, subtle radial highlight, mirrors FinalCTA */}
+  <div
+    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[400px] rounded-full bg-brand/10 blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+
+    {(eyebrow || heading) && (
+      <div class="max-w-3xl mx-auto text-center mb-10 lg:mb-12">
+        {eyebrow && (
+          <p
+            class="font-body text-sm font-bold tracking-widest uppercase text-brand mb-3"
+            data-reveal
+            data-reveal-from="up"
+          >
+            {eyebrow}
+          </p>
+        )}
+        {heading && (
+          <h2
+            class="font-heading font-extrabold text-2xl lg:text-3xl text-brand-fg leading-tight"
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="100"
+          >
+            {heading}
+          </h2>
+        )}
+      </div>
+    )}
+
+    <ul
+      class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 text-center"
+      role="list"
+    >
+      {items.map((stat, i) => (
+        <li
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300"}
+        >
+          <p class="font-heading font-extrabold text-5xl lg:text-6xl text-brand-fg leading-none tracking-tight">
+            <span class="text-brand">{stat.value}</span>
+          </p>
+          <p class="font-body text-xs lg:text-sm font-bold tracking-widest uppercase text-brand-fg/70 mt-3">
+            {stat.label}
+          </p>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>

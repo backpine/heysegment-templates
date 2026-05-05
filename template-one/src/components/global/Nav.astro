@@ -1,15 +1,15 @@
 ---
 /**
- * Floating pill navbar — persists across every page via Layout.astro.
+ * Floating pill navbar, persists across every page via Layout.astro.
  *
  * Supports two kinds of nav items:
  *   - Simple link:      { label, href }
  *   - Dropdown parent:  { label, href, children: [{ label, href }, ...] }
  *
  * Responsive tiers:
- *   lg  (>=1024) — Logo + name | centered nav | phone + CTA (all in pill)
- *   md  (>=768)  — Logo + name | right-aligned nav | floating bottom pill
- *   <md          — Logo        | hamburger          | floating bottom pill
+ *   lg  (>=1024), Logo + name | centered nav | phone + CTA (all in pill)
+ *   md  (>=768) , Logo + name | right-aligned nav | floating bottom pill
+ *   <md         , Logo        | hamburger          | floating bottom pill
  *
  * See LAYOUT CONTRACT in component-lab nav-002.astro for clearance rules.
  */
@@ -43,7 +43,7 @@ const {
 
 const phoneHref = "tel:+1" + phone.replace(/\D/g, "");
 
-// Stable IDs for aria-controls wiring. Index is fine — order is stable
+// Stable IDs for aria-controls wiring. Index is fine, order is stable
 // within a single render.
 const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
 ---
@@ -56,36 +56,58 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
   Skip to main content
 </a>
 
-<!-- Floating pill navbar -->
-<div class="fixed top-3 inset-x-0 z-50 px-3 sm:px-5 lg:px-8">
+<!-- Floating pill navbar, beefier vertical scale + logo-mark-only.
+     Pill is taller (h-20) for a more commanding presence. The wordmark text
+     has been removed; the logo mark is now larger and centered in a stronger
+     brand-color square so the brand reads as a graphic, not a typography
+     exercise. Real sites swap the SVG for their actual logo file. -->
+<div class="fixed top-3 inset-x-0 z-50 px-3 sm:px-5 lg:px-6">
   <header
     data-navbar
-    class="mx-auto max-w-6xl bg-surface/75 backdrop-blur-xl rounded-2xl border border-border/30 shadow-sm transition-all duration-300 data-[scrolled]:bg-surface/92 data-[scrolled]:border-border/60 data-[scrolled]:shadow-md"
+    class="mx-auto max-w-7xl bg-surface/85 backdrop-blur-xl rounded-3xl border border-border/40 shadow-md transition-all duration-300 data-[scrolled]:bg-surface/95 data-[scrolled]:border-border/60 data-[scrolled]:shadow-lg"
   >
-    <div class="px-4 sm:px-5">
-      <div class="flex items-center h-14">
+    <div class="px-5 sm:px-6">
+      <div class="flex items-center h-20">
 
-        <!-- Logo + business name -->
+        <!-- Logo mark, graphic only, no wordmark. Always left-aligned
+             on every viewport. Real sites replace this <a><div><svg/></div></a>
+             block with their own logo file (typically an <img> or <Image>).
+             The placeholder uses a stylized droplet-on-shield mark that
+             reads as either a "clean home" or "trusted service" symbol -
+             works for any home-service vertical. -->
         <a
           href="/"
-          class="flex items-center gap-2.5 shrink-0 lg:flex-1 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand rounded-sm"
-          aria-label={`${businessName} — Home`}
+          class="flex items-center shrink-0 lg:flex-1 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand rounded-xl"
+          aria-label={`${businessName}, Home`}
         >
-          <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
-            <svg class="w-[18px] h-[18px] text-brand-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
+          <div class="w-14 h-14 rounded-2xl bg-brand flex items-center justify-center shrink-0 shadow-md ring-1 ring-brand-deep/20 transition-transform duration-200 group-hover:scale-105">
+            <svg class="w-8 h-8 text-brand-fg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <!-- Shield outline -->
+              <path
+                d="M16 3 L27 7 V16 C27 22 22 27 16 29 C10 27 5 22 5 16 V7 L16 3 Z"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linejoin="round"
+                fill="none"
+              />
+              <!-- Water droplet centered inside the shield -->
+              <path
+                d="M16 10 C18.5 13.5 21 16 21 18.5 A5 5 0 0 1 11 18.5 C11 16 13.5 13.5 16 10 Z"
+                fill="currentColor"
+              />
+              <!-- Highlight on the droplet -->
+              <circle cx="14" cy="20" r="1.25" fill="rgba(255,255,255,0.55)" />
             </svg>
           </div>
-          <span class="font-heading text-lg text-text">
-            {businessName}
-          </span>
         </a>
 
-        <!-- Desktop / tablet nav -->
+        <!-- Desktop / tablet nav.
+             Centered between logo (left) and phone+CTA (right) on lg+ via
+             the flex-1 spacers on each side. Tight gap-0.5 keeps the
+             items close together so the centered group reads as a single
+             cluster rather than spread thin. -->
         <nav
-          class="hidden md:flex items-center gap-0.5 md:ml-auto lg:ml-0"
+          class="hidden md:flex items-center gap-0.5 md:ml-auto lg:ml-0 lg:mx-auto"
           aria-label="Main navigation"
         >
           {links.map((link, i) => (
@@ -96,7 +118,7 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
                   data-dropdown-trigger
                   aria-expanded="false"
                   aria-controls={idFor("desk", i)}
-                  class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  class="inline-flex items-center gap-1 px-2.5 py-2 text-sm font-semibold text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   {link.label}
                   <svg data-dropdown-chevron class="w-4 h-4 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -123,7 +145,7 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
             ) : (
               <a
                 href={link.href}
-                class="px-3 py-1.5 text-sm font-medium text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                class="px-2.5 py-2 text-sm font-semibold text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 {link.label}
               </a>
@@ -131,28 +153,29 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
           ))}
         </nav>
 
-        <!-- Desktop phone + CTA — shrink-0 on each so they keep their natural
+        <!-- Desktop phone + CTA, shrink-0 on each so they keep their natural
              width when the center nav gets wide. whitespace-nowrap keeps the
              phone number and CTA label on a single line inside each pill. -->
         <div class="hidden lg:flex items-center gap-2.5 lg:flex-1 justify-end min-w-0">
           <a
             href={phoneHref}
-            class="inline-flex items-center gap-2 shrink-0 px-3 py-1.5 text-sm font-medium text-text-soft whitespace-nowrap rounded-full hover:text-text hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            class="inline-flex items-center gap-2 shrink-0 px-3 py-2 text-sm font-semibold text-text whitespace-nowrap rounded-full hover:bg-text/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            aria-label={`Call ${phone}`}
           >
-            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg class="w-4 h-4 text-brand" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
             </svg>
-            {phone}
+            <span>{phone}</span>
           </a>
           <a
             href={ctaHref}
-            class="shrink-0 bg-brand text-brand-fg text-sm font-semibold px-5 py-2 whitespace-nowrap rounded-full hover:bg-brand/90 active:bg-brand/80 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            class="shrink-0 bg-brand text-brand-fg text-sm font-bold px-5 py-2.5 whitespace-nowrap rounded-full hover:bg-brand-deep active:bg-brand-deep transition-all hover:shadow-lg hover:scale-[1.02] shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {ctaLabel}
           </a>
         </div>
 
-        <!-- Hamburger (mobile only) -->
+        <!-- Hamburger (mobile only), pushed to the right via ml-auto. -->
         <button
           type="button"
           data-menu-toggle
@@ -274,31 +297,38 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
   </aside>
 </div>
 
-<!-- Floating bottom pill (tablet + mobile) -->
+<!-- Floating bottom action bar (tablet + mobile only).
+     Two equal-width pill buttons side by side: click-to-call (left) and
+     primary CTA (right). Both `flex-1` so they always share the available
+     width 50/50 with no risk of the phone number wrapping to two lines. -->
 <div
   data-floating-bar
   class="fixed bottom-3 inset-x-0 z-40 px-3 sm:px-5 lg:hidden"
   style="padding-bottom: env(safe-area-inset-bottom, 0px);"
 >
-  <div class="mx-auto max-w-md bg-brand/90 backdrop-blur-lg rounded-2xl shadow-lg border border-brand-fg/10">
-    <div class="px-4 py-3 flex items-center gap-4">
+  <div class="mx-auto max-w-md bg-text/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-brand-fg/10">
+    <div class="p-2 flex items-stretch gap-2">
+
+      <!-- Click-to-call -->
       <a
         href={phoneHref}
-        class="inline-flex items-center gap-2.5 text-sm font-medium text-brand-fg/90 hover:text-brand-fg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg rounded-sm"
+        class="flex-1 inline-flex items-center justify-center gap-2 bg-brand text-brand-fg font-body font-bold text-sm px-3 py-3 rounded-xl whitespace-nowrap hover:bg-brand-deep transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg"
+        aria-label={`Call ${phone}`}
       >
-        <span class="w-9 h-9 rounded-full bg-brand-fg/15 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4 text-brand-fg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
-          </svg>
-        </span>
-        {phone}
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+        </svg>
+        <span>Call Us</span>
       </a>
+
+      <!-- Primary CTA -->
       <a
         href={ctaHref}
-        class="ml-auto bg-surface text-brand text-sm font-bold px-6 py-2.5 rounded-full hover:bg-surface/90 active:bg-surface/80 transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg"
+        class="flex-1 inline-flex items-center justify-center gap-2 bg-brand-fg text-text font-body font-bold text-sm px-3 py-3 rounded-xl whitespace-nowrap hover:bg-brand-tint transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg"
       >
-        {ctaLabel}
+        <span>{ctaLabel}</span>
       </a>
+
     </div>
   </div>
 </div>
@@ -526,7 +556,7 @@ const idFor = (scope: "desk" | "mob", i: number) => `nav-${scope}-dd-${i}`;
   });
 
   // ---------------------------------------------------------------
-  // Scroll detection — solidify floating pill on scroll
+  // Scroll detection, solidify floating pill on scroll
   // ---------------------------------------------------------------
   const header = document.querySelector<HTMLElement>("[data-navbar]");
   if (header) {

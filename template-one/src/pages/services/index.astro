@@ -1,34 +1,169 @@
 ---
 /**
- * Services overview page — catalog of every service we offer.
+ * All Services directory page.
  *
- * Nav + Footer come from Layout automatically. Section rhythm alternates
- * surface → bg → surface → bg so the dark footer finishes the page cleanly.
+ * Composition (top → bottom):
+ *   1. Inline page header (compact Hero-style, dark navy + teal pill H1)
+ *   2. ServiceDirectoryList , dark navy continuation, horizontal list cards
+ *                             with full service details (no white seam from
+ *                             the hero, transitions text → brand at the
+ *                             bottom).
+ *   3. TestimonialsTeal     , reused on teal, top wave omitted because the
+ *                             directory's own bottom wave already lands on
+ *                             the brand color.
+ *   4. TrustChecklist       , reused (Why Choose Us)
+ *   5. ProcessSteps         , reused
+ *   6. FAQ                  , reused
+ *   7. FinalCTA             , reused with dual CTA enabled
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import ServicesHeader from "@/components/services/ServicesHeader.astro";
-import ServicesList from "@/components/services/ServicesList.astro";
-import HowWeWork from "@/components/services/HowWeWork.astro";
-import ReviewsMarquee from "@/components/reviews/ReviewsMarquee.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import ServiceDirectoryList from "@/components/services/ServiceDirectoryList.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// H1 pill, mirrors home Hero pattern but scoped to the directory page.
+const h1Pill = `All Services in ${cityState}`;
 ---
 
 <Layout
-  title={`Services — ${business.name}`}
-  description={`Every service offered by ${business.name}. Licensed, insured, and backed by a 1-year guarantee.`}
+  title={`Services, ${business.name}`}
+  description={`Every service offered by ${business.name}. Browse the full lineup, then click any service to learn more.`}
 >
-  <ServicesHeader />
-  <ServicesList />
-  <HowWeWork />
-  <ReviewsMarquee
-    eyebrow="Work We've Done"
-    heading="Quid clientes de opere nostro dicunt."
-  />
-  <CheckAvailability
-    heading="Don't see the service you need?"
-    subtext="Lorem ipsum dolor sit amet — give us a call and we'll tell you whether it's in our wheelhouse."
+  {/* Compact inline page header, Hero-style but shorter than home.
+      Bottom padding intentionally kept tight, ServiceDirectoryList
+      continues on the same dark bg with no break. Breadcrumbs render
+      INSIDE the hero (overlay variant) so the dark background extends
+      all the way to the very top of the page. */}
+  <section class="relative bg-text overflow-hidden isolate">
+
+    {/* Background gradient placeholder (matches home Hero default look). */}
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          PAGE HEADER BACKGROUND
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          Wide hero photo, lineup of service vehicles or a wide branded shot
+        </p>
+      </div>
+    </div>
+
+    {/* Dark gradient overlay so copy stays readable */}
+    <div
+      class="absolute inset-0 z-10 bg-gradient-to-r from-text/90 via-text/65 to-text/30"
+      aria-hidden="true"
+    ></div>
+
+    {/* Breadcrumbs sit INSIDE the hero, overlaid on the dark bg, so the
+        hero extends to the very top of the page. */}
+    <div class="relative z-20 pt-24 lg:pt-28">
+      <Breadcrumbs trail={[{ label: "Services", href: "/services" }]} variant="overlay" />
+    </div>
+
+    {/* Content, taller padding so the H1 sits with breathing room and
+        the page header has visual weight comparable to the home hero. */}
+    <div class="relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pt-12 lg:pt-16 pb-20 lg:pb-28">
+      <div class="max-w-3xl">
+
+        {/* H1 rendered as a compact pill, local SEO pattern. */}
+        <h1
+          class="inline-block bg-brand text-brand-fg font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-pill shadow-md mb-6"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {h1Pill}
+        </h1>
+
+        {/* Big visual headline */}
+        <p
+          class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-brand-fg leading-[1.05] tracking-tight"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="100"
+        >
+          Everything we do, <span class="text-brand italic">all in one place.</span>
+        </p>
+
+        {/* Subtext */}
+        <p
+          class="font-body text-base lg:text-lg text-brand-fg/80 mt-6 max-w-2xl leading-relaxed"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the full lineup below and click any service to learn more.
+        </p>
+
+        {/* Dual CTA */}
+        <div
+          class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-10"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          <a
+            href={business.ctaHref}
+            class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
+          >
+            {business.ctaLabel}
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+          <a
+            href={phoneHref}
+            class="inline-flex items-center justify-center gap-2 bg-transparent text-brand-fg ring-2 ring-brand-fg/70 font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill hover:bg-brand-fg hover:text-text transition-colors whitespace-nowrap"
+          >
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+            </svg>
+            Call {business.phone}
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {/* Directory list, continues on the same dark navy bg (no white seam),
+      then transitions text → brand into the teal reviews section below. */}
+  <ServiceDirectoryList bottomTransition="brand" />
+
+  {/* Reviews on teal. Top wave omitted because the directory's bottom
+      wave already lands on brand-color. */}
+  <TestimonialsTeal omitTopWave={true} />
+
+  {/* Why Choose Us, social proof + trust signals. */}
+  <TrustChecklist />
+
+  {/* The 3 big differentiators, reused from home. */}
+  <WhatMakesUsDifferent />
+
+  {/* How we work, 3-step process. */}
+  <ProcessSteps />
+
+  {/* Frequently asked questions. */}
+  <FAQ />
+
+  {/* Final CTA closer with dual CTA enabled. */}
+  <FinalCTA
+    heading={`Not sure which service you need?`}
+    subtext="Tell us what's going on and we'll point you to the right fix. Free quotes, honest pricing, real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
   />
 </Layout>

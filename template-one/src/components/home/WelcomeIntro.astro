@@ -1,0 +1,119 @@
+---
+/**
+ * WelcomeIntro, two-column intro section.
+ *
+ * Revive structure (left column):
+ *   1. Eyebrow tag, "Pressure Washing in Surrey BC"
+ *   2. Big bold H2, "Dirty Home? Don't Have Time?"
+ *   3. Italic accent line, "Let us handle the dirty work."
+ *   4. Body paragraph, voice + value prop
+ *   5. Two Google rating badges side-by-side at the bottom
+ *
+ * Right column: stacked photo collage (front team + offset vehicle).
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import GoogleLogo from "@/components/ui/GoogleLogo.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface RatingBadge {
+  rating: number;
+  count: number;
+  platform: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  body?: string;
+  ratings?: RatingBadge[];
+}
+
+const city = business.address?.city;
+const primaryCategory = business.services.find((s) => s.tier === "category")?.name ?? "Exterior Cleaning";
+
+const {
+  eyebrow = `${primaryCategory} in ${city} ${business.address?.state ?? ""}`.trim(),
+  headline = "Lorem ipsum dolor sit amet.",
+  body = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+  ratings = (business as { ratingBadges?: RatingBadge[] }).ratingBadges ?? [
+    { rating: business.reviews.rating, count: business.reviews.total, platform: "Google" },
+  ],
+} = Astro.props;
+---
+
+<section class="bg-bg pt-12 lg:pt-16 pb-20 lg:pb-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- COPY LEFT -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-1 h-6 bg-brand rounded-full" aria-hidden="true"></span>
+            <span class="font-body text-sm font-bold tracking-wider uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading font-extrabold italic text-3xl lg:text-5xl text-text leading-[1.1]">
+          {headline}
+        </h2>
+
+        <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed">
+          {body}
+        </p>
+
+        <!-- Google rating badges row -->
+        {ratings.length > 0 && (
+          <div class="mt-8 pt-6 border-t border-border flex flex-wrap gap-x-10 gap-y-5">
+            {ratings.map((badge) => (
+              <div class="flex items-center gap-3">
+                <GoogleLogo class="w-9 h-9 shrink-0" />
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-heading font-bold text-xl text-text leading-none tabular-nums">
+                      {badge.rating.toFixed(1)}
+                    </span>
+                    <StarRating
+                      ariaLabel={`${badge.rating} out of 5 stars on ${badge.platform}`}
+                      class="flex gap-0.5"
+                      starClass="w-4 h-4"
+                    />
+                  </div>
+                  <p class="font-body text-xs text-text-soft mt-1">
+                    Based on <strong class="text-text font-semibold">{badge.count} {badge.platform} reviews</strong>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- PHOTO COLLAGE RIGHT -->
+      <div class="relative">
+        <!-- Front photo (team) -->
+        <div class="relative z-10">
+          <ImagePlaceholder
+            aspect="5/4"
+            label="TEAM PHOTO"
+            hint="Photo of your team or owner"
+            bloomPosition="tr"
+          />
+        </div>
+        <!-- Offset back photo (vehicle) -->
+        <div class="absolute -bottom-10 -right-4 lg:-right-10 w-2/5 z-20 ring-4 ring-bg rounded-xl overflow-hidden shadow-xl">
+          <ImagePlaceholder
+            aspect="4/3"
+            label="VEHICLE PHOTO"
+            hint="Branded vehicle or van"
+            bloomPosition="bl"
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

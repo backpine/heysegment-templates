@@ -1,0 +1,175 @@
+---
+/**
+ * ServiceDetailHero, dark navy page-header that mirrors the home Hero pattern
+ * (pill H1 + emotional tagline + key-points checklist + dual CTA).
+ *
+ * Sits at the very top of the page, the dark background extends behind the
+ * floating nav AND the breadcrumbs (which are rendered inside via a slot
+ * with a transparent overlay variant).
+ *
+ * Bottom padding intentionally leaves room for a following section. Top
+ * padding is tall so the floating nav and breadcrumbs have clearance and
+ * the headline lands with breathing room.
+ */
+import { business } from "@/data/business";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  serviceName: string;
+  /** Bold visual tagline beneath the H1 pill. */
+  tagline?: string;
+  /** Short subhead paragraph below the tagline. */
+  subtext?: string;
+  /** 4-up checklist of key inclusions or differentiators. */
+  keyPoints?: string[];
+  primaryCta?: { label: string; href: string };
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+}
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const {
+  serviceName,
+  tagline = "Lorem ipsum dolor sit amet.",
+  subtext,
+  keyPoints = [],
+  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
+  breadcrumbs,
+} = Astro.props;
+
+const h1Pill = `${serviceName} in ${cityState}`;
+---
+
+<section class="relative bg-text overflow-hidden isolate">
+
+  {/* Background gradient placeholder */}
+  <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+    <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+      <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+        SERVICE PAGE BACKGROUND
+      </p>
+      <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+        Wide hero photo, technician performing this specific service
+      </p>
+    </div>
+  </div>
+
+  {/* Dark gradient overlay */}
+  <div
+    class="absolute inset-0 z-10 bg-gradient-to-r from-text/90 via-text/65 to-text/30"
+    aria-hidden="true"
+  ></div>
+
+  {/* Breadcrumbs sit INSIDE the hero, overlaid on the dark bg, so the
+      hero extends to the very top of the page. Top padding gives the
+      floating nav clearance. */}
+  {breadcrumbs && (
+    <div class="relative z-20 pt-24 lg:pt-28">
+      <Breadcrumbs trail={breadcrumbs} variant="overlay" />
+    </div>
+  )}
+
+  <div
+    class:list={[
+      "relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pb-24 lg:pb-32",
+      breadcrumbs ? "pt-12 lg:pt-16" : "pt-32 lg:pt-40",
+    ]}
+  >
+    <div class="max-w-3xl">
+
+      {/* H1 pill, local-SEO pattern: "[Service] in [City, State]" */}
+      <h1
+        class="inline-block bg-brand text-brand-fg font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-pill shadow-md mb-6"
+        data-reveal
+        data-reveal-from="up"
+      >
+        {h1Pill}
+      </h1>
+
+      {/* Big visual tagline, MAX 2 lines, keep copy under ~7 words. */}
+      <p
+        class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-brand-fg leading-[1.05] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {tagline}
+      </p>
+
+      {/* Optional subtext, short single sentence. */}
+      {subtext && (
+        <p
+          class="font-body text-base lg:text-lg text-brand-fg/80 mt-6 max-w-2xl leading-relaxed"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {subtext}
+        </p>
+      )}
+
+      {/* Key-points checklist, mirrors home Hero trust markers. */}
+      {keyPoints.length > 0 && (
+        <ul
+          class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-xl"
+          role="list"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          {keyPoints.map((point) => (
+            <li class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand-fg whitespace-nowrap">
+              <svg
+                class="w-5 h-5 text-brand shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              {point}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Dual CTA */}
+      <div
+        class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-10"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="400"
+      >
+        <a
+          href={primaryCta.href}
+          class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
+        >
+          {primaryCta.label}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+        <a
+          href={phoneHref}
+          class="inline-flex items-center justify-center gap-2 bg-transparent text-brand-fg ring-2 ring-brand-fg/70 font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill hover:bg-brand-fg hover:text-text transition-colors whitespace-nowrap"
+        >
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+          </svg>
+          Call {business.phone}
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>

@@ -1,6 +1,6 @@
 ---
 /**
- * Services overview page header — two-up hero with copy on the left and a
+ * Services overview page header, two-up hero with copy on the left and a
  * team / work photo placeholder on the right.
  *
  * Owns its own top clearance (pt-28 lg:pt-36) for the floating nav pill,
@@ -31,12 +31,12 @@ interface Props {
 
 const {
   eyebrow = "Our Services",
-  heading = "Servitia quae offerimus.",
+  heading = "The services we offer.",
   subtext =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt — eadem cura per omnia servitia.",
+    "Every service backed by the same crew, the same honest pricing, and the same full written warranty. No surprises, the price we give you on the phone is the price you pay.",
   stats = [
     { value: String(business.services.length), label: "Services offered" },
-    { value: "15+", label: "Anni laboris" },
+    { value: "15+", label: "Years of experience" },
     { value: "< 2 hrs", label: "Emergency response" },
   ],
   primaryCta = { label: business.ctaLabel, href: business.ctaHref },
@@ -46,12 +46,12 @@ const {
   },
   imageSrc,
   imageAlt = "Our team at work",
-  imageLabel = "Team Photo",
+  imageLabel = "TEAM AT WORK",
 } = Astro.props;
 ---
 
 <section class="relative overflow-hidden bg-surface">
-  <!-- Ambient brand glow — ties the two columns together visually -->
+  <!-- Ambient brand glow, ties the two columns together visually -->
   <div
     class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
     aria-hidden="true"
@@ -125,7 +125,7 @@ const {
           imageSrc={imageSrc}
           imageAlt={imageAlt}
           label={imageLabel}
-          hint="A photo of your team, vehicle, or a completed job fits here."
+          hint="Team or service photo"
           bloomPosition="tl"
         />
       </div>

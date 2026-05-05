@@ -1,0 +1,174 @@
+---
+/**
+ * TestimonialsTeal, full-bleed teal section with 3 white review cards.
+ *
+ * Revive style: "What Our Happy Clients Are Saying!" header on teal, then
+ * three white rounded review cards in a row, each with a small headshot,
+ * stars, and the review text. Wave dividers above and below transition
+ * smoothly into adjacent white sections.
+ */
+import { business } from "@/data/business";
+import WaveDivider from "@/components/global/WaveDivider.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface Review {
+  name: string;
+  rating: number;
+  text: string;
+  /** Optional service-tag subheading (Revive style: "Pressure Washing in Surrey"). */
+  subheading?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  reviews?: Review[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Hide the top wave divider, useful when the previous section already
+   *  ends with its own wave so we don't double-stack curves. */
+  omitTopWave?: boolean;
+  /** Hide the bottom wave divider when the next section is already on the
+   *  brand color or wraps the transition itself. */
+  omitBottomWave?: boolean;
+  /** Compress the section's bottom padding so it reads as one
+   *  continuous block with the next teal section, instead of two
+   *  separately-padded sections separated by a teal void. */
+  tightBottom?: boolean;
+  /** Background color of the section AFTER the bottom wave. The wave
+   *  divider's transparent half shows this color, set it to match the
+   *  next section's background so there's no visible "strip" between
+   *  the wave and the following section. Defaults to "bg" (matches
+   *  most pages); set to "surface" when the next section is bg-surface
+   *  (e.g. WhatMakesUsDifferent on /contact, /faq, /gallery). */
+  bottomWaveBg?: "bg" | "surface";
+  /** Background color of the section BEFORE the top wave. Same idea
+   *  as bottomWaveBg but for the top edge. Defaults to "surface"; set
+   *  to "bg" when the section above is bg-bg (e.g. ServiceAreaMap on
+   *  /about) so the wave doesn't show a mismatched color strip. */
+  topWaveBg?: "bg" | "surface";
+}
+
+const {
+  eyebrow = "Reviews",
+  heading = "What Our Happy Clients Are Saying!",
+  reviews = business.reviews.items.slice(0, 3),
+  ctaLabel = "See All Our Reviews",
+  ctaHref = "/reviews",
+  omitTopWave = false,
+  omitBottomWave = false,
+  tightBottom = false,
+  bottomWaveBg = "bg",
+  topWaveBg = "surface",
+} = Astro.props;
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+---
+
+{!omitTopWave && <WaveDivider direction="down" fill="brand" bgFrom={topWaveBg} />}
+
+<section class:list={[
+  "bg-brand text-brand-fg relative",
+  /* Default padding is generous (pt-20 lg:pt-24 / pb-24 lg:pb-28),
+     gives the "See All Our Reviews" CTA pill plenty of breathing
+     room below it before the next section begins.
+     tightBottom keeps a moderate amount of bottom padding (10/14)
+     so the section + adjacent FinalCTA still have ~3rem of teal
+     breathing room between their content blocks while reading as one
+     continuous teal background, no awkward "two padded sections
+     glued together" effect. */
+  tightBottom
+    ? "pt-20 lg:pt-24 pb-10 lg:pb-14"
+    : "pt-20 lg:pt-24 pb-24 lg:pb-28",
+]}>
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Header -->
+    <div class="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-body text-sm font-bold tracking-widest uppercase text-brand-fg/80 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold text-4xl lg:text-5xl text-brand-fg leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+    </div>
+
+    <!-- Review cards -->
+    <ul
+      class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6"
+      role="list"
+    >
+      {reviews.map((review, i) => (
+        <li
+          class="bg-surface text-text rounded-2xl shadow-lg p-6 lg:p-7 flex flex-col"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(i * 150) as "0" | "100" | "200" | "300" | "500" | "700"}
+        >
+
+          <!-- Top: avatar + name + stars -->
+          <header class="flex items-center gap-3 mb-4">
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand font-heading font-bold text-base shrink-0">
+              {initials(review.name)}
+            </span>
+            <div class="min-w-0">
+              <p class="font-heading font-bold text-text text-sm leading-tight truncate">
+                {review.name}
+              </p>
+              <StarRating
+                count={review.rating}
+                class="flex gap-0.5 mt-1"
+                starClass="w-3.5 h-3.5"
+              />
+            </div>
+          </header>
+
+          <!-- Service-tag subheading (Revive style) -->
+          {review.subheading && (
+            <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-3 pb-3 border-b border-border">
+              {review.subheading}
+            </p>
+          )}
+
+          <!-- Quote -->
+          <p class="font-body text-sm text-text-soft leading-relaxed flex-1">
+            &ldquo;{review.text}&rdquo;
+          </p>
+        </li>
+      ))}
+    </ul>
+
+    <!-- CTA -->
+    <div class="mt-12 text-center">
+      <a
+        href={ctaHref}
+        class="inline-flex items-center gap-2 bg-brand-fg text-brand font-body font-bold text-sm tracking-widest uppercase px-8 py-4 rounded-pill shadow-lg hover:bg-brand-tint transition-colors"
+      >
+        {ctaLabel}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{!omitBottomWave && <WaveDivider direction="up" fill="brand" bgFrom={bottomWaveBg} />}

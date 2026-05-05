@@ -1,0 +1,145 @@
+---
+/**
+ * GalleryGrid, the visual portfolio for the /gallery page.
+ *
+ * CSS-columns Pinterest-style layout: each tile is a photo with a
+ * mixed aspect ratio (square, portrait, landscape) so the grid feels
+ * editorial rather than a uniform 3-col block. Items naturally
+ * distribute across columns and `break-inside-avoid` prevents a tile
+ * from being split across the column boundary.
+ *
+ * Each tile has:
+ *   - Always-visible small caption at the bottom (service · area)
+ *   - Hover overlay: dark teal wash that fades in revealing
+ *     service tag + area tag + brief description + Learn More arrow
+ *
+ * Reads `business.gallery`. Anti-fragile to count and to per-tile
+ * aspect ratio — drop in 6 tiles or 60, the layout balances itself.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface GalleryItem {
+  service: string;
+  serviceSlug: string;
+  area: string;
+  areaSlug: string;
+  label: string;
+  hint: string;
+  description: string;
+  aspect?: "1/1" | "4/5" | "16/9" | "5/4" | "4/3";
+  bloom?: "tl" | "tr" | "bl" | "br";
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  items?: GalleryItem[];
+}
+
+const data = (business as { gallery?: GalleryItem[] }).gallery;
+
+const {
+  eyebrow = "Recent Projects",
+  heading = "Work we're proud of.",
+  subtext = "Every photo is a real job we've done. Hover any tile to see what we did and where.",
+  items = data ?? [],
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+      <h2
+        class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+      {subtext && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-2xl mx-auto"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- CSS-columns gallery, mixed aspects, masonry-feel -->
+    <div
+      class="columns-1 sm:columns-2 lg:columns-3 gap-5 lg:gap-6"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="300"
+    >
+      {items.map((item, i) => (
+        <a
+          href={`/services/${item.serviceSlug}`}
+          class="group relative block break-inside-avoid mb-5 lg:mb-6 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+          aria-label={`${item.service} project in ${item.area}`}
+        >
+          <!-- Photo -->
+          <ImagePlaceholder
+            aspect={item.aspect ?? "1/1"}
+            label={item.label}
+            hint={item.hint}
+            bloomPosition={item.bloom ?? (i % 2 === 0 ? "tl" : "tr")}
+          />
+
+          <!-- Always-visible bottom gradient + caption -->
+          <div class="absolute inset-x-0 bottom-0 z-10 p-4 lg:p-5 bg-gradient-to-t from-text/95 via-text/60 to-transparent pointer-events-none">
+            <p class="font-body text-xs lg:text-sm font-bold tracking-wider uppercase text-brand-fg leading-tight">
+              {item.service} <span class="text-brand-fg/60 font-normal normal-case tracking-normal">·</span> {item.area}
+            </p>
+          </div>
+
+          <!-- Hover overlay: dark teal wash with full info -->
+          <div class="absolute inset-0 z-20 bg-brand/95 backdrop-blur-sm flex flex-col justify-end text-left p-5 lg:p-6 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <span class="inline-flex items-center bg-brand-fg/20 text-brand-fg font-body text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-pill ring-1 ring-brand-fg/30">
+                {item.service}
+              </span>
+              <span class="inline-flex items-center gap-1 bg-brand-fg/10 text-brand-fg font-body text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-pill ring-1 ring-brand-fg/20">
+                <svg class="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 2a6 6 0 00-6 6c0 4.314 6 10 6 10s6-5.686 6-10a6 6 0 00-6-6zm0 8a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                </svg>
+                {item.area}
+              </span>
+            </div>
+            <p class="font-body text-sm lg:text-base text-brand-fg leading-snug mb-4">
+              {item.description}
+            </p>
+            <span class="inline-flex items-center gap-1.5 self-start font-body text-xs font-bold tracking-widest uppercase text-brand-fg">
+              View {item.service}
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</section>

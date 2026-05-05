@@ -1,0 +1,219 @@
+---
+/**
+ * LocationAbout, "About [City]" section that anchors the page in
+ * the local community. Three blocks of content:
+ *
+ *   1. Why we serve here, intro paragraph framing the relationship
+ *      with this city.
+ *   2. Local history paragraph, 2-3 sentences of city history /
+ *      cultural context.
+ *   3. Local landmarks chip list and neighborhood chip list, the
+ *      "we know this city" proof.
+ *
+ * Visual treatment mirrors the home WelcomeIntro pattern (text left,
+ * stacked photo collage right with a featured photo + offset second
+ * photo) so the page rhythm stays consistent with the home page.
+ */
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  cityName: string;
+  /** Headline-level intro paragraph, "we proudly serve [city]". */
+  intro?: string;
+  /** Why we serve here paragraph, the local-relevance angle. */
+  whyHere?: string;
+  /** City history paragraph. */
+  history?: string;
+  landmarks?: string[];
+  neighborhoods?: string[];
+}
+
+const {
+  cityName,
+  intro,
+  whyHere,
+  history,
+  landmarks = [],
+  neighborhoods = [],
+} = Astro.props;
+---
+
+<section class="bg-bg pt-20 lg:pt-28 pb-20 lg:pb-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+
+      <!-- LEFT: long-form copy block -->
+      <div class="lg:col-span-7">
+        <div
+          class="inline-flex items-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="left"
+        >
+          <span class="block w-1 h-6 bg-brand rounded-full" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-wider uppercase text-brand">
+            About {cityName}
+          </span>
+        </div>
+
+        <h2
+          class="font-heading font-extrabold italic text-3xl lg:text-5xl text-text leading-[1.1]"
+          data-reveal
+          data-reveal-from="left"
+          data-reveal-delay="100"
+        >
+          We're proud to serve <span class="not-italic text-brand">{cityName}</span>.
+        </h2>
+
+        {intro && (
+          <p
+            class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed"
+            data-reveal
+            data-reveal-from="left"
+            data-reveal-delay="200"
+          >
+            {intro}
+          </p>
+        )}
+
+        {whyHere && (
+          <div
+            class="mt-8 pt-8 border-t border-border"
+            data-reveal
+            data-reveal-from="left"
+            data-reveal-delay="300"
+          >
+            <h3 class="font-heading font-bold text-lg lg:text-xl text-text mb-3">
+              Why we offer service in {cityName}
+            </h3>
+            <p class="font-body text-base text-text-soft leading-relaxed">
+              {whyHere}
+            </p>
+          </div>
+        )}
+
+        {history && (
+          <div
+            class="mt-8 pt-8 border-t border-border"
+            data-reveal
+            data-reveal-from="left"
+            data-reveal-delay="400"
+          >
+            <h3 class="font-heading font-bold text-lg lg:text-xl text-text mb-3">
+              A little about {cityName}
+            </h3>
+            <p class="font-body text-base text-text-soft leading-relaxed">
+              {history}
+            </p>
+          </div>
+        )}
+
+      </div>
+
+      <!-- RIGHT: photo collage + landmarks/neighborhoods -->
+      <div class="lg:col-span-5">
+
+        <!-- Photo collage, mirrors WelcomeIntro pattern -->
+        <div
+          class="relative"
+          data-reveal
+          data-reveal-from="right"
+        >
+          <!-- Front photo -->
+          <div class="relative z-10">
+            <ImagePlaceholder
+              aspect="5/4"
+              label={`${cityName.toUpperCase()} PHOTO`}
+              hint={`Wide shot of ${cityName} skyline or recognizable place`}
+              bloomPosition="tr"
+            />
+          </div>
+          <!-- Offset back photo -->
+          <div class="absolute -bottom-8 -right-3 lg:-right-8 w-2/5 z-20 ring-4 ring-bg rounded-xl overflow-hidden shadow-xl">
+            <ImagePlaceholder
+              aspect="4/3"
+              label="WORK PHOTO"
+              hint={`Job site in ${cityName}`}
+              bloomPosition="bl"
+            />
+          </div>
+        </div>
+
+        {/* Landmark + neighborhood lists rendered as CSS-columns lists,
+            NOT pill chips. The pill-chip pattern looks great when every
+            item fits on one line, but real city data ships with names
+            like "St. John's Wood Heights" or "Kitsilano-Point Grey,"
+            those long names wrap inside their pill and the row goes
+            uneven. CSS multicolumn fixes that:
+              - Each item is its own row with a leading icon, so a long
+                name wraps cleanly within its column without affecting
+                siblings.
+              - `break-inside-avoid` prevents an item from splitting
+                across columns at the bottom of one and top of another.
+              - The browser auto-balances column heights, so a few long
+                names + many short names still looks even.
+            Result is editorial, scannable, and immune to the worst
+            cases of arbitrary text length. */}
+        {landmarks.length > 0 && (
+          <div
+            class="mt-16 lg:mt-20 bg-surface rounded-2xl ring-1 ring-border p-5 lg:p-6"
+            data-reveal
+            data-reveal-from="right"
+            data-reveal-delay="200"
+          >
+            <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-4">
+              Local Landmarks We Know
+            </p>
+            <ul class="columns-1 sm:columns-2 gap-x-6" role="list">
+              {landmarks.map((landmark) => (
+                <li class="break-inside-avoid flex items-start gap-2.5 py-1.5">
+                  <svg
+                    class="w-4 h-4 text-brand shrink-0 mt-0.5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path fill-rule="evenodd" d="M10 2a6 6 0 00-6 6c0 4.314 6 10 6 10s6-5.686 6-10a6 6 0 00-6-6zm0 8a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="font-body text-sm text-text leading-snug">
+                    {landmark}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {neighborhoods.length > 0 && (
+          <div
+            class="mt-5 bg-surface rounded-2xl ring-1 ring-border p-5 lg:p-6"
+            data-reveal
+            data-reveal-from="right"
+            data-reveal-delay="300"
+          >
+            <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-4">
+              Neighborhoods We Cover
+            </p>
+            <ul class="columns-1 sm:columns-2 gap-x-6" role="list">
+              {neighborhoods.map((hood) => (
+                <li class="break-inside-avoid flex items-start gap-2.5 py-1.5">
+                  <svg
+                    class="w-4 h-4 text-brand shrink-0 mt-0.5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="font-body text-sm text-text leading-snug">
+                    {hood}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+</section>

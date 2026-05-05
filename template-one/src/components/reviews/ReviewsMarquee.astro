@@ -1,9 +1,9 @@
 ---
 /**
- * Reviews — horizontal scrolling ticker. Used on the /services page.
+ * Reviews, horizontal scrolling ticker. Used on the /services page.
  *
  * Reviews flow continuously left-to-right in an infinite marquee. No cards
- * — each review is just stars, a short quote, and an attribution, separated
+ *, each review is just stars, a short quote, and an attribution, separated
  * by a hairline vertical rule. The content loops seamlessly by rendering
  * the list twice and translating the track by -50%.
  *
@@ -33,7 +33,7 @@ interface Props {
 
 const {
   eyebrow = "Google Reviews",
-  heading = "Quid clientes de opere nostro dicunt.",
+  heading = "What customers say about the work.",
   rating = business.reviews.rating,
   total = business.reviews.total,
   reviews = business.reviews.items,
@@ -79,7 +79,7 @@ const marqueeItems = [...reviews, ...reviews];
     </div>
   </div>
 
-  <!-- Marquee viewport — full-bleed so the track can run past the page gutter -->
+  <!-- Marquee viewport, full-bleed so the track can run past the page gutter -->
   <div class="relative" data-marquee>
     <!-- Edge fades (match bg-bg so the strip appears to dissolve) -->
     <div
@@ -91,7 +91,7 @@ const marqueeItems = [...reviews, ...reviews];
       aria-hidden="true"
     ></div>
 
-    <!-- The track itself — doubled content for seamless looping -->
+    <!-- The track itself, doubled content for seamless looping -->
     <div
       class="flex items-stretch gap-10 sm:gap-14 w-max marquee-track"
       style={`--marquee-duration: ${durationSeconds}s;`}
@@ -109,7 +109,7 @@ const marqueeItems = [...reviews, ...reviews];
               &ldquo;{review.text}&rdquo;
             </p>
             <p class="font-body text-xs font-semibold text-text-soft mt-2">
-              — {review.name}
+              {review.name}
             </p>
           </div>
         </article>

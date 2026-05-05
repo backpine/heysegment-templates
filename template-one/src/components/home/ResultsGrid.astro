@@ -1,0 +1,184 @@
+---
+/**
+ * ResultsGrid, "Results That Speak For Themselves" recent-projects
+ * slider.
+ *
+ * Despite the legacy file name, this is now an INFINITE-SCROLL
+ * MARQUEE: a horizontal row of project tiles that auto-scrolls slowly
+ * left-to-right and pauses when the user hovers anywhere on the track.
+ *
+ * How the seamless loop works:
+ *   - The tiles array is rendered TWICE inside a single flex track.
+ *   - The track animates from translateX(0) to translateX(-50%) on a
+ *     60-second linear loop.
+ *   - Because the second half is visually identical to the first, when
+ *     the animation snaps back to 0 the user never sees the seam.
+ *   - Each tile uses a uniform right margin (NOT flex gap) so the
+ *     spacing pattern repeats exactly across the loop boundary.
+ *
+ * Caption (e.g. "Service 1 · Service Area 1") overlays the bottom of
+ * each photo on a dark gradient so it's always readable while still
+ * letting the photo dominate the tile.
+ *
+ * Respects `prefers-reduced-motion`, the animation is disabled for
+ * users who opt out of motion.
+ */
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import { business } from "@/data/business";
+
+interface Tile {
+  label: string;
+  hint: string;
+  caption?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  tiles?: Tile[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Seconds for one full marquee loop. Slower = more readable. */
+  durationSeconds?: number;
+}
+
+const {
+  eyebrow = "Recent Projects",
+  heading = "Results That Speak For Themselves",
+  tiles = [
+    { label: "PROJECT 1", hint: "Recent project photo", caption: "Service 1 · Service Area 1" },
+    { label: "PROJECT 2", hint: "Recent project photo", caption: "Service 2 · Service Area 2" },
+    { label: "PROJECT 3", hint: "Recent project photo", caption: "Service 3 · Service Area 3" },
+    { label: "PROJECT 4", hint: "Recent project photo", caption: "Service 4 · Service Area 1" },
+    { label: "PROJECT 5", hint: "Recent project photo", caption: "Service 1 · Service Area 2" },
+    { label: "PROJECT 6", hint: "Recent project photo", caption: "Service 2 · Service Area 3" },
+  ],
+  ctaLabel = "Get a Fast Quote",
+  ctaHref = business.ctaHref,
+  durationSeconds = 60,
+} = Astro.props;
+
+// Render tiles twice for the seamless loop.
+const trackTiles = [...tiles, ...tiles];
+---
+
+<section class="bg-bg py-20 lg:py-28 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Header -->
+    <div class="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-body text-sm font-bold tracking-widest uppercase text-brand mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold text-4xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+    </div>
+  </div>
+
+  <!-- Marquee, full-bleed so the slider can extend edge-to-edge with
+       a soft fade on each side that hints at off-screen content. -->
+  <div
+    class="marquee-group relative"
+    data-reveal
+    data-reveal-from="up"
+    data-reveal-delay="200"
+  >
+    <!-- Edge fades -->
+    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 lg:w-24 bg-gradient-to-r from-bg to-transparent" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 lg:w-24 bg-gradient-to-l from-bg to-transparent" aria-hidden="true"></div>
+
+    <ul
+      class="marquee-track flex w-max"
+      role="list"
+      style={`animation-duration: ${durationSeconds}s;`}
+    >
+      {trackTiles.map((tile, i) => (
+        <li
+          class="shrink-0 w-[260px] sm:w-[300px] lg:w-[340px] mr-4 lg:mr-6"
+          aria-hidden={i >= tiles.length ? "true" : undefined}
+        >
+          <article class="relative rounded-2xl overflow-hidden shadow-md ring-1 ring-border/60 bg-surface">
+            <ImagePlaceholder
+              aspect="4/3"
+              label={tile.label}
+              hint={tile.hint}
+              bloomPosition={i % 2 === 0 ? "tl" : "tr"}
+            />
+            {/* Always-visible caption overlay at bottom of photo */}
+            {tile.caption && (
+              <div class="absolute inset-x-0 bottom-0 z-10 p-4 bg-gradient-to-t from-text/95 via-text/70 to-transparent pointer-events-none">
+                <p class="font-body text-sm font-semibold text-brand-fg leading-tight">
+                  {tile.caption}
+                </p>
+              </div>
+            )}
+          </article>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <!-- CTA -->
+    <div class="mt-12 text-center" data-reveal data-reveal-from="up">
+      <a
+        href={ctaHref}
+        class="inline-flex items-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-sm tracking-widest uppercase px-8 py-4 rounded-pill shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+      >
+        {ctaLabel}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Slow auto-scroll, animation-duration is supplied inline (per-instance). */
+  .marquee-track {
+    animation-name: marquee;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* -50% = exactly one full duplicated half-width, which lines up
+         tile (N+tilesCount) with original tile N. Because the right
+         margin is uniform on every tile (no flex gap), the spacing
+         pattern repeats seamlessly across the loop boundary. */
+      transform: translateX(-50%);
+    }
+  }
+  /* Pause on hover anywhere over the slider. */
+  .marquee-group:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  /* Pause when any tile receives keyboard focus, accessibility. */
+  .marquee-group:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+  /* Honor user motion preferences. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>

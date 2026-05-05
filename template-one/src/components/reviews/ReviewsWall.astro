@@ -1,0 +1,139 @@
+---
+/**
+ * ReviewsWall, the "wall of love" used on /reviews.
+ *
+ * CSS-columns masonry layout, every review in `business.reviews.items`
+ * gets its own card. Card heights vary with review length; CSS columns
+ * auto-balance and `break-inside-avoid` keeps each card intact across
+ * column boundaries.
+ *
+ * Each card has:
+ *   - Initials disc + customer name + 5-star rating
+ *   - Optional service-tag subheading (e.g. "Service 1 in Service Area 1")
+ *   - The review text
+ *
+ * Reads `business.reviews.items`. Designed to scroll for a long time on
+ * /reviews so the page feels saturated with social proof.
+ */
+import { business } from "@/data/business";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface Review {
+  name: string;
+  rating: number;
+  text: string;
+  subheading?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  reviews?: Review[];
+}
+
+const {
+  eyebrow,
+  heading,
+  subtext,
+  reviews = business.reviews.items,
+} = Astro.props;
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    {/* Optional centered header */}
+    {(eyebrow || heading || subtext) && (
+      <div class="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
+        {eyebrow && (
+          <div
+            class="inline-flex items-center justify-center gap-2.5 mb-4"
+            data-reveal
+            data-reveal-from="up"
+          >
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+            <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          </div>
+        )}
+        {heading && (
+          <h2
+            class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1]"
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="100"
+          >
+            {heading}
+          </h2>
+        )}
+        {subtext && (
+          <p
+            class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-2xl mx-auto"
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="200"
+          >
+            {subtext}
+          </p>
+        )}
+      </div>
+    )}
+
+    {/* Masonry-feel CSS-columns wall, balances naturally and never
+        leaves orphan rows. Each card stays intact across column
+        boundaries via break-inside-avoid. */}
+    <div
+      class="columns-1 sm:columns-2 lg:columns-3 gap-5 lg:gap-6"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="200"
+    >
+      {reviews.map((review) => (
+        <article
+          class="break-inside-avoid mb-5 lg:mb-6 bg-surface rounded-2xl shadow-sm ring-1 ring-border p-6 lg:p-7 hover:shadow-md hover:ring-brand/30 transition-all"
+        >
+          {/* Top row, initials disc + name + stars */}
+          <header class="flex items-center gap-3 mb-4">
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand font-heading font-bold text-base shrink-0">
+              {initials(review.name)}
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="font-heading font-bold text-text text-sm leading-tight truncate">
+                {review.name}
+              </p>
+              <StarRating
+                count={review.rating}
+                class="flex gap-0.5 mt-1"
+                starClass="w-3.5 h-3.5"
+              />
+            </div>
+          </header>
+
+          {/* Optional service-tag subheading */}
+          {review.subheading && (
+            <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-3 pb-3 border-b border-border">
+              {review.subheading}
+            </p>
+          )}
+
+          {/* Quote */}
+          <p class="font-body text-sm lg:text-base text-text-soft leading-relaxed">
+            &ldquo;{review.text}&rdquo;
+          </p>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>

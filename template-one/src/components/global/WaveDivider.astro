@@ -1,0 +1,82 @@
+---
+/**
+ * WaveDivider, curved SVG section divider.
+ *
+ * The wave has two visual halves:
+ *   - the FILL half (one side of the curve) is the brand-color section
+ *     it's transitioning into.
+ *   - the OPPOSITE half (the other side of the curve) is transparent and
+ *     shows whatever is behind the divider container. To avoid a visible
+ *     seam between the previous section and the wave, set `bgFrom` to the
+ *     surface color of the section the wave is "leaving".
+ *
+ * Direction:
+ *   "down", curve dips down. Use when section ABOVE is light and section
+ *           BELOW is brand color. Pass bgFrom="surface" so the white
+ *           section reads continuously into the transparent half.
+ *   "up",   curve rises up. Use when section ABOVE is brand and section
+ *           BELOW is light. Pass bgFrom="surface" or "bg" so the lower
+ *           half reads continuously into the next section.
+ */
+interface Props {
+  direction?: "down" | "up";
+  /** Color of the curved fill (the half "inside" the brand-color section). */
+  fill?: "brand" | "surface" | "bg" | "text";
+  /** Color of the OPPOSITE half (the section the wave is touching). */
+  bgFrom?: "surface" | "bg" | "text" | "transparent";
+  /** Tailwind class for height. */
+  heightClass?: string;
+}
+
+const {
+  direction = "down",
+  fill = "brand",
+  bgFrom = "surface",
+  heightClass = "h-12 lg:h-16",
+} = Astro.props;
+
+const fillClass = {
+  brand: "text-brand",
+  surface: "text-surface",
+  bg: "text-bg",
+  text: "text-text",
+}[fill];
+
+const bgClass = {
+  surface: "bg-surface",
+  bg: "bg-bg",
+  text: "bg-text",
+  transparent: "bg-transparent",
+}[bgFrom];
+---
+
+<div
+  class:list={["w-full overflow-hidden leading-[0]", heightClass, bgClass]}
+  aria-hidden="true"
+>
+  {direction === "down" ? (
+    <svg
+      class:list={["block w-full h-full", fillClass]}
+      viewBox="0 0 1440 80"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0,0 C280,80 720,80 1440,0 L1440,80 L0,80 Z"
+        fill="currentColor"
+      />
+    </svg>
+  ) : (
+    <svg
+      class:list={["block w-full h-full", fillClass]}
+      viewBox="0 0 1440 80"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0,80 C280,0 720,0 1440,80 L1440,0 L0,0 Z"
+        fill="currentColor"
+      />
+    </svg>
+  )}
+</div>

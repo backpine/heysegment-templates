@@ -1,6 +1,6 @@
 ---
 /**
- * Service area page header — two-up hero with copy on the left and a local
+ * Service area page header, two-up hero with copy on the left and a local
  * area photo placeholder on the right.
  *
  * Owns its own top clearance (pt-28 lg:pt-36) for the floating nav pill,
@@ -28,9 +28,9 @@ interface Props {
 
 const {
   eyebrow = "Service Area",
-  heading = "Ubi laboramus.",
+  heading = "Where we work.",
   subtext =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt — same team, same pricing, same response times across the whole coverage zone.",
+    "Same team, same pricing, same response times across the whole coverage zone. If your city's on the list, we can get there fast.",
   stats = [
     { value: String(business.serviceAreas.length), label: "Cities served" },
     { value: "30-mile", label: "Coverage radius" },
@@ -38,12 +38,12 @@ const {
   ],
   imageSrc,
   imageAlt = "Local area photo",
-  imageLabel = "Local Area Photo",
+  imageLabel = "LOCAL AREA PHOTO",
 } = Astro.props;
 ---
 
 <section class="relative overflow-hidden bg-surface">
-  <!-- Ambient brand glow — same treatment as the home hero -->
+  <!-- Ambient brand glow, same treatment as the home hero -->
   <div
     class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
     aria-hidden="true"
@@ -87,14 +87,14 @@ const {
 
       </div>
 
-      <!-- Image placeholder — clearly shows where a local area photo goes -->
+      <!-- Image placeholder, clearly shows where a local area photo goes -->
       <div class="lg:col-span-6">
         <ImagePlaceholder
           aspect="5/4"
           imageSrc={imageSrc}
           imageAlt={imageAlt}
           label={imageLabel}
-          hint="A neighborhood shot, skyline, or local landmark fits here."
+          hint="Local area or landmark"
           bloomPosition="tr"
         />
       </div>

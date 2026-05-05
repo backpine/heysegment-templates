@@ -133,7 +133,7 @@ const {
   </head>
   <body class="min-h-screen flex flex-col">
     <Nav />
-    {/* No padding here — sections paint edge-to-edge so a dark or image hero
+    {/* No padding here, sections paint edge-to-edge so a dark or image hero
         can extend its background behind the floating nav pill. Each section
         that sits at the top or bottom of the page is responsible for leaving
         its own clearance for the floating bars. */}
@@ -141,5 +141,11 @@ const {
       <slot />
     </main>
     <Footer />
+
+    {/* Universal scroll-reveal observer, watches every [data-reveal]
+        element and animates it in when scrolled into view. */}
+    <script>
+      import "@/scripts/scroll-reveal.ts";
+    </script>
   </body>
 </html>

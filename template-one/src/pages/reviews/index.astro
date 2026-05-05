@@ -1,33 +1,169 @@
 ---
 /**
- * Reviews page — the full wall of Google reviews.
+ * Reviews page, the "wall of love".
  *
- * ReviewsHeader opens with the aggregate rating as the hero visual, then
- * ReviewsMasonry shows every review in the list. CheckAvailability closes.
- * Nav + Footer come from Layout automatically.
+ * Composition mirrors the home / services / service-area / about /
+ * gallery / faq style. Conversion-focused, centered hero + lots of
+ * social proof + reused trust sections + CTA closer.
+ *
+ *   1. Inline page header     , dark navy + CENTERED pill H1 + CENTERED dual CTA + breadcrumbs INSIDE
+ *   2. ReviewsWall            , every review from business.reviews.items as a masonry wall
+ *   3. TrustChecklist         , reused (Why locals choose us)
+ *   4. WhatMakesUsDifferent   , reused (3 differentiators)
+ *   5. FinalCTA               , reused, dual CTA closer
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import ReviewsHeader from "@/components/reviews/ReviewsHeader.astro";
-import ReviewsMasonry from "@/components/reviews/ReviewsMasonry.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import GoogleLogo from "@/components/ui/GoogleLogo.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+import ReviewsWall from "@/components/reviews/ReviewsWall.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const reviewTotal = business.reviews?.total ?? business.reviews.items.length;
+const reviewRating = business.reviews?.rating ?? 5.0;
 ---
 
 <Layout
-  title={`Reviews — ${business.name}`}
-  description={`Read ${business.reviews.total}+ Google reviews for ${business.name}.`}
+  title={`Reviews, ${business.name}`}
+  description={`Read ${reviewTotal}+ reviews for ${business.name}. ${reviewRating} star average.`}
 >
-  <ReviewsHeader />
+  {/* 1. Centered inline dark navy hero, with breadcrumbs INSIDE so the
+       dark bg paints to the very top of the page. The hero text and
+       dual CTA are CENTERED (different from the other hub-page heroes
+       which are left-aligned), this is a "wall of love" intro and the
+       centered layout signals "social proof, headline-style". */}
+  <section class="relative bg-text overflow-hidden isolate">
 
-  <ReviewsMasonry
-    eyebrow="Every Review"
-    heading="Verba ipsorum clientium."
-  />
+    {/* Background gradient placeholder. */}
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          REVIEWS PAGE BACKGROUND
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          Wide hero photo of happy customers, finished work, or branded vehicle
+        </p>
+      </div>
+    </div>
 
-  <CheckAvailability
-    heading="Join the list."
-    subtext="Lorem ipsum dolor sit amet — voca hodie et videbis quare tantum clientes nos laudent."
+    {/* Dark gradient overlay for readable copy. */}
+    <div
+      class="absolute inset-0 z-10 bg-gradient-to-b from-text/85 via-text/65 to-text/85"
+      aria-hidden="true"
+    ></div>
+
+    {/* Decorative ambient glow behind the centered headline. */}
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[600px] rounded-full bg-brand/15 blur-3xl pointer-events-none"
+      aria-hidden="true"
+    ></div>
+
+    {/* Breadcrumbs overlaid on the dark hero. */}
+    <div class="relative z-20 pt-24 lg:pt-28">
+      <Breadcrumbs trail={[{ label: "Reviews", href: "/reviews" }]} variant="overlay" />
+    </div>
+
+    {/* Centered content. The aggregate Google rating sits ABOVE the
+        big headline as the primary trust signal. The H1 pill that was
+        between them is intentionally omitted, the centered Google
+        badge + headline reads as one tight credibility block. The
+        big <h1> below carries the page's H1 semantics in its place. */}
+    <div class="relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pt-10 lg:pt-14 pb-20 lg:pb-28 text-center">
+
+      {/* Aggregate Google rating badge, centered above the headline.
+          Wrapped in a pill on a soft white-translucent bg so it pops
+          against the dark hero. */}
+      <div
+        class="inline-flex items-center gap-3 bg-brand-fg/10 ring-1 ring-brand-fg/20 backdrop-blur-sm rounded-pill px-5 py-2.5 mb-7"
+        data-reveal
+        data-reveal-from="up"
+      >
+        <GoogleLogo class="w-7 h-7 lg:w-8 lg:h-8 shrink-0" />
+        <span class="font-heading font-extrabold text-xl lg:text-2xl text-brand-fg leading-none tabular-nums">
+          {reviewRating.toFixed(1)}
+        </span>
+        <StarRating
+          ariaLabel={`${reviewRating} out of 5 stars`}
+          class="flex gap-0.5"
+          starClass="w-4 h-4 lg:w-5 lg:h-5"
+        />
+        <span class="font-body text-xs lg:text-sm text-brand-fg/80 whitespace-nowrap">
+          from <strong class="text-brand-fg font-semibold">{reviewTotal}+</strong> reviews
+        </span>
+      </div>
+
+      {/* Big visual headline (this is now the page's <h1>) */}
+      <h1
+        class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-brand-fg leading-[1.05] tracking-tight max-w-4xl mx-auto"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        See why <span class="text-brand italic">{reviewTotal}+ people</span> keep saying yes.
+      </h1>
+
+      {/* Subtext */}
+      <p
+        class="font-body text-base lg:text-lg text-brand-fg/80 mt-6 max-w-2xl mx-auto leading-relaxed"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="200"
+      >
+        Real reviews from real customers, no edits, no filters. Read the wall below, then book your own free quote.
+      </p>
+
+      {/* Centered dual CTA */}
+      <div
+        class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 mt-10"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="300"
+      >
+        <a
+          href={business.ctaHref}
+          class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
+        >
+          {business.ctaLabel}
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+        <a
+          href={phoneHref}
+          class="inline-flex items-center justify-center gap-2 bg-transparent text-brand-fg ring-2 ring-brand-fg/70 font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill hover:bg-brand-fg hover:text-text transition-colors whitespace-nowrap"
+        >
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+          </svg>
+          Call {business.phone}
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  {/* 2. The wall of love itself, every review as a masonry card. */}
+  <ReviewsWall />
+
+  {/* 3. Why locals choose us. */}
+  <TrustChecklist heading="Why locals choose us." />
+
+  {/* 4. The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* 5. Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    eyebrow={null}
+    heading={`Want to be our next 5-star review?`}
+    subtext="Free quote. Honest pricing. Real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
   />
 </Layout>

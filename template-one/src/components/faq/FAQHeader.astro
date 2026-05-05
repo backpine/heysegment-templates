@@ -1,8 +1,8 @@
 ---
 /**
- * FAQ page header — text-forward utility header.
+ * FAQ page header, text-forward utility header.
  *
- * No image placeholder — the questions below are the content. Stats row
+ * No image placeholder, the questions below are the content. Stats row
  * gives the header enough visual weight without borrowing from other
  * page-header patterns on the site.
  *
@@ -18,9 +18,9 @@ interface Props {
 
 const {
   eyebrow = "Common Questions",
-  heading = "Interrogationes frequentissimae.",
+  heading = "The questions we get asked the most.",
   subtext =
-    "Lorem ipsum dolor sit amet — answers to the things customers ask us most. If yours isn't here, give us a call and we'll walk you through it.",
+    "Answers to the things customers ask us most often. If yours isn't here, give us a call and we'll walk you through it.",
 } = Astro.props;
 
 const totalQuestions = business.faqs.reduce(

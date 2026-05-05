@@ -1,7 +1,7 @@
 ---
 /**
  * Centered close section with a phone CTA. Every page uses it as its
- * closing call-to-action — props swap the heading/subtext to match the
+ * closing call-to-action, props swap the heading/subtext to match the
  * page it appears on. No secondary button: with no contact form page, a
  * "Send a Message" outline button would just dial the same number again.
  */
@@ -16,7 +16,7 @@ interface Props {
 const {
   heading = "Don't see your city?",
   subtext =
-    "Lorem ipsum dolor sit amet — give us a call and we'll tell you in thirty seconds whether we can reach you.",
+    "Give us a call and we'll tell you in thirty seconds whether we can reach you, most of the time we can, even if it's not on the list.",
   phone = business.phone,
 } = Astro.props;
 

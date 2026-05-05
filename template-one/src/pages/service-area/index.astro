@@ -1,26 +1,183 @@
 ---
 /**
- * Service area page — where the business operates.
+ * All Service Areas directory page.
  *
- * Nav and Footer come from Layout.astro automatically. Sections read from
- * src/data/business.ts so swapping a site is a single-file change.
+ * Composition mirrors the /services directory page structure (hero +
+ * directory list + reused home sections + closer) so the two hub pages
+ * read as siblings:
+ *
+ *   1. Inline page header        , dark navy + pill H1 + dual CTA + breadcrumbs
+ *   2. ServiceAreaDirectoryList  , dark navy continuation, horizontal city cards
+ *   3. TestimonialsTeal          , reused (top wave omitted, directory's wave handles it)
+ *   4. TrustChecklist            , reused (Why Choose Us)
+ *   5. WhatMakesUsDifferent      , reused (3 differentiators)
+ *   6. ProcessSteps              , reused (universal 3-step)
+ *   7. ServiceAreaMap            , embedded coverage map
+ *   8. FAQ                       , reused, FILTERED to "Service Areas" + general
+ *   9. FinalCTA                  , reused with dual CTA enabled
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import PageHeader from "@/components/service-area/PageHeader.astro";
-import ServiceMap from "@/components/service-area/ServiceMap.astro";
-import CoverageDetails from "@/components/service-area/CoverageDetails.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import ServiceAreaDirectoryList from "@/components/service-area/ServiceAreaDirectoryList.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import ServiceAreaMap from "@/components/home/ServiceAreaMap.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const h1Pill = `Service Areas We Cover in ${cityState}`;
+
+// Directory FAQ uses the same buckets as the per-city pages:
+// General + Service Areas + Scheduling & Pricing.
+const matchingCats = ["General", "Service Areas", "Scheduling & Pricing"];
+const directoryFaqs = business.faqs
+  .filter((cat) => matchingCats.includes(cat.category))
+  .flatMap((cat) => cat.questions);
 ---
 
 <Layout
-  title={`Service Area — ${business.name}`}
-  description={`Cities served by ${business.name}, coverage map, and what to expect.`}
+  title={`Service Areas, ${business.name}`}
+  description={`Every city served by ${business.name}. Browse the full coverage list and click any city to learn more about local service.`}
 >
-  <PageHeader />
-  <ServiceMap />
-  <CoverageDetails />
-  <CheckAvailability />
+  {/* Compact inline page header, Hero-style but shorter than home.
+      Bottom padding intentionally tight, ServiceAreaDirectoryList
+      continues on the same dark bg with no break. Breadcrumbs render
+      INSIDE the hero (overlay variant) so the dark background extends
+      all the way to the very top of the page. */}
+  <section class="relative bg-text overflow-hidden isolate">
+
+    {/* Background gradient placeholder. */}
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          PAGE HEADER BACKGROUND
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          Wide hero photo, regional skyline, map shot, or branded vehicle
+        </p>
+      </div>
+    </div>
+
+    {/* Dark gradient overlay for readable copy. */}
+    <div
+      class="absolute inset-0 z-10 bg-gradient-to-r from-text/90 via-text/65 to-text/30"
+      aria-hidden="true"
+    ></div>
+
+    {/* Breadcrumbs overlaid on the dark hero. */}
+    <div class="relative z-20 pt-24 lg:pt-28">
+      <Breadcrumbs trail={[{ label: "Service Area", href: "/service-area" }]} variant="overlay" />
+    </div>
+
+    {/* Content */}
+    <div class="relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pt-12 lg:pt-16 pb-20 lg:pb-28">
+      <div class="max-w-3xl">
+
+        {/* H1 pill, local-SEO pattern. */}
+        <h1
+          class="inline-block bg-brand text-brand-fg font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-pill shadow-md mb-6"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {h1Pill}
+        </h1>
+
+        {/* Big visual headline */}
+        <p
+          class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-brand-fg leading-[1.05] tracking-tight"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="100"
+        >
+          Local crew, <span class="text-brand italic">whole region.</span>
+        </p>
+
+        {/* Subtext */}
+        <p
+          class="font-body text-base lg:text-lg text-brand-fg/80 mt-6 max-w-2xl leading-relaxed"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the cities below and click any area to see local reviews, projects, and the services we offer there.
+        </p>
+
+        {/* Dual CTA */}
+        <div
+          class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-10"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          <a
+            href={business.ctaHref}
+            class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
+          >
+            {business.ctaLabel}
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+          <a
+            href={phoneHref}
+            class="inline-flex items-center justify-center gap-2 bg-transparent text-brand-fg ring-2 ring-brand-fg/70 font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill hover:bg-brand-fg hover:text-text transition-colors whitespace-nowrap"
+          >
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+            </svg>
+            Call {business.phone}
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {/* Directory of every city, dark navy continuation from the hero,
+      transitions text → brand at the bottom. */}
+  <ServiceAreaDirectoryList bottomTransition="brand" />
+
+  {/* Reviews on teal. Top wave omitted because the directory's bottom
+      wave already lands on brand-color. */}
+  <TestimonialsTeal omitTopWave={true} />
+
+  {/* Why Choose Us, social proof + trust signals. */}
+  <TrustChecklist />
+
+  {/* The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* How we work, 3-step process. */}
+  <ProcessSteps />
+
+  {/* Coverage map. */}
+  <ServiceAreaMap />
+
+  {/* Service-area FAQ, filtered. */}
+  <FAQ
+    eyebrow="Service Area FAQ"
+    heading="Common questions about coverage."
+    subtext="If your question isn't here, give us a call, we answer the phone."
+    questions={directoryFaqs}
+    limit={10}
+  />
+
+  {/* Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    heading={`Ready to work with us?`}
+    subtext="Local crew, fast response, honest pricing. Free quote with no commitment."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
 </Layout>

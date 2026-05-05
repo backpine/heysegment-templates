@@ -1,10 +1,10 @@
 ---
 /**
- * 404 — themed not-found page.
+ * 404, themed not-found page.
  *
  * Uses Layout so Nav + Footer render around it. Owns its own nav clearance
  * (pt-28 lg:pt-36) like every other top-of-page section per the layout
- * contract. No image placeholder — a 404 should feel clean and direct, not
+ * contract. No image placeholder, a 404 should feel clean and direct, not
  * decorative.
  */
 export const prerender = true;
@@ -14,19 +14,21 @@ import { business } from "@/data/business";
 
 const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
 
-// Quick links back into the site — mirror the primary nav entries so
+// Quick links back into the site, mirror the primary nav entries so
 // visitors land somewhere useful regardless of why the URL broke.
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Service Area", href: "/service-area" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Reviews", href: "/reviews" },
   { label: "FAQ", href: "/faq" },
+  { label: "Contact", href: "/contact" },
 ];
 ---
 
 <Layout
-  title={`Page not found — ${business.name}`}
+  title={`Page not found, ${business.name}`}
   description="The page you're looking for isn't here."
   robots="noindex"
 >
@@ -50,11 +52,11 @@ const quickLinks = [
       </div>
 
       <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl text-text leading-[1.05] tracking-tight mt-5">
-        Haec pagina migravit.
+        This page moved.
       </h1>
 
       <p class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-xl">
-        Lorem ipsum dolor sit amet — non invenimus quod quaerebas. Forsan URL mutatus est, forsan pagina abiit. Tentate unum ex liquidis infra, aut voca nos.
+        We couldn't find what you were looking for. Maybe the URL changed, maybe the page is gone. Try one of the links below, or just give us a call.
       </p>
 
       <!-- Quick links -->

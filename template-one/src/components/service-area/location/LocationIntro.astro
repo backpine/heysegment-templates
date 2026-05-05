@@ -1,6 +1,6 @@
 ---
 /**
- * Location intro — second section on a location page. An editorial split
+ * Location intro, second section on a location page. An editorial split
  * with a local-work photo placeholder on the left and detailed copy on
  * the right. Optionally lists neighborhoods served within the area.
  */
@@ -25,10 +25,10 @@ const {
   neighborhoods = [],
   imageSrc,
   imageAlt = "Crew on-site",
-  imageLabel = "Local Job Photo",
+  imageLabel = "LOCAL JOB PHOTO",
 } = Astro.props;
 
-const resolvedHeading = heading ?? `Noster labor in ${areaName}.`;
+const resolvedHeading = heading ?? `Our work in ${areaName}.`;
 ---
 
 <section class="bg-surface py-20 lg:py-28">
@@ -41,7 +41,7 @@ const resolvedHeading = heading ?? `Noster labor in ${areaName}.`;
         imageSrc={imageSrc}
         imageAlt={imageAlt}
         label={imageLabel}
-        hint={`A photo of a job you've done in ${areaName} fits here.`}
+        hint="Local job or area photo"
         bloomPosition="tr"
       />
 

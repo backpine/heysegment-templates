@@ -1,0 +1,127 @@
+---
+/**
+ * FinalCTA, full-bleed brand-color closer that sits just above the
+ * footer on every page. Universal pattern across every premium home
+ * service site we studied. Ends the page with one clear ask.
+ *
+ * The brand-color-over-photo treatment (semi-opaque brand color
+ * overlay on a hero image) is the signature visual move the user
+ * called out specifically.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  eyebrow?: string | null;
+  heading?: string;
+  subtext?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string } | null;
+  backgroundImage?: string | null;
+  /** Compress the section's TOP padding so this CTA reads as one
+   *  continuous block with the section above (when both are on the
+   *  brand color), instead of leaving a tall teal void between them. */
+  tightTop?: boolean;
+}
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const {
+  eyebrow = business.identityBadge?.short ?? "Let's Get Started",
+  heading = `Ready to work with ${business.name}?`,
+  subtext = "Free quotes. Honest pricing. Real people answering the phone. Tell us what you need and we'll take it from there.",
+  primaryCta = { label: business.ctaLabel, href: "/contact" },
+  secondaryCta = { label: `Call ${business.phone}`, href: phoneHref },
+  backgroundImage = null,
+  tightTop = false,
+} = Astro.props;
+---
+
+<section
+  class="relative bg-brand text-brand-fg overflow-hidden"
+  aria-label="Final call to action"
+>
+  {/* Optional background image with brand-color overlay, the signature
+      "brand color + opacity over photo" treatment. */}
+  {backgroundImage && (
+    <div class="absolute inset-0 z-0" aria-hidden="true">
+      <img
+        src={backgroundImage}
+        alt=""
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-brand/85"></div>
+    </div>
+  )}
+
+  {/* Decorative ambient glow, subtle radial highlight. HIDDEN when
+      tightTop is set, in that case the FinalCTA is stacked directly
+      under another teal section (e.g. TestimonialsTeal on /about) and
+      we want the two to read as one continuous teal block. The glow's
+      5% white radial blur in the center would lighten FinalCTA's
+      middle relative to the dark-teal section above it, creating a
+      visible "darker → lighter" line at the boundary. Suppressing
+      the glow keeps the teal flat and the seam invisible. */}
+  {!tightTop && (
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[600px] rounded-full bg-brand-fg/5 blur-3xl pointer-events-none"
+      aria-hidden="true"
+    ></div>
+  )}
+
+  <div class:list={[
+    "relative z-10 max-w-5xl mx-auto px-6 lg:px-10 text-center",
+    /* tightTop keeps moderate top padding (10/14) so when stacked
+       directly under another teal section, the FinalCTA still has
+       ~3rem of breathing room above its content while reading as one
+       continuous teal background with the section above. */
+    tightTop ? "pt-10 lg:pt-14 pb-20 lg:pb-28" : "py-20 lg:py-28",
+  ]}>
+
+    {eyebrow && (
+      <div class="inline-flex items-center justify-center gap-2.5 mb-5">
+        <span class="block w-5 h-px bg-brand-fg/60" aria-hidden="true"></span>
+        <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand-fg/80">
+          {eyebrow}
+        </span>
+        <span class="block w-5 h-px bg-brand-fg/60" aria-hidden="true"></span>
+      </div>
+    )}
+
+    <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl text-brand-fg leading-tight max-w-3xl mx-auto">
+      {heading}
+    </h2>
+
+    {subtext && (
+      <p class="font-body text-base lg:text-lg text-brand-fg/85 mt-5 leading-relaxed max-w-xl mx-auto">
+        {subtext}
+      </p>
+    )}
+
+    <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 mt-10">
+      <!-- Primary CTA: solid white pill, brand-color text. Form-first conversion. -->
+      <a
+        href={primaryCta.href}
+        class="inline-flex items-center justify-center gap-2 bg-brand-fg text-brand font-body font-bold text-base px-8 py-4 rounded-pill shadow-lg hover:bg-brand-tint hover:shadow-xl hover:scale-[1.02] transition-all"
+      >
+        {primaryCta.label}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+
+      <!-- Secondary CTA: outlined pill, click-to-call. -->
+      {secondaryCta && (
+        <a
+          href={secondaryCta.href}
+          class="inline-flex items-center justify-center gap-2 bg-transparent text-brand-fg ring-2 ring-brand-fg font-body font-bold text-base px-8 py-4 rounded-pill hover:bg-brand-fg hover:text-brand transition-colors whitespace-nowrap"
+        >
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+          </svg>
+          {secondaryCta.label}
+        </a>
+      )}
+    </div>
+
+  </div>
+</section>

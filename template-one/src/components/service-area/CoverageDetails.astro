@@ -1,11 +1,11 @@
 ---
 /**
- * Coverage details — "what to expect" when you're in our coverage zone.
+ * Coverage details, "what to expect" when you're in our coverage zone.
  *
  * Editorial two-up spread that mirrors the home-page WhyUs rhythm:
- *   Left  — eyebrow, heading, body, image placeholder (a service-vehicle /
+ *   Left , eyebrow, heading, body, image placeholder (a service-vehicle /
  *           on-site photo slot)
- *   Right — numbered fact list, hairline dividers, no cards
+ *   Right, numbered fact list, hairline dividers, no cards
  * The facts answer the four questions every prospect asks before booking:
  * response time, pricing consistency, scheduling, emergencies.
  */
@@ -28,34 +28,34 @@ interface Props {
 
 const {
   eyebrow = "What to Expect",
-  heading = "Quid expectare debeas.",
+  heading = "What you should expect from us.",
   body =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Eadem cura, eadem pretia, idem grex — sine discrimine urbis.",
+    "Same care, same pricing, same crew, no matter which city you're in across our coverage zone.",
   facts = [
     {
-      title: "Tempus responsionis",
+      title: "Response time",
       description:
-        "Lorem ipsum dolor sit amet — responsio intra duas horas pro casibus urgentibus, eadem die pro servitiis regularibus.",
+        "Response inside two hours for emergencies, same day for regular service requests.",
     },
     {
-      title: "Pretia uniformia",
+      title: "Uniform pricing",
       description:
-        "Consectetur adipiscing elit. Eadem pretia per omnes urbes in regione nostra — nulla pretia additicia pro locis remotis.",
+        "Same prices in every city across the region, no surcharge for remote locations.",
     },
     {
-      title: "Horarium flexibile",
+      title: "Flexible scheduling",
       description:
-        "Sed do eiusmod tempor incididunt. Eligas horam quae tibi convenit — matutina, post meridiem, aut vespertina.",
+        "Pick the window that works for you, morning, afternoon, or evening. We work to your availability.",
     },
     {
-      title: "Servitium subitum",
+      title: "Emergency service",
       description:
-        "Ut enim ad minim veniam. Dispositio emergentiarum 24 horas per diem pro omnibus urbibus in zona nostra.",
+        "24/7 emergency dispatch for every city in our coverage zone, year-round.",
     },
   ],
   imageSrc,
   imageAlt = "Service vehicle or crew on-site",
-  imageLabel = "On-Site Photo",
+  imageLabel = "ON-SITE PHOTO",
 } = Astro.props;
 ---
 
@@ -91,7 +91,7 @@ const {
             imageSrc={imageSrc}
             imageAlt={imageAlt}
             label={imageLabel}
-            hint="A photo of your service vehicle or crew on a job fits here."
+            hint="Vehicle or crew on-site"
             bloomPosition="bl"
           />
         </div>

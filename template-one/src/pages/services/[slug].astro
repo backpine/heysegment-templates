@@ -1,0 +1,216 @@
+---
+/**
+ * Service detail pages, one URL per entry in business.serviceDetails.
+ *
+ * Composition mirrors the home page Revive style and reuses home sections
+ * where it makes sense (TestimonialsTeal, ServiceCardsTeal, FAQ, FinalCTA),
+ * but every "content" section on this page is service-specific:
+ *
+ *   1. ServiceDetailHero    , dark navy hero with H1 pill + dual CTAs + key points
+ *   2. WhatsIncluded        , numbered walkthrough of what this service delivers
+ *   3. WhenYouNeedService   , text-heavy editorial section, "when do you need this?"
+ *   4. ServiceBenefits      , photo + checklist pills (mirrors home TrustChecklist)
+ *   5. ProcessSteps         , service-specific 3-step process
+ *   6. TestimonialsTeal     , reused, FILTERED to reviews tagged with this service
+ *   7. ServiceCardsTeal     , reused, FILTERED to OTHER services (cross-sell)
+ *   8. FAQ                  , reused, FILTERED to this service's FAQ category
+ *   9. FinalCTA             , reused with dual CTA enabled
+ *
+ * Dynamic route: getStaticPaths builds /services/[slug] for every detail
+ * entry. To add a service, add an entry to business.serviceDetails plus
+ * the matching category in business.services and FAQ category, no new
+ * file needed.
+ */
+import type { GetStaticPaths } from "astro";
+import Layout from "@/layouts/Layout.astro";
+import ServiceDetailHero from "@/components/services/service/ServiceDetailHero.astro";
+import WhenYouNeedService from "@/components/services/service/WhenYouNeedService.astro";
+import WhatsIncluded from "@/components/services/service/WhatsIncluded.astro";
+import ServiceBenefits from "@/components/services/service/ServiceBenefits.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import ServiceCardsTeal from "@/components/home/ServiceCardsTeal.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
+import { business } from "@/data/business";
+import type { ServiceDetail } from "@/data/business";
+
+export const prerender = true;
+
+export const getStaticPaths = (() => {
+  return business.serviceDetails.map((detail) => ({
+    params: { slug: detail.slug },
+    props: { detail },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  detail: ServiceDetail;
+}
+
+const { detail } = Astro.props;
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// Hero key points mirror the included titles (top 4).
+const keyPoints = detail.included.map((i) => i.title).slice(0, 4);
+
+// Service-specific reviews: match by subheading prefix
+// (subheadings follow "Service N in Service Area M" pattern).
+const allReviews = business.reviews?.items ?? [];
+const serviceReviews = allReviews
+  .filter((r) => r.subheading?.startsWith(detail.name))
+  .slice(0, 3);
+// Fall back to first 3 generic reviews if there aren't 3 service-specific
+// reviews yet, so the section never renders empty.
+const reviewsToShow = serviceReviews.length >= 3
+  ? serviceReviews
+  : [
+      ...serviceReviews,
+      ...allReviews.filter((r) => !r.subheading?.startsWith(detail.name)),
+    ].slice(0, 3);
+
+// Other services for the cross-sell grid. Filter out the current
+// category, then cap at 3 cards (with a "View All Services" CTA below)
+// so the row stays visually balanced no matter how many services the
+// business offers.
+const otherServiceCards = business.services
+  .filter((s) => s.tier === "category" && s.slug !== detail.slug)
+  .slice(0, 3)
+  .map((s) => ({
+    name: s.name,
+    slug: s.slug,
+    icon: (s as { icon?: string }).icon,
+    description: s.description,
+  }));
+
+// Service-specific FAQs: include this service's category, plus the
+// universal "General" and "Scheduling & Pricing" buckets so the section
+// has enough breadth.
+const matchingCats = ["General", detail.name, "Scheduling & Pricing"];
+const serviceFaqs = business.faqs
+  .filter((cat) => matchingCats.includes(cat.category))
+  .flatMap((cat) => cat.questions);
+
+// Service-specific Easy-as-1-2-3 process. We bake the service name into
+// each step so the "Get Scheduled" / "Relax" pattern reads as
+// "Schedule Your [Service]" / "Relax While We Handle [Service]". Keeps
+// the universal 3-step rhythm but makes the page feel written for this
+// service rather than copy-pasted across every detail page.
+const serviceProcessSteps = [
+  {
+    title: `Get a Free ${detail.name} Quote`,
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tell us about your ${detail.name.toLowerCase()} needs and we'll send pricing same day.`,
+    icon: "quote" as const,
+  },
+  {
+    title: `Schedule Your ${detail.name}`,
+    description: `Duis aute irure dolor in reprehenderit. Pick a date that works for you and we'll lock in your ${detail.name.toLowerCase()} appointment.`,
+    icon: "calendar" as const,
+  },
+  {
+    title: `Relax While We Handle ${detail.name}`,
+    description: `Excepteur sint occaecat cupidatat non proident. Sit back, our team will take care of every detail of your ${detail.name.toLowerCase()}.`,
+    icon: "check" as const,
+  },
+];
+---
+
+<Layout
+  title={`${detail.name} in ${business.address.city} | ${business.name}`}
+  description={`${business.name}, ${detail.tagline}`}
+>
+  {/* 1. Service-specific hero. Breadcrumbs render INSIDE the hero
+       (overlay variant) so the dark background extends all the way to
+       the very top of the page, behind the floating nav. */}
+  <ServiceDetailHero
+    serviceName={detail.name}
+    tagline={detail.tagline}
+    keyPoints={keyPoints}
+    breadcrumbs={[
+      { label: "Services", href: "/services" },
+      { label: detail.name, href: `/services/${detail.slug}` },
+    ]}
+  />
+
+  {/* 2. What's Included, numbered walkthrough. Subtext intentionally
+       omitted, the heading + walkthrough cards explain enough on their
+       own and we don't want a wall of intro text up top. */}
+  <WhatsIncluded
+    serviceName={detail.name}
+    items={detail.included}
+  />
+
+  {/* 3. When You Need This Service, text-heavy editorial section
+       that frames the problem and helps undecided visitors self-qualify.
+       Sits AFTER WhatsIncluded so the customer first sees what we do,
+       then reads through the scenarios to confirm it matches their
+       situation. Lead + scenarios come from detail.whenYouNeed. */}
+  <WhenYouNeedService
+    serviceName={detail.name}
+    lead={detail.whenYouNeed?.lead}
+    scenarios={detail.whenYouNeed?.scenarios ?? []}
+  />
+
+  {/* 3. Why It Matters, service-specific benefits */}
+  <ServiceBenefits
+    serviceName={detail.name}
+    items={detail.benefits ?? []}
+  />
+
+  {/* 5. The 3 big differentiators, reused from home so the
+       positioning carries through to every service page. */}
+  <WhatMakesUsDifferent />
+
+  {/* 4. How We Work, 3-step process with service-specific verbiage so
+       this page reads as written for [detail.name] rather than a
+       generic copy-paste. Eyebrow / heading / each step title baked
+       with the service name. */}
+  <ProcessSteps
+    eyebrow={`Booking ${detail.name} Is Easy As 1-2-3`}
+    heading={`How ${detail.name} Works`}
+    subtext={`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Three steps from quote to clean ${detail.name.toLowerCase()}.`}
+    steps={serviceProcessSteps}
+  />
+
+  {/* 5. Service-specific reviews. Bottom wave omitted because the next
+       section is also on brand color, no white "oval" between them. */}
+  <TestimonialsTeal
+    eyebrow={`${detail.name} Reviews`}
+    heading={`What customers say about ${detail.name}.`}
+    reviews={reviewsToShow}
+    omitBottomWave={true}
+  />
+
+  {/* 6. Other services we offer, cross-sell, with current service
+       excluded. Capped at 3 cards (handled in frontmatter) so the row
+       stays visually balanced. Top wave omitted, this section flows
+       directly out of the reviews section (both are on brand color). */}
+  <ServiceCardsTeal
+    eyebrow="More Services"
+    heading="Other services we offer."
+    cards={otherServiceCards}
+    ctaLabel="View All Services"
+    ctaHref="/services"
+    omitTopWave={true}
+  />
+
+  {/* 7. Service-specific FAQ */}
+  <FAQ
+    eyebrow={`${detail.name} FAQ`}
+    heading={`Common questions about ${detail.name}.`}
+    subtext={`If your question isn't here, give us a call, we answer the phone.`}
+    questions={serviceFaqs}
+    limit={10}
+  />
+
+  {/* 8. Final CTA */}
+  <FinalCTA
+    eyebrow={`${detail.name}`}
+    heading={`Ready to book ${detail.name}?`}
+    subtext="Free quote. Honest pricing. Work backed by a full warranty."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
+</Layout>

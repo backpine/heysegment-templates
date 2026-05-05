@@ -1,0 +1,139 @@
+---
+/**
+ * OwnerStory, the founder/owner block. Single biggest trust driver on
+ * the About page.
+ *
+ * Visual treatment mirrors the home TrustChecklist split (5/7 grid,
+ * photo + circular portrait overlay LEFT, content RIGHT) so the page
+ * rhythm matches the rest of the site. Content blocks:
+ *   - Eyebrow + italic-accent heading + body paragraphs
+ *   - Signed-off block at the bottom: name + role
+ *
+ * Reads `business.owner` and `business.story`.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  /** Italic-accent line beneath the heading. */
+  accent?: string;
+  /** Body paragraphs. Pass an array, each becomes its own <p>. */
+  paragraphs?: string[];
+}
+
+const story = (business as { story?: { eyebrow?: string; heading?: string; body?: string; bodySecond?: string } }).story;
+const owner = business.owner;
+
+const {
+  eyebrow = story?.eyebrow ?? "Our Story",
+  heading = story?.heading ?? "Lorem ipsum dolor sit amet.",
+  accent,
+  paragraphs = [story?.body, story?.bodySecond].filter((p): p is string => Boolean(p)),
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+      <!-- LEFT: featured photo + circular portrait overlay (matches home TrustChecklist) -->
+      <div
+        class="lg:col-span-5 relative"
+        data-reveal
+        data-reveal-from="left"
+      >
+        <ImagePlaceholder
+          aspect="4/5"
+          label="OWNER PHOTO"
+          hint={`Portrait of ${owner.name}`}
+          bloomPosition="tl"
+        />
+        <!-- Circular portrait overlay, doubles as a "signature card" -->
+        <div class="absolute -bottom-8 -left-2 lg:-left-8 w-1/2 lg:w-2/5 z-20">
+          <div class="aspect-square rounded-full overflow-hidden ring-8 ring-bg shadow-xl bg-brand-tint relative">
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+              <span class="font-heading font-extrabold text-2xl text-brand">
+                {owner.initials}
+              </span>
+              <span class="font-body text-[10px] font-bold tracking-widest uppercase text-brand mt-1">
+                Owner
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: eyebrow + heading + paragraphs + signature -->
+      <div class="lg:col-span-7">
+        {eyebrow && (
+          <div
+            class="inline-flex items-center gap-2.5 mb-3"
+            data-reveal
+            data-reveal-from="right"
+          >
+            <span class="block w-1 h-6 bg-brand rounded-full" aria-hidden="true"></span>
+            <span class="font-body text-sm font-bold tracking-wider uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2
+          class="font-heading font-extrabold italic text-3xl lg:text-5xl text-text leading-[1.1]"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="100"
+        >
+          {heading}
+        </h2>
+
+        {accent && (
+          <p
+            class="font-heading font-bold italic text-xl lg:text-2xl text-brand mt-4 leading-snug"
+            data-reveal
+            data-reveal-from="right"
+            data-reveal-delay="200"
+          >
+            {accent}
+          </p>
+        )}
+
+        <div class="mt-6 space-y-4">
+          {paragraphs.map((p, i) => (
+            <p
+              class="font-body text-base lg:text-lg text-text-soft leading-relaxed"
+              data-reveal
+              data-reveal-from="right"
+              data-reveal-delay={String(Math.min(225 + i * 75, 525)) as "225" | "300" | "375" | "450" | "525"}
+            >
+              {p}
+            </p>
+          ))}
+        </div>
+
+        <!-- Signature block, name + role -->
+        <div
+          class="mt-8 pt-6 border-t border-border flex items-center gap-4"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="525"
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-tint text-brand font-heading font-bold text-base shrink-0">
+            {owner.initials}
+          </span>
+          <div>
+            <p class="font-heading font-bold text-base text-text leading-tight">
+              {owner.name}
+            </p>
+            <p class="font-body text-sm text-text-soft mt-0.5">
+              {owner.role}
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

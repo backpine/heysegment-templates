@@ -1,0 +1,150 @@
+---
+/**
+ * WhatMakesUsDifferent, 3-up differentiator section that anchors the
+ * home page with the three biggest reasons a customer should pick this
+ * business over a competitor.
+ *
+ * Visual treatment is intentionally distinct from the other 3-col home
+ * sections (ProcessSteps, TestimonialsTeal) so the page rhythm stays
+ * varied:
+ *   - Centered editorial header (eyebrow + heading + italic-accent
+ *     line + lead paragraph), mirrors WelcomeIntro / FAQ header style.
+ *   - Three large photo cards in a row, each with a floating brand-color
+ *     number badge that overlaps the bottom-right of the photo (the
+ *     same overlap-treatment vocabulary used by TrustChecklist's
+ *     portrait overlay and WhatsIncluded's "in-action" badge).
+ *   - Generous body paragraph below each card (2-3 sentences of copy
+ *     so this reads as positioning content, not a feature bullet).
+ *   - Subtle hover-lift on each card so the section feels alive.
+ *
+ * Reads `business.differentiators` (3 items by convention). Section
+ * uses `bg-surface` to match ProcessSteps directly below it, so the
+ * white surface flows continuously from this section into the process
+ * 3-step section without a visible seam between two near-white tones.
+ * The transition INTO this section comes from GuaranteeBanner (dark
+ * navy) above, which is a hard color step either way.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Differentiator {
+  title: string;
+  description: string;
+  photoHint?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  /** Optional body lead paragraph below the headline. */
+  lead?: string;
+  items?: Differentiator[];
+}
+
+const data = (business as { differentiators?: {
+  eyebrow?: string;
+  lead?: string;
+  items: Differentiator[];
+} }).differentiators;
+
+const {
+  eyebrow = data?.eyebrow ?? "What Makes Us Different",
+  lead = data?.lead,
+  items = data?.items ?? [],
+} = Astro.props;
+
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+---
+
+<section class="bg-surface py-20 lg:py-28 relative">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-16 lg:mb-20">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+
+      {/* Single main headline. The accent line IS the headline, no
+          separate h2 above it, the section only ever shows ONE
+          headline. The "created equal" emphasis word is split out so
+          we can italicize + brand-color it like the home Hero's
+          accent-word pattern. */}
+      <h2
+        class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        Not all home service companies are <span class="italic text-brand">created equal.</span>
+      </h2>
+
+      {lead && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-2xl mx-auto"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          {lead}
+        </p>
+      )}
+    </div>
+
+    <!-- 3-up grid of differentiator cards -->
+    <ul
+      class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10"
+      role="list"
+    >
+      {items.map((item, i) => (
+        <li
+          class="group flex flex-col"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(Math.min(i * 150, 700)) as "0" | "100" | "200" | "300" | "500" | "700"}
+        >
+          <!-- Photo with floating brand-color number badge -->
+          <div class="relative mb-7">
+            <div class="overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-1">
+              <ImagePlaceholder
+                aspect="4/3"
+                label={`REASON ${pad(i)}`}
+                hint={item.photoHint ?? "Photo proving this differentiator"}
+                bloomPosition={i % 2 === 0 ? "tl" : "tr"}
+              />
+            </div>
+            <!-- Floating number badge, overlaps bottom-right of the photo -->
+            <span
+              class="absolute -bottom-5 -right-3 lg:-right-4 inline-flex items-center justify-center min-w-[3.5rem] h-14 px-4 rounded-pill bg-brand text-brand-fg font-heading font-extrabold text-xl tracking-wider shadow-xl ring-4 ring-surface"
+              aria-hidden="true"
+            >
+              {pad(i)}
+            </span>
+          </div>
+
+          <!-- Heading + body. No "Reason 0X" eyebrow above the title,
+               the floating number badge on the photo already conveys
+               the ordering. -->
+          <div class="px-1">
+            <h3 class="font-heading font-extrabold text-xl lg:text-2xl text-text leading-snug">
+              {item.title}
+            </h3>
+            <p class="font-body text-sm lg:text-base text-text-soft mt-3 leading-relaxed">
+              {item.description}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>

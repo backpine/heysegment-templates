@@ -2,15 +2,15 @@
   "version": 1,
   "provider": "google",
   "body": {
-    "name": "Inter",
+    "name": "Open Sans",
     "weights": [400, 500, 600, 700],
     "fallback": ["system-ui", "sans-serif"],
     "cssVariable": "--font-provider-body"
   },
   "heading": {
-    "name": "DM Serif Display",
-    "weights": [400],
-    "fallback": ["Georgia", "serif"],
+    "name": "Montserrat",
+    "weights": [600, 700, 800, 900],
+    "fallback": ["system-ui", "sans-serif"],
     "cssVariable": "--font-provider-heading"
   }
 }
