@@ -1,0 +1,54 @@
+---
+/**
+ * Eyebrow — small label that sits above headlines.
+ *
+ * Two visual variants:
+ *
+ *   pill   , solid brand-color pill with white text and a soft shadow.
+ *            Used as the page H1 in the dark hero pattern (pass
+ *            `as="h1"`) and as a chip/badge label elsewhere.
+ *
+ *   line   , a short horizontal brand-color line followed by a small
+ *            uppercase brand-text label. Used as the intro to body
+ *            sections (Why Us, Process Steps, etc.).
+ *
+ * The `as` prop lets the call-site choose the underlying element so
+ * the component fits both heading (h1/h2) and inline (p/span/div) uses
+ * without duplicating markup in two components.
+ */
+interface Props {
+  label: string;
+  variant?: "pill" | "line";
+  /** Underlying element. Defaults: pill → "h1", line → "p". */
+  as?: "h1" | "h2" | "h3" | "p" | "div" | "span";
+  /** Text alignment for the wrapper. Only meaningful for the line variant. */
+  align?: "left" | "center";
+  class?: string;
+}
+
+const {
+  label,
+  variant = "pill",
+  align = "left",
+  class: className,
+} = Astro.props;
+
+const Tag = Astro.props.as ?? (variant === "pill" ? "h1" : "p");
+
+const pillClasses =
+  "inline-block bg-brand text-brand-fg font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-full shadow-md";
+
+const lineWrapperClasses = [
+  "inline-flex items-center gap-2.5",
+  align === "center" ? "justify-center" : "",
+].filter(Boolean).join(" ");
+---
+
+{variant === "pill" ? (
+  <Tag class:list={[pillClasses, className]}>{label}</Tag>
+) : (
+  <Tag class:list={[lineWrapperClasses, className]}>
+    <span class="w-5 h-px bg-brand" aria-hidden="true"></span>
+    <span class="font-body text-xs font-bold tracking-widest uppercase text-brand">{label}</span>
+  </Tag>
+)}

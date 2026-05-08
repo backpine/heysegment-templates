@@ -18,7 +18,6 @@
   --color-brand-fg:   #ffffff;  /* text/icons on top of brand color */
   --color-brand-tint: #ECFEFF;  /* pale cyan — backgrounds, badges */
   --color-brand-deep: #0B7A95;  /* darker teal — hover states, depth */
-  --color-brand-dark: #0A1628;  /* deep navy — utility bar, footer */
 
   /* ── Page ───────────────────────────────────────────────────────────────────
      The base layer of every page.                                            */
@@ -49,12 +48,11 @@
   --text-hero: 3.75rem;   /* 60px — hero headline */
 
   /* ── Radius ─────────────────────────────────────────────────────────────────
-     Slightly rounder than baseline for the friendly Revive feel — pill-style
-     buttons (radius-pill) and rounded service cards.                        */
+     Slightly rounder than baseline for the friendly Revive feel. Pill-style
+     buttons use Tailwind's built-in `rounded-full` utility.                  */
   --radius-sm: 0.5rem;    /*  8px — inputs, small buttons, tags */
   --radius-md: 0.75rem;   /* 12px — cards, buttons */
   --radius-lg: 1.25rem;   /* 20px — feature panels, hero cards */
-  --radius-pill: 9999px;  /* pill — primary CTAs */
 
   /* ── Shadow ─────────────────────────────────────────────────────────────────
      Two levels. sm for subtle depth, md for cards that need more presence.  */
