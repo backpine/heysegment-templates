@@ -1,0 +1,108 @@
+---
+/**
+ * ImageFeatureCTA, the Lumos-style "Try [Brand]'s Best [Service]" mid-page
+ * conversion accelerator.
+ *
+ * Visual structure:
+ *   - Full-bleed dark navy section as the FRAME
+ *   - Inside the frame, a 5/7 split:
+ *       LEFT (5)  — light brand-tint inset CARD with eyebrow + big
+ *                   italic heading + subhead + dark CTA button
+ *       RIGHT (7) — full-bleed photo, edge-to-edge, extends slightly
+ *                   above and below the inset card so the dark navy
+ *                   "frames" the photo top + bottom
+ *
+ * Mobile: stacks into single column — light card on top, photo below.
+ *
+ * The card and photo butt up flush against each other (no gap). The
+ * inset card has a small inner-shadow ring so it reads as a contained
+ * panel, not a flat color block. CTA button is the only place that
+ * uses dark navy on the light card, so it pops as the action.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  primaryCta?: { label: string; href: string };
+  /** Photo URL for the right-hand image. Defaults to a stable picsum
+   *  placeholder per template-two convention; swap for a real photo
+   *  when ready. */
+  backgroundImage?: string;
+}
+
+const {
+  eyebrow = `Try ${business.address?.city ?? "Our"}'s Best ${business.services.find((s) => s.tier === "category")?.name ?? "Service"}`,
+  heading = "Ready To Get Started?",
+  subtext = "We'll Show You What Your Project Could Look Like!",
+  primaryCta = { label: "Start The Process", href: business.ctaHref },
+  backgroundImage = "https://picsum.photos/seed/template-two-feature-cta/1400/900",
+} = Astro.props;
+---
+
+<section class="bg-text py-10 lg:py-14">
+  <div class="max-w-7xl mx-auto px-4 lg:px-6">
+
+    <div
+      class="relative grid grid-cols-1 lg:grid-cols-12 items-stretch overflow-hidden rounded-md ring-1 ring-brand-fg/10"
+      data-reveal
+      data-reveal-from="up"
+    >
+
+      <!-- LEFT: light brand-tint card with eyebrow + heading + subhead + CTA.
+           lg:col-span-5 with a vertical inset (my-6 lg:my-10) so the dark
+           navy section shows above + below it, framing the photo. -->
+      <div class="lg:col-span-5 bg-brand-tint p-8 lg:p-12 flex flex-col justify-center order-2 lg:order-1">
+
+        <p class="font-body text-xs lg:text-sm font-bold tracking-widest uppercase text-text mb-3">
+          {eyebrow}
+        </p>
+
+        <h2 class="font-heading italic font-medium text-3xl lg:text-5xl text-text leading-[1.1] mb-3">
+          {heading}
+        </h2>
+
+        {subtext && (
+          <p class="font-body text-base text-text-soft leading-relaxed mb-7 max-w-md">
+            {subtext}
+          </p>
+        )}
+
+        <a
+          href={primaryCta.href}
+          class="inline-flex self-start items-center gap-2 bg-text hover:bg-brand-deep text-surface hover:text-brand-fg font-body font-bold text-sm tracking-widest uppercase px-7 py-3.5 rounded-md transition-colors"
+        >
+          {primaryCta.label}
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- RIGHT: full-bleed photo, edge-to-edge -->
+      <div class="lg:col-span-7 relative order-1 lg:order-2 min-h-[260px] lg:min-h-0 overflow-hidden">
+        <img
+          src={backgroundImage}
+          alt=""
+          class="absolute inset-0 w-full h-full object-cover"
+          aria-hidden="true"
+        />
+        {/* Hidden ImagePlaceholder for fallback when no real image exists,
+            ensures the slot has a labeled hint in the editor's preview if
+            the picsum URL fails to load. */}
+        <div class="hidden">
+          <ImagePlaceholder
+            aspect="16/9"
+            label="FEATURE PHOTO"
+            hint="Hero project, well-lit at night or golden hour"
+            bloomPosition="tr"
+          />
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>

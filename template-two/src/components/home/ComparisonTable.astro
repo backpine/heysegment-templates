@@ -1,0 +1,133 @@
+---
+/**
+ * ComparisonTable, the Lumos-style "How are we different from other
+ * service providers" section. Template-two ONLY (not in template-one).
+ *
+ * 3-column comparison: row label | OUR brand | competitors generic.
+ * Each row is a feature/value, gold checkmarks under our column,
+ * gray X-marks under the competitor column. Highlights the brand's
+ * column visually with a soft brand-tint background and a subtle
+ * elevated shadow so it pops as the "right answer".
+ *
+ * Reads `business.differentiators?.items` for default rows, or pass
+ * a custom `rows` prop. Each row only needs a label string, the
+ * check/X visual logic is fixed.
+ */
+import { business } from "@/data/business";
+
+interface Row {
+  label: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  brandColumn?: string;
+  competitorColumn?: string;
+  rows?: Row[];
+}
+
+const data = (business as { differentiators?: { items: Array<{ title: string }> } }).differentiators;
+
+const {
+  eyebrow = "How We Compare",
+  heading = `How is ${business.name} different from other service providers?`,
+  brandColumn = business.name.split(" ")[0] ?? "Us",
+  competitorColumn = "Other Companies",
+  rows = data?.items.map((d) => ({ label: d.title })) ?? [
+    { label: "Lorem Family Owned" },
+    { label: "Licensed & Fully Insured" },
+    { label: "100% Satisfaction Guaranteed" },
+    { label: "Premium-Grade Equipment" },
+    { label: "Years of Experience" },
+    { label: "Five Star Communication" },
+    { label: "All Properties in 1-2 Hours" },
+    { label: "Lorem Pricing & Quotes" },
+  ],
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-body text-sm font-bold tracking-widest uppercase text-brand mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading italic font-medium text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+    </div>
+
+    {/* The comparison table itself. 3 columns: row label, US, them.
+        US column has a brand-tint bg + ring + shadow so it pops as
+        the "right answer". Hairline dividers between rows for the
+        editorial feel (no boxed cards). */}
+    <div
+      class="bg-surface rounded-md shadow-md ring-1 ring-border overflow-hidden"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="200"
+    >
+      <!-- Header row -->
+      <div class="grid grid-cols-[1fr_120px_120px] sm:grid-cols-[1fr_180px_180px] items-stretch border-b-2 border-text/10 bg-bg">
+        <div class="px-5 lg:px-7 py-4 lg:py-5"></div>
+        <div class="bg-brand-tint px-3 lg:px-4 py-4 lg:py-5 text-center ring-1 ring-brand/30 ring-inset">
+          <p class="font-heading italic font-medium text-base lg:text-xl text-text leading-tight">
+            {brandColumn}
+          </p>
+        </div>
+        <div class="px-3 lg:px-4 py-4 lg:py-5 text-center">
+          <p class="font-body font-bold text-xs lg:text-sm tracking-wider uppercase text-text-soft leading-tight">
+            {competitorColumn}
+          </p>
+        </div>
+      </div>
+
+      <!-- Body rows -->
+      <ul class="divide-y divide-border" role="list">
+        {rows.map((row) => (
+          <li class="grid grid-cols-[1fr_120px_120px] sm:grid-cols-[1fr_180px_180px] items-stretch">
+            <!-- Row label -->
+            <div class="px-5 lg:px-7 py-4 lg:py-5 font-body text-sm lg:text-base text-text font-medium">
+              {row.label}
+            </div>
+
+            <!-- Brand column (highlighted) — checkmark -->
+            <div class="bg-brand-tint flex items-center justify-center ring-1 ring-brand/30 ring-inset">
+              <span class="inline-flex items-center justify-center w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-brand text-brand-fg shadow-sm">
+                <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="sr-only">Yes</span>
+              </span>
+            </div>
+
+            <!-- Competitor column — X mark, soft gray -->
+            <div class="flex items-center justify-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-bg ring-1 ring-border text-text-soft">
+                <svg class="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span class="sr-only">No</span>
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+  </div>
+</section>

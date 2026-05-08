@@ -8,8 +8,8 @@
     "cssVariable": "--font-provider-body"
   },
   "heading": {
-    "name": "DM Serif Display",
-    "weights": [400],
+    "name": "Fraunces",
+    "weights": [400, 500, 600, 700, 800, 900],
     "fallback": ["Georgia", "serif"],
     "cssVariable": "--font-provider-heading"
   }

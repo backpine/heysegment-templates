@@ -1,0 +1,156 @@
+---
+/**
+ * TrustChecklist, template-two variant: magazine-style "Why Trust Us"
+ * with dramatic photo + editorial numbered list + floating quote.
+ *
+ * Substantially different from template-one's split (photo + portrait
+ * overlay + gold pill stack):
+ *
+ *   - Full-bleed dark navy section as the canvas
+ *   - LEFT: tall photo extending edge-to-edge of its column with a
+ *     SMALL FLOATING TESTIMONIAL CARD overlapping the bottom-right of
+ *     the photo for visual depth (no portrait overlay, that pattern is
+ *     template-one's signature)
+ *   - RIGHT: editorial 2-column grid of numbered reasons. Each entry is
+ *     a HUGE italic-serif gold number + bold-sans title only (no
+ *     description, no pill, no checkmark icon). Hairline divider below
+ *     each entry. Reads like a magazine sidebar.
+ *
+ * The two halves carry equal visual weight: the photo dominates with
+ * size, the right side dominates with typography. Distinct from
+ * template-one's photo-with-pill-stack pattern.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Item {
+  title: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  items?: Item[];
+  /** Optional floating testimonial that overlaps the photo. Set to
+   *  null/undefined to omit. */
+  pullQuote?: { text: string; author: string } | null;
+}
+
+const {
+  eyebrow = business.whyChooseUs?.eyebrow ?? "Why Trust Us",
+  heading = `Why ${business.name.split(" ")[0]} stands apart.`,
+  items = business.whyChooseUs?.features ?? [],
+  pullQuote = {
+    text: "They transformed our property — we couldn't be happier with the result.",
+    author: business.reviews?.items?.[0]?.name ?? "A Recent Customer",
+  },
+} = Astro.props;
+
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+---
+
+<section class="bg-text text-surface py-20 lg:py-28 relative overflow-hidden">
+
+  {/* Subtle gold ambient glow in the top-right, signature template-two
+      decorative move. */}
+  <div
+    class="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-brand/10 blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-16 items-stretch">
+
+      <!-- LEFT: tall photo + floating quote card -->
+      <div
+        class="lg:col-span-5 relative"
+        data-reveal
+        data-reveal-from="left"
+      >
+        <ImagePlaceholder
+          aspect="4/5"
+          label="HERO TRUST PHOTO"
+          hint="Owner / project / branded vehicle, tall portrait shot"
+          bloomPosition="tl"
+        />
+
+        {/* Floating quote card, overlaps the bottom-right of the photo.
+            Adds visual depth without using the "circular portrait
+            overlay" pattern that template-one uses for its trust
+            section. */}
+        {pullQuote && (
+          <figure
+            class="absolute -bottom-6 -right-3 lg:-right-6 max-w-[260px] lg:max-w-xs bg-brand-tint text-text rounded-md shadow-2xl ring-1 ring-brand/30 p-5 lg:p-6"
+          >
+            <span
+              class="block font-heading italic font-medium text-3xl text-brand leading-none mb-1 select-none"
+              aria-hidden="true"
+            >
+              "
+            </span>
+            <blockquote class="font-body text-sm leading-relaxed text-text">
+              {pullQuote.text}
+            </blockquote>
+            <figcaption class="font-heading italic text-xs text-text-soft mt-3">
+              — {pullQuote.author}
+            </figcaption>
+          </figure>
+        )}
+      </div>
+
+      <!-- RIGHT: editorial header + 2-column numbered list of reasons -->
+      <div class="lg:col-span-7">
+
+        {eyebrow && (
+          <div
+            class="inline-flex items-center gap-2.5 mb-3"
+            data-reveal
+            data-reveal-from="right"
+          >
+            <span class="block w-1 h-6 bg-brand rounded-sm" aria-hidden="true"></span>
+            <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2
+          class="font-heading italic font-medium text-3xl lg:text-5xl text-surface leading-[1.1] mb-10 lg:mb-12"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="100"
+        >
+          {heading}
+        </h2>
+
+        {/* 2-column grid of numbered entries. Each entry is bold and
+            magazine-style — huge italic gold number + small bold title
+            on the same baseline. Hairline below each row. */}
+        <ul
+          class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-0"
+          role="list"
+        >
+          {items.map((item, i) => (
+            <li
+              class="flex items-baseline gap-5 py-5 border-b border-surface/15"
+              data-reveal
+              data-reveal-from="right"
+              data-reveal-delay={String(Math.min(i * 75, 525)) as "0" | "75" | "150" | "225" | "300" | "375" | "450" | "525"}
+            >
+              <span
+                class="font-heading italic font-medium text-3xl lg:text-4xl text-brand leading-none tabular-nums shrink-0"
+                aria-hidden="true"
+              >
+                {pad(i)}
+              </span>
+              <span class="font-body font-semibold text-base lg:text-lg text-surface leading-snug">
+                {item.title}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>

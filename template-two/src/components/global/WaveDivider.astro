@@ -1,0 +1,25 @@
+---
+/**
+ * WaveDivider, NO-OP variant for template-two.
+ *
+ * Template-two uses a sleeker centered editorial layout with straight
+ * color bands between sections (no curved waves). To preserve the
+ * import surface so every page that uses ServiceCardsTeal /
+ * ServiceDirectoryList / ServiceAreaDirectoryList / TestimonialsTeal
+ * keeps building, this file accepts the same props as template-one's
+ * version but renders nothing.
+ *
+ * If template-two ever needs decorative section transitions, swap this
+ * file for a styled implementation, the prop API is identical.
+ */
+interface Props {
+  direction?: "down" | "up";
+  fill?: "brand" | "surface" | "bg" | "text";
+  bgFrom?: "surface" | "bg" | "text" | "transparent";
+  heightClass?: string;
+}
+
+// Props accepted but unused, see file-level note above.
+const _props = Astro.props as Props;
+void _props;
+---

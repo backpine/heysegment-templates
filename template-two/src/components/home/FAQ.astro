@@ -1,6 +1,6 @@
 ---
 /**
- * Home-page FAQ section — uses native <details>/<summary> for zero-JS
+ * Home-page FAQ section, uses native <details>/<summary> for zero-JS
  * accessibility. Questions are flattened from business.faqs by default,
  * then capped so the home page stays tight. Full list lives at /faq.
  */
@@ -24,10 +24,10 @@ const allQuestions: Question[] = business.faqs.flatMap((cat) => cat.questions);
 
 const {
   eyebrow = "Frequently Asked",
-  heading = "Interrogationes communissimae.",
-  subtext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit — if your question isn't listed, give us a call.",
+  heading = "The most common questions.",
+  subtext = "If your question isn't on the list, give us a call, we answer the phone.",
   questions = allQuestions,
-  limit = 6,
+  limit = 10,
   viewAllHref = "/faq",
 } = Astro.props;
 
@@ -55,7 +55,7 @@ const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
       )}
     </div>
 
-    <!-- Questions — native details/summary, divided by hairlines (no cards) -->
+    <!-- Questions, native details/summary, divided by hairlines (no cards) -->
     <div class="divide-y divide-border border-y border-border">
       {shown.map((item) => (
         <details class="group">
@@ -79,7 +79,7 @@ const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
       ))}
     </div>
 
-    <!-- View all + contact CTA — no card, just centered actions -->
+    <!-- View all + contact CTA, no card, just centered actions -->
     <div class="mt-12 text-center">
       {questions.length > limit && (
         <a
@@ -96,7 +96,7 @@ const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
       <div class="mt-8 pt-8 border-t border-border">
         <p class="font-body text-base text-text font-medium">Still have questions?</p>
         <p class="font-body text-sm text-text-soft mt-1">
-          We're happy to talk through your specific situation over the phone.
+          Happy to talk through your specific situation over the phone.
         </p>
         <a
           href={phoneHref}

@@ -1,6 +1,6 @@
 ---
 /**
- * Image placeholder — the canonical "photo goes here" slot used across the
+ * Image placeholder, the canonical "photo goes here" slot used across the
  * template. When `imageSrc` is provided it fills the frame; otherwise a
  * gradient + brand-bloom placeholder renders with a small label and hint so
  * whoever ships the site knows exactly what photo belongs in each slot.
@@ -51,7 +51,7 @@ const bloomPositionClass = {
 <figure class="relative">
   <div
     class:list={[
-      "relative overflow-hidden rounded-xl ring-1 ring-border/60",
+      "relative overflow-hidden rounded-md ring-1 ring-border/60",
       "bg-gradient-to-br from-brand-tint/60 via-surface to-brand-tint/30",
       aspectClass,
     ]}

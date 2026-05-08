@@ -1,0 +1,155 @@
+---
+/**
+ * WhatMakesUsDifferent, template-two variant: alternating editorial
+ * rows (zigzag) with HUGE italic-serif numbers as the visual anchor.
+ *
+ * Substantially different from template-one's 3-up photo-card grid:
+ *
+ *   - Each differentiator is its OWN full-width row (not a card).
+ *   - Rows alternate sides — odd rows: photo LEFT + content RIGHT,
+ *     even rows: content LEFT + photo RIGHT (zigzag reading flow).
+ *   - The visual anchor on each row is a HUGE italic-serif gold
+ *     number that hangs over the photo edge (text-7xl/8xl) with a
+ *     thin gold accent rule.
+ *   - Generous vertical breathing room between rows.
+ *   - No floating badges, no card frames, no shadows — just clean
+ *     editorial whitespace + hairlines.
+ *
+ * Reads like a magazine feature spread instead of a marketing tile
+ * grid. Same data (`business.differentiators`) as template-one, just
+ * a totally different visual treatment.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Differentiator {
+  title: string;
+  description: string;
+  photoHint?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  /** Optional body lead paragraph below the headline. */
+  lead?: string;
+  items?: Differentiator[];
+}
+
+const data = (business as { differentiators?: {
+  eyebrow?: string;
+  lead?: string;
+  items: Differentiator[];
+} }).differentiators;
+
+const {
+  eyebrow = data?.eyebrow ?? "What Makes Us Different",
+  lead = data?.lead,
+  items = data?.items ?? [],
+} = Astro.props;
+
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-16 lg:mb-20">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
+
+      <h2
+        class="font-heading italic font-medium text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        Not all home service companies are <span class="not-italic text-brand">created equal.</span>
+      </h2>
+
+      {lead && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-2xl mx-auto"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          {lead}
+        </p>
+      )}
+    </div>
+
+    <!-- Stacked editorial rows (zigzag). Each row is its own feature
+         block with photo on alternating sides. Generous vertical
+         spacing between rows so each one reads as its own spread. -->
+    <ol class="space-y-20 lg:space-y-28" role="list">
+      {items.map((item, i) => {
+        const photoLeft = i % 2 === 0;
+        return (
+          <li
+            class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center"
+            data-reveal
+            data-reveal-from={photoLeft ? "left" : "right"}
+          >
+            {/* Photo column. lg:order toggles between 1 (left) and 2
+                (right) per row index. The huge gold italic-serif
+                number is positioned absolutely over the photo's outer
+                corner — hangs into the gutter for an editorial accent. */}
+            <div
+              class:list={[
+                "lg:col-span-6 relative",
+                photoLeft ? "lg:order-1" : "lg:order-2",
+              ]}
+            >
+              <ImagePlaceholder
+                aspect="4/3"
+                label={`REASON ${pad(i)}`}
+                hint={item.photoHint ?? "Photo proving this differentiator"}
+                bloomPosition={photoLeft ? "tr" : "tl"}
+              />
+              {/* Big italic-serif number, hangs over the OUTER edge of
+                  the photo. Gold on cream bg. */}
+              <span
+                class:list={[
+                  "absolute -top-8 lg:-top-12 font-heading italic font-medium text-7xl lg:text-9xl text-brand leading-none tabular-nums select-none",
+                  photoLeft ? "-left-2 lg:-left-4" : "-right-2 lg:-right-4",
+                ]}
+                aria-hidden="true"
+              >
+                {pad(i)}
+              </span>
+            </div>
+
+            {/* Content column */}
+            <div
+              class:list={[
+                "lg:col-span-6",
+                photoLeft ? "lg:order-2" : "lg:order-1",
+              ]}
+            >
+              <span class="block w-12 h-px bg-brand mb-5" aria-hidden="true"></span>
+              <h3 class="font-heading italic font-medium text-2xl lg:text-4xl text-text leading-[1.1] mb-5">
+                {item.title}
+              </h3>
+              <p class="font-body text-base lg:text-lg text-text-soft leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+
+  </div>
+</section>

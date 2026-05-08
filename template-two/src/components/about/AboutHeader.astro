@@ -1,6 +1,6 @@
 ---
 /**
- * About page header — two-up with copy on the left and a storefront /
+ * About page header, two-up with copy on the left and a storefront /
  * team photo placeholder on the right.
  *
  * Mirrors the existing utility-header pattern (services, service-area)
@@ -28,9 +28,9 @@ interface Props {
 
 const {
   eyebrow = "About Us",
-  heading = "Grex localis, standarda alta.",
+  heading = "Local crew, high standards.",
   subtext =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Familia, non factoria — fundati anno 2008, omnes homines nostri licentiati et asecuritati, opus perfectum sine negligentia.",
+    "Family, not factory. Founded in 2008, with technicians who are fully licensed and insured, and work finished without shortcuts. This is what hiring real local pros looks like.",
   stats = [
     { value: `${new Date().getFullYear() - business.founded}+`, label: "Years in business" },
     { value: "8,200+", label: "Jobs completed" },
@@ -38,7 +38,7 @@ const {
   ],
   imageSrc,
   imageAlt = "Our storefront",
-  imageLabel = "Storefront Photo",
+  imageLabel = "STOREFRONT PHOTO",
 } = Astro.props;
 ---
 
@@ -94,7 +94,7 @@ const {
           imageSrc={imageSrc}
           imageAlt={imageAlt}
           label={imageLabel}
-          hint="A photo of your storefront, team, or truck fleet fits here."
+          hint="Storefront, team, or fleet"
           bloomPosition="tl"
         />
       </div>

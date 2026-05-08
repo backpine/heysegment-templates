@@ -1,11 +1,11 @@
 ---
 /**
- * Reviews — compact social-proof band. Used as a "subtle" reviews beat
+ * Reviews, compact social-proof band. Used as a "subtle" reviews beat
  * between two main content sections rather than as a dedicated reviews
  * section like ReviewsMasonry / ReviewsMarquee / ReviewsFeatured.
  *
  * `bg-brand-tint` gives it a warm accent without being loud. Single static
- * quote — no navigation, no animation — so it reads as one decisive trust
+ * quote, no navigation, no animation, so it reads as one decisive trust
  * signal between the content above and below.
  */
 import { business } from "@/data/business";
@@ -53,7 +53,7 @@ const {
       <blockquote class="font-body text-base lg:text-lg text-text leading-relaxed">
         &ldquo;{review.text}&rdquo;
         <footer class="mt-3 font-body text-sm font-semibold text-text-soft">
-          — {review.name}
+          {review.name}
         </footer>
       </blockquote>
 

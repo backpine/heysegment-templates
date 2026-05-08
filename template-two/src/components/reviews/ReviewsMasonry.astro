@@ -1,11 +1,11 @@
 ---
 /**
- * Reviews — editorial masonry wall. Used on the home page.
+ * Reviews, editorial masonry wall. Used on the home page.
  *
  * Reviews are separated by generous whitespace and a hairline top divider
  * rather than framed as cards. Keeps the focus on the quotes themselves.
  *
- * One of three review variants in the template — the other pages use
+ * One of three review variants in the template, the other pages use
  * ReviewsMarquee and ReviewsFeatured so each page's social proof reads
  * a little differently.
  */
@@ -30,7 +30,7 @@ interface Props {
 
 const {
   eyebrow = "Google Reviews",
-  heading = "Quid nostri clientes dicunt.",
+  heading = "What our customers say.",
   rating = business.reviews.rating,
   total = business.reviews.total,
   reviews = business.reviews.items,
@@ -41,7 +41,7 @@ const {
 <section class="bg-surface py-20 lg:py-28" aria-label="Customer reviews">
   <div class="max-w-7xl mx-auto px-6 lg:px-10">
 
-    <!-- Header — eyebrow, heading, rating summary with Google branding -->
+    <!-- Header, eyebrow, heading, rating summary with Google branding -->
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-14 lg:mb-16">
 
       <div class="max-w-xl">
@@ -73,7 +73,7 @@ const {
 
     </div>
 
-    <!-- Masonry reviews — no cards, just hairline tops + typography -->
+    <!-- Masonry reviews, no cards, just hairline tops + typography -->
     <div class="columns-1 sm:columns-2 lg:columns-3 [column-gap:2.5rem] [column-fill:balance]">
       {reviews.map((review) => (
         <article class="break-inside-avoid mb-10 pt-5 border-t border-border">
@@ -85,7 +85,7 @@ const {
           </p>
 
           <footer class="mt-4 text-sm">
-            <span class="font-body font-semibold text-text">— {review.name}</span>
+            <span class="font-body font-semibold text-text">{review.name}</span>
           </footer>
 
         </article>

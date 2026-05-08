@@ -1,10 +1,10 @@
 ---
 /**
- * Our story — image placeholder on the left, narrative on the right.
+ * Our story, image placeholder on the left, narrative on the right.
  *
  * Alternates from the AboutHeader (image right) so the eye moves down the
  * page. The image slot is tall (aspect-4/5) to suit portraits of a founder
- * or a vintage shot of the shop — the kinds of photos that carry a story.
+ * or a vintage shot of the shop, the kinds of photos that carry a story.
  */
 import { business } from "@/data/business";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
@@ -26,7 +26,7 @@ const {
   bodySecond = business.story.bodySecond,
   imageSrc,
   imageAlt = "Our founder",
-  imageLabel = "Founder Photo",
+  imageLabel = "FOUNDER PHOTO",
 } = Astro.props;
 ---
 
@@ -40,7 +40,7 @@ const {
         imageSrc={imageSrc}
         imageAlt={imageAlt}
         label={imageLabel}
-        hint="A portrait of your founder or a vintage shop photo fits here."
+        hint="Founder or shop photo"
         bloomPosition="br"
       />
 

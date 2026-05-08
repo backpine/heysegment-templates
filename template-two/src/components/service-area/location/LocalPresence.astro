@@ -1,6 +1,6 @@
 ---
 /**
- * Local presence — "why we're good here" copy on the left, live map of the
+ * Local presence, "why we're good here" copy on the left, live map of the
  * business location on the right. Reinforces that the team is genuinely
  * nearby, not a distant franchise lifting a pin onto the area.
  *
@@ -35,10 +35,10 @@ const {
   baseCity = business.address.city,
 } = Astro.props;
 
-const resolvedHeading = heading ?? `Proximi ${areaName}.`;
+const resolvedHeading = heading ?? `Close to ${areaName}.`;
 const resolvedBody =
   body ??
-  `Lorem ipsum dolor sit amet — grex noster ex ${baseCity} dispatcha est, paratus ad ${areaName} intra horas. Consectetur adipiscing elit, sed do eiusmod tempor incididunt.`;
+  `Our crew operates out of ${baseCity}, ready to reach ${areaName} within hours. We know the neighborhoods, the local codes, and the most common issues in this area.`;
 ---
 
 <section class="bg-bg py-20 lg:py-28">
@@ -80,7 +80,7 @@ const resolvedBody =
       <div>
         <div
           id="local-presence-map"
-          class="relative aspect-[4/3] lg:aspect-square rounded-xl overflow-hidden ring-1 ring-border/60 bg-surface"
+          class="relative aspect-[4/3] lg:aspect-square rounded-md overflow-hidden ring-1 ring-border/60 bg-surface"
         >
           <div class="absolute inset-0 flex items-center justify-center text-text-soft text-sm">
             <span>Loading map…</span>

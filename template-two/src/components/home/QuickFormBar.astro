@@ -1,0 +1,95 @@
+---
+/**
+ * QuickFormBar, the flat horizontal "Get a Fast Quote" bar that sits
+ * BELOW the hero and BECOMES STICKY at the top of the viewport when
+ * the user scrolls past the hero (Lumos pattern).
+ *
+ * Layout: full-width band, content centered.
+ *   - Mobile  : stacked (label, then full-width inputs, then button)
+ *   - Desktop : single horizontal row, label left + 3 inputs + submit
+ *
+ * Sticky behavior is pure CSS: `position: sticky; top: 0` on the
+ * outer container. As the user scrolls, the form bar pins to the
+ * top of the viewport and stays there. The fixed nav above it is
+ * `top-0` too, so once the bar reaches the nav, the bar takes over
+ * as the persistent CTA — the nav's background flips to solid via
+ * its own `[data-scrolled]` state at that point.
+ *
+ * The bar has the id #quote-form so mobile sticky-bottom buttons
+ * can `<a href="#quote-form">` to scroll the user back to it.
+ */
+import { business } from "@/data/business";
+
+interface Props {
+  /** Form post target. Defaults to "#". */
+  formAction?: string;
+}
+
+const { formAction = "#" } = Astro.props;
+
+const serviceOptions = business.services
+  .filter((s) => s.tier === "category")
+  .map((s) => ({ value: s.slug, label: s.name }));
+---
+
+<!-- Sticks at top-20 (80px) so it pins UNDER the fixed h-20 nav once
+     the user scrolls past the hero. Nav is z-50, form bar z-40, so
+     the form bar always sits cleanly below the nav. -->
+<div class="sticky top-20 z-40 bg-brand-tint border-b border-border shadow-sm" id="quote-form">
+  <form
+    action={formAction}
+    method="post"
+    class="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-3 lg:py-4"
+    aria-label="Get a fast quote"
+  >
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 lg:gap-3">
+
+      <!-- Label, sits to the left of the inputs on desktop, stacks on top on mobile -->
+      <p class="font-body text-sm font-bold text-text whitespace-nowrap text-center lg:text-left lg:pr-2">
+        Get A Fast Quote
+        <span class="text-text-soft font-normal text-xs ml-1 hidden sm:inline">— Takes Only 5 Seconds!</span>
+      </p>
+
+      <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        <input
+          type="text"
+          name="quick_name"
+          required
+          autocomplete="name"
+          placeholder="Full Name"
+          class="w-full bg-surface ring-1 ring-border rounded-sm px-3 py-2.5 text-sm text-text placeholder:text-text-soft focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+        />
+        <input
+          type="tel"
+          name="quick_phone"
+          required
+          autocomplete="tel"
+          placeholder="Phone Number"
+          class="w-full bg-surface ring-1 ring-border rounded-sm px-3 py-2.5 text-sm text-text placeholder:text-text-soft focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+        />
+        <select
+          name="quick_service"
+          required
+          class="w-full bg-surface ring-1 ring-border rounded-sm px-3 py-2.5 text-sm text-text focus:ring-2 focus:ring-brand focus:outline-none transition-shadow appearance-none bg-[url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b6356%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.65rem_center] bg-[length:1.1em_1.1em] pr-9"
+        >
+          <option value="" disabled selected>Service Requested</option>
+          {serviceOptions.map((opt) => (
+            <option value={opt.value}>{opt.label}</option>
+          ))}
+          <option value="not-sure">Not sure yet</option>
+        </select>
+      </div>
+
+      <button
+        type="submit"
+        class="shrink-0 inline-flex items-center justify-center gap-1.5 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-sm px-6 py-2.5 rounded-sm whitespace-nowrap transition-colors"
+      >
+        Get Quote
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+
+    </div>
+  </form>
+</div>

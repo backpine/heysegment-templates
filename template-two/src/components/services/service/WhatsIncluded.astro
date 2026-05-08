@@ -1,12 +1,24 @@
 ---
 /**
- * What's included — 2-col: "work-in-progress" photo left, checklist right.
+ * WhatsIncluded, template-two variant: editorial walkthrough of what's
+ * delivered when the customer books this service.
  *
- * Deliberately different from the other numbered-list sections on the site
- * (CoverageDetails, HowWeWork, WhyUs, etc). The photo grounds the list in
- * actual work, and the list itself uses a standalone brand checkmark glyph
- * (no disc, no card) as the anchor so it doesn't repeat the WhyUs disc
- * pattern either.
+ * Replaces template-one's photo-side + numbered-cards split with a
+ * cleaner editorial layout that fits template-two's blocky/centered
+ * aesthetic:
+ *
+ *   - Centered editorial header (eyebrow + italic-serif heading +
+ *     optional subtext)
+ *   - Below the header: a 2-column grid of inclusion items, each one
+ *     a horizontal pair of HUGE italic-serif gold number + bold-sans
+ *     title and a body description below. Hairline divider underneath
+ *     each row, no card frames, no shadows, no circular overlays.
+ *   - Optional photo block under the grid as a magazine-style "footer
+ *     image" so the section still has visual proof but doesn't fight
+ *     the editorial type for attention.
+ *
+ * Companion to ServiceBenefits — this section answers "what do I get?"
+ * while ServiceBenefits answers "why does this matter to me?".
  */
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
 
@@ -24,6 +36,8 @@ interface Props {
   imageSrc?: string;
   imageAlt?: string;
   imageLabel?: string;
+  /** Hide the photo block at the bottom of the section. */
+  hidePhoto?: boolean;
 }
 
 const {
@@ -34,77 +48,113 @@ const {
   items,
   imageSrc,
   imageAlt = "Service in progress",
-  imageLabel = "Work Photo",
+  imageLabel = "WORK PHOTO",
+  hidePhoto = false,
 } = Astro.props;
 
-const resolvedHeading = heading ?? `Quid accipis cum ${serviceName}.`;
-const resolvedSubtext =
-  subtext ??
-  `Lorem ipsum dolor sit amet — omnia quae sequuntur incluso sunt in pretio pro ${serviceName}.`;
+const resolvedHeading = heading ?? `What ${serviceName} includes.`;
+const resolvedSubtext = subtext;
+
+const pad = (n: number) => String(n + 1).padStart(2, "0");
 ---
 
 <section class="bg-bg py-20 lg:py-28">
-  <div class="max-w-7xl mx-auto px-6 lg:px-10">
-    <div class="grid lg:grid-cols-2 gap-14 lg:gap-16 items-start">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10">
 
-      <!-- LEFT: image placeholder -->
-      <div class="lg:sticky lg:top-28">
-        <ImagePlaceholder
-          aspect="4/5"
-          imageSrc={imageSrc}
-          imageAlt={imageAlt}
-          label={imageLabel}
-          hint={`A photo of the team on a ${serviceName.toLowerCase()} job fits here.`}
-          bloomPosition="bl"
-        />
-      </div>
+    <!-- Centered editorial header -->
+    <div class="max-w-3xl mx-auto text-center mb-14 lg:mb-16">
+      {eyebrow && (
+        <div
+          class="inline-flex items-center justify-center gap-2.5 mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+            {eyebrow}
+          </span>
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        </div>
+      )}
 
-      <!-- RIGHT: copy + checklist -->
-      <div>
-        {eyebrow && (
-          <div class="inline-flex items-center gap-2.5 mb-4">
-            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
-            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
-              {eyebrow}
-            </span>
-          </div>
-        )}
+      <h2
+        class="font-heading italic font-medium text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {resolvedHeading}
+      </h2>
 
-        <h2 class="font-heading text-3xl lg:text-4xl text-text leading-tight">
-          {resolvedHeading}
-        </h2>
-
-        {resolvedSubtext && (
-          <p class="font-body text-base text-text-soft mt-4 leading-relaxed max-w-lg">
-            {resolvedSubtext}
-          </p>
-        )}
-
-        <!-- Checklist — standalone brand checkmarks, no disc, no card -->
-        <ul class="mt-10 divide-y divide-border" role="list">
-          {items.map((item) => (
-            <li class="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 py-6 first:pt-0">
-              <svg
-                class="w-6 h-6 shrink-0 text-brand row-span-2 mt-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2.5"
-                aria-hidden="true"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-              <h3 class="font-heading text-lg text-text leading-snug">
-                {item.title}
-              </h3>
-              <p class="font-body text-base text-text-soft leading-relaxed">
-                {item.description}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
+      {resolvedSubtext && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-2xl mx-auto"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {resolvedSubtext}
+        </p>
+      )}
     </div>
+
+    <!-- 2-column grid of inclusions, editorial style. Each item =
+         huge italic-serif gold number + bold title + body. Hairline
+         under each row, no card frames. -->
+    <ol
+      class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 lg:gap-x-14 gap-y-0"
+      role="list"
+    >
+      {items.map((item, i) => (
+        <li
+          class="py-6 border-b border-border"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(Math.min(i * 75, 525)) as "0" | "75" | "150" | "225" | "300" | "375" | "450" | "525"}
+        >
+          <div class="flex items-baseline gap-4 mb-2">
+            <span
+              class="font-heading italic font-medium text-3xl lg:text-4xl text-brand leading-none tabular-nums shrink-0"
+              aria-hidden="true"
+            >
+              {pad(i)}
+            </span>
+            <h3 class="font-heading italic font-medium text-lg lg:text-xl text-text leading-snug">
+              {item.title}
+            </h3>
+          </div>
+          <p class="font-body text-sm lg:text-base text-text-soft leading-relaxed pl-12 lg:pl-14">
+            {item.description}
+          </p>
+        </li>
+      ))}
+    </ol>
+
+    <!-- Optional magazine-style photo footer. Sits BELOW the grid as
+         a visual proof element, doesn't compete with the type-driven
+         walkthrough above. -->
+    {!hidePhoto && (
+      <figure
+        class="mt-16 lg:mt-20 max-w-4xl mx-auto"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="300"
+      >
+        <div class="rounded-md overflow-hidden ring-1 ring-border shadow-md">
+          <ImagePlaceholder
+            aspect="16/9"
+            imageSrc={imageSrc}
+            imageAlt={imageAlt}
+            label={imageLabel}
+            hint={`${serviceName} in action`}
+            bloomPosition="tl"
+          />
+        </div>
+        <figcaption class="font-body text-xs text-text-soft text-center mt-3 italic">
+          Recent {serviceName.toLowerCase()} project
+        </figcaption>
+      </figure>
+    )}
+
   </div>
 </section>

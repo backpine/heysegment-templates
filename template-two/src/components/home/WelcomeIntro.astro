@@ -1,0 +1,143 @@
+---
+/**
+ * WelcomeIntro, template-two variant: centered editorial intro with
+ * a featured TEAM/OWNER PHOTO above the headline.
+ *
+ * Replaces template-one's two-column text-left/photo-right layout
+ * with a centered single-column flow:
+ *   1. Eyebrow tag (centered)
+ *   2. Featured team / owner photo (centered, max-w-2xl) — used to
+ *      have a play-button video-thumbnail overlay, removed because
+ *      most home-service businesses don't have a hero video on hand
+ *      and a strong team photo carries more trust anyway.
+ *   3. Big italic-serif headline (centered)
+ *   4. Body paragraph (centered, max-w-2xl)
+ *   5. Single Google rating row (centered)
+ *
+ * Sits on bg-bg (cream) so it provides the light contrast against the
+ * dark-navy ServiceCardsTeal section that follows.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import GoogleLogo from "@/components/ui/GoogleLogo.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface RatingBadge {
+  rating: number;
+  count: number;
+  platform: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  body?: string;
+  ratings?: RatingBadge[];
+}
+
+const city = business.address?.city;
+const primaryCategory = business.services.find((s) => s.tier === "category")?.name ?? "Premium Service";
+
+const {
+  eyebrow = `${primaryCategory} in ${city} ${business.address?.state ?? ""}`.trim(),
+  headline = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  body = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+  ratings = (business as { ratingBadges?: RatingBadge[] }).ratingBadges ?? [
+    { rating: business.reviews.rating, count: business.reviews.total, platform: "Google" },
+  ],
+} = Astro.props;
+---
+
+<section class="bg-bg pt-16 lg:pt-24 pb-20 lg:pb-28">
+  <div class="max-w-4xl mx-auto px-6 lg:px-10 text-center">
+
+    {/* Eyebrow tag, centered */}
+    {eyebrow && (
+      <div
+        class="inline-flex items-center justify-center gap-2.5 mb-6"
+        data-reveal
+        data-reveal-from="up"
+      >
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-bold tracking-widest uppercase text-brand">
+          {eyebrow}
+        </span>
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+      </div>
+    )}
+
+    {/* Featured team / owner photo, sits ABOVE the headline. Was a
+        video thumbnail with a play-button overlay; switched to a
+        plain team photo because most home-service brands don't have
+        a hero video at launch and the photo carries more trust on
+        its own. To put a real video here later, swap the
+        ImagePlaceholder for an `<iframe>` or `<video>` tag. */}
+    <div
+      class="relative mb-10 lg:mb-12 max-w-2xl mx-auto"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="100"
+    >
+      <div class="relative rounded-md overflow-hidden ring-1 ring-border shadow-md">
+        <ImagePlaceholder
+          aspect="16/9"
+          label="TEAM / OWNER PHOTO"
+          hint="Group shot of the team or owner portrait"
+          bloomPosition="tl"
+        />
+      </div>
+    </div>
+
+    {/* Big italic-serif headline, centered */}
+    <h2
+      class="font-heading italic font-medium text-3xl lg:text-5xl text-text leading-[1.1]"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="200"
+    >
+      {headline}
+    </h2>
+
+    {/* Body paragraph, centered */}
+    <p
+      class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-2xl mx-auto"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="300"
+    >
+      {body}
+    </p>
+
+    {/* Centered Google rating row */}
+    {ratings.length > 0 && (
+      <div
+        class="mt-10 inline-flex flex-wrap items-center justify-center gap-x-8 gap-y-4"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="400"
+      >
+        {ratings.map((badge) => (
+          <div class="flex items-center gap-3">
+            <GoogleLogo class="w-9 h-9 shrink-0" />
+            <div class="text-left">
+              <div class="flex items-center gap-2">
+                <span class="font-heading font-bold text-xl text-text leading-none tabular-nums">
+                  {badge.rating.toFixed(1)}
+                </span>
+                <StarRating
+                  ariaLabel={`${badge.rating} out of 5 stars on ${badge.platform}`}
+                  class="flex gap-0.5"
+                  starClass="w-4 h-4"
+                />
+              </div>
+              <p class="font-body text-xs text-text-soft mt-1">
+                Based on <strong class="text-text font-semibold">{badge.count} {badge.platform} reviews</strong>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+  </div>
+</section>

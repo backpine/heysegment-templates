@@ -1,0 +1,90 @@
+---
+/**
+ * Terms and Conditions page, lorem ipsum placeholder.
+ *
+ * Real sites replace the body content with their actual terms.
+ */
+import Layout from "@/layouts/Layout.astro";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import { business } from "@/data/business";
+
+const sections = [
+  {
+    heading: "1. Acceptance of terms",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  },
+  {
+    heading: "2. Use of services",
+    body: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  },
+  {
+    heading: "3. Pricing and payment",
+    body: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+  },
+  {
+    heading: "4. Cancellations and refunds",
+    body: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+  },
+  {
+    heading: "5. Limitation of liability",
+    body: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.",
+  },
+  {
+    heading: "6. Governing law",
+    body: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
+  },
+  {
+    heading: "7. Contact",
+    body: `For questions about these terms, contact us at ${business.email} or call ${business.phone}.`,
+  },
+];
+
+const lastUpdated = "January 1, 2025";
+---
+
+<Layout
+  title={`Terms and Conditions, ${business.name}`}
+  description={`Terms and Conditions for ${business.name}.`}
+  robots="noindex"
+>
+
+  <Breadcrumbs trail={[{ label: "Terms and Conditions", href: "/terms-and-conditions" }]} />
+
+  <section class="bg-bg pt-12 lg:pt-16 pb-20 lg:pb-28">
+    <div class="max-w-3xl mx-auto px-6 lg:px-10">
+
+      <div class="inline-flex items-center gap-2.5 mb-4">
+        <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+        <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
+          Legal
+        </span>
+      </div>
+
+      <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl text-text leading-tight tracking-tight">
+        Terms and Conditions
+      </h1>
+
+      <p class="font-body text-sm text-text-soft mt-4">
+        Last updated: {lastUpdated}
+      </p>
+
+      <p class="font-body text-base lg:text-lg text-text-soft mt-8 leading-relaxed">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      </p>
+
+      <div class="mt-12 space-y-10">
+        {sections.map((section) => (
+          <div>
+            <h2 class="font-heading font-bold text-xl lg:text-2xl text-text leading-snug">
+              {section.heading}
+            </h2>
+            <p class="font-body text-base text-text-soft mt-3 leading-relaxed">
+              {section.body}
+            </p>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </section>
+</Layout>
