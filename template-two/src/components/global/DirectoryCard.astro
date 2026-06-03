@@ -1,0 +1,154 @@
+---
+/**
+ * DirectoryCard — the repeated entry used in the directory lists
+ * (/services, /service-area).
+ *
+ * Template-two variant. Same role + prop contract as template-one's
+ * DirectoryCard (so both templates share an identical component
+ * architecture), but the visual treatment follows template-two's
+ * editorial identity: instead of a dark horizontal card, each entry is
+ * an alternating photo + content ROW (zigzag) on the cream page, with
+ * a HUGE italic-serif gold number hanging over the OUTER edge of the
+ * photo.
+ *
+ * The `index` drives both the "0X" number AND which side the photo
+ * sits on (even → photo left, odd → photo right), so a list of these
+ * cards reads as a magazine feature spread.
+ *
+ * `iconPath` is accepted for prop-API parity with template-one (whose
+ * DirectoryCard renders an icon disc) but is intentionally unused
+ * here — template-two's editorial rows lean on the big serif number
+ * instead of an icon.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Cta {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  /** 0-indexed position. Drives the "0X" number and the zigzag side. */
+  index: number;
+  /** Small uppercase eyebrow above the name, e.g. "Service" / "Service Area". */
+  eyebrowLabel: string;
+  name: string;
+  body: string;
+  /** Accepted for parity with template-one; unused in template-two. */
+  iconPath?: string;
+  imageHint?: string;
+  /** Optional chip list — heading + items (+ optional "rest count"). */
+  chipsHeading?: string;
+  chips?: string[];
+  chipsRestCount?: number;
+  primaryCta: Cta;
+  /** Unused in template-two (kept for API parity); the row shows a
+   *  single "Learn More" arrow link rather than a secondary CTA. */
+  secondaryCta?: Cta;
+  revealDelay?: "0" | "100" | "200" | "300";
+}
+
+const {
+  index,
+  eyebrowLabel,
+  name,
+  body,
+  imageHint,
+  chipsHeading,
+  chips = [],
+  chipsRestCount = 0,
+  primaryCta,
+} = Astro.props;
+
+const padded = String(index + 1).padStart(2, "0");
+const photoLeft = index % 2 === 0;
+---
+
+<li
+  class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+  data-reveal
+  data-reveal-from={photoLeft ? "left" : "right"}
+>
+  {/* Photo column with the big italic-serif number hanging over the
+      OUTER edge. lg:order toggles per index for the zigzag. */}
+  <div
+    class:list={[
+      "lg:col-span-6 relative",
+      photoLeft ? "lg:order-1" : "lg:order-2",
+    ]}
+  >
+    <div class="overflow-hidden rounded-md ring-1 ring-border shadow-md">
+      <ImagePlaceholder
+        aspect="4/3"
+        label={name.toUpperCase()}
+        hint={imageHint}
+        bloomPosition={photoLeft ? "tr" : "tl"}
+      />
+    </div>
+    <span
+      class:list={[
+        "absolute -top-6 lg:-top-10 font-heading italic font-medium text-6xl lg:text-8xl text-brand leading-none tabular-nums select-none",
+        photoLeft ? "-left-2 lg:-left-4" : "-right-2 lg:-right-4",
+      ]}
+      aria-hidden="true"
+    >
+      {padded}
+    </span>
+  </div>
+
+  {/* Content column */}
+  <div
+    class:list={[
+      "lg:col-span-6",
+      photoLeft ? "lg:order-2" : "lg:order-1",
+    ]}
+  >
+    <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-3">
+      {eyebrowLabel} {padded}
+    </p>
+    <h3 class="font-heading italic font-medium text-2xl lg:text-4xl text-text leading-[1.1] mb-4">
+      {name}
+    </h3>
+    <p class="font-body text-base text-text-soft leading-relaxed">
+      {body}
+    </p>
+
+    {chips.length > 0 && (
+      <div class="mt-5">
+        {chipsHeading && (
+          <p class="font-body text-[11px] font-bold tracking-widest uppercase text-text-soft/80 mb-2">
+            {chipsHeading}
+          </p>
+        )}
+        <ul class="flex flex-wrap gap-2" role="list">
+          {chips.map((chip) => (
+            <li>
+              <span class="inline-flex items-center gap-1.5 bg-surface text-text font-body text-xs font-semibold px-3 py-1.5 rounded-sm ring-1 ring-border">
+                <svg class="w-3 h-3 text-brand" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                {chip}
+              </span>
+            </li>
+          ))}
+          {chipsRestCount > 0 && (
+            <li>
+              <span class="inline-flex items-center bg-transparent text-text-soft/70 font-body text-xs font-semibold px-2 py-1.5">
+                + {chipsRestCount} more
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
+    )}
+
+    <a
+      href={primaryCta.href}
+      class="inline-flex items-center gap-2 mt-7 font-body text-sm font-bold tracking-widest uppercase text-brand hover:text-brand-deep group transition-colors"
+    >
+      {primaryCta.label}
+      <span class="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+    </a>
+  </div>
+</li>

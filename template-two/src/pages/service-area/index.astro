@@ -19,7 +19,7 @@
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import PageHero from "@/components/global/PageHero.astro";
 import ServiceAreaDirectoryList from "@/components/service-area/ServiceAreaDirectoryList.astro";
 import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
 import TrustChecklist from "@/components/home/TrustChecklist.astro";
@@ -52,100 +52,15 @@ const directoryFaqs = business.faqs
   title={`Service Areas, ${business.name}`}
   description={`Every city served by ${business.name}. Browse the full coverage list and click any city to learn more about local service.`}
 >
-  {/* Compact inline page header, Hero-style but shorter than home.
-      Bottom padding intentionally tight, ServiceAreaDirectoryList
-      continues on the same dark bg with no break. Breadcrumbs render
-      INSIDE the hero (overlay variant) so the dark background extends
-      all the way to the very top of the page. */}
-  <section class="relative bg-text overflow-hidden isolate">
-
-    {/* Background gradient placeholder. */}
-    <img src="https://picsum.photos/seed/service-area-index-hero/1920/1080" alt="" class="absolute inset-0 w-full h-full object-cover z-0" aria-hidden="true" />
-  <div class="absolute inset-0 z-0 bg-gradient-to-br from-text/75 via-text/55 to-brand-deep/75">
-      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
-        <p class="font-body text-[10px] uppercase tracking-widest text-surface/40">
-          PAGE HEADER BACKGROUND
-        </p>
-        <p class="font-body text-[11px] text-surface/40 mt-1 leading-snug">
-          Wide hero photo, regional skyline, map shot, or branded vehicle
-        </p>
-      </div>
-    </div>
-
-    {/* Dark gradient overlay for readable copy. */}
-    <div
-      class="absolute inset-0 z-10 bg-gradient-to-r from-text/90 via-text/65 to-text/30"
-      aria-hidden="true"
-    ></div>
-
-    {/* Breadcrumbs overlaid on the dark hero. */}
-    <div class="relative z-20 pt-24 lg:pt-28">
-      <Breadcrumbs trail={[{ label: "Service Area", href: "/service-area" }]} variant="overlay" />
-    </div>
-
-    {/* Content */}
-    <div class="relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pt-12 lg:pt-16 pb-20 lg:pb-28">
-      <div class="max-w-3xl">
-
-        {/* H1 pill, local-SEO pattern. */}
-        <h1
-          class="inline-block bg-brand text-surface font-body font-bold text-xs sm:text-sm tracking-widest uppercase px-5 py-2.5 rounded-pill shadow-md mb-6"
-          data-reveal
-          data-reveal-from="up"
-        >
-          {h1Pill}
-        </h1>
-
-        {/* Big visual headline */}
-        <p
-          class="font-heading italic font-medium text-4xl sm:text-5xl lg:text-6xl text-surface leading-[1.05] tracking-tight"
-          data-reveal
-          data-reveal-from="up"
-          data-reveal-delay="100"
-        >
-          Local crew, <span class="text-brand italic">whole region.</span>
-        </p>
-
-        {/* Subtext */}
-        <p
-          class="font-body text-base lg:text-lg text-surface/80 mt-6 max-w-2xl leading-relaxed"
-          data-reveal
-          data-reveal-from="up"
-          data-reveal-delay="200"
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the cities below and click any area to see local reviews, projects, and the services we offer there.
-        </p>
-
-        {/* Dual CTA */}
-        <div
-          class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-10"
-          data-reveal
-          data-reveal-from="up"
-          data-reveal-delay="300"
-        >
-          <a
-            href={business.ctaHref}
-            class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-surface font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill shadow-lg transition-all hover:shadow-xl hover:scale-[1.02]"
-          >
-            {business.ctaLabel}
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </a>
-          <a
-            href={phoneHref}
-            class="inline-flex items-center justify-center gap-2 bg-transparent text-surface ring-2 ring-surface/70 font-body font-bold text-base lg:text-lg px-8 py-4 rounded-pill hover:bg-surface hover:text-text transition-colors whitespace-nowrap"
-          >
-            <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
-            </svg>
-            Call {business.phone}
-          </a>
-        </div>
-
-      </div>
-    </div>
-  </section>
+  {/* Page header via the shared PageHero. */}
+  <PageHero
+    h1Pill={h1Pill}
+    tagline={`Local crew, <span class="text-brand">whole region.</span>`}
+    subtext="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the cities below and click any area to see local reviews, projects, and the services we offer there."
+    breadcrumbs={[{ label: "Service Area", href: "/service-area" }]}
+    backgroundImage="https://picsum.photos/seed/service-area-index-hero/1920/1080"
+    placeholderHint="Wide hero photo, regional skyline, map shot, or branded vehicle"
+  />
 
   {/* Directory of every city, dark navy continuation from the hero,
       transitions text → brand at the bottom. */}

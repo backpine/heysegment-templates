@@ -22,7 +22,7 @@
  * to their parent row).
  */
 import { business } from "@/data/business";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import DirectoryCard from "@/components/global/DirectoryCard.astro";
 
 interface SubService {
   name: string;
@@ -71,7 +71,6 @@ const {
   subtext = "Tap any service to see what's included, common questions, and pricing notes. Don't see what you need? Give us a call.",
 } = Astro.props;
 
-const pad = (n: number) => String(n + 1).padStart(2, "0");
 ---
 
 <section class="bg-bg py-20 lg:py-28">
@@ -112,92 +111,22 @@ const pad = (n: number) => String(n + 1).padStart(2, "0");
       )}
     </div>
 
-    <!-- Alternating photo + content rows (zigzag) -->
+    <!-- Alternating photo + content rows (zigzag), each via DirectoryCard -->
     <ol class="space-y-16 lg:space-y-24" role="list">
       {rows.map((row, i) => {
-        const photoLeft = i % 2 === 0;
         const hasDetailPage = detailSlugs.has(row.slug);
         const href = hasDetailPage ? `/services/${row.slug}` : "/contact";
-
         return (
-          <li
-            class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
-            data-reveal
-            data-reveal-from={photoLeft ? "left" : "right"}
-          >
-            <!-- Photo column -->
-            <div
-              class:list={[
-                "lg:col-span-6 relative",
-                photoLeft ? "lg:order-1" : "lg:order-2",
-              ]}
-            >
-              <div class="overflow-hidden rounded-md ring-1 ring-border shadow-md">
-                <ImagePlaceholder
-                  aspect="4/3"
-                  label={row.name.toUpperCase()}
-                  hint={`Photo of ${row.name.toLowerCase()}`}
-                  bloomPosition={photoLeft ? "tr" : "tl"}
-                />
-              </div>
-              <!-- Italic serif number, hangs over the OUTER edge of the photo -->
-              <span
-                class:list={[
-                  "absolute -top-6 lg:-top-10 font-heading italic font-medium text-6xl lg:text-8xl text-brand leading-none tabular-nums select-none",
-                  photoLeft ? "-left-2 lg:-left-4" : "-right-2 lg:-right-4",
-                ]}
-                aria-hidden="true"
-              >
-                {pad(i)}
-              </span>
-            </div>
-
-            <!-- Content column -->
-            <div
-              class:list={[
-                "lg:col-span-6",
-                photoLeft ? "lg:order-2" : "lg:order-1",
-              ]}
-            >
-              <p class="font-body text-xs font-bold tracking-widest uppercase text-brand mb-3">
-                Service {pad(i)}
-              </p>
-              <h3 class="font-heading italic font-medium text-2xl lg:text-4xl text-text leading-[1.1] mb-4">
-                {row.name}
-              </h3>
-              <p class="font-body text-base text-text-soft leading-relaxed">
-                {row.body ?? row.description}
-              </p>
-
-              {row.subServices.length > 0 && (
-                <div class="mt-5">
-                  <p class="font-body text-[11px] font-bold tracking-widest uppercase text-text-soft/80 mb-2">
-                    Includes
-                  </p>
-                  <ul class="flex flex-wrap gap-2" role="list">
-                    {row.subServices.map((sub) => (
-                      <li>
-                        <span class="inline-flex items-center gap-1.5 bg-surface text-text font-body text-xs font-semibold px-3 py-1.5 rounded-sm ring-1 ring-border">
-                          <svg class="w-3 h-3 text-brand" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                          </svg>
-                          {sub.name}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <a
-                href={href}
-                class="inline-flex items-center gap-2 mt-7 font-body text-sm font-bold tracking-widest uppercase text-brand hover:text-brand-deep group transition-colors"
-              >
-                {hasDetailPage ? "Learn More" : "Get a Quote"}
-                <span class="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
-              </a>
-            </div>
-          </li>
+          <DirectoryCard
+            index={i}
+            eyebrowLabel="Service"
+            name={row.name}
+            body={row.body ?? row.description}
+            imageHint={`Photo of ${row.name.toLowerCase()}`}
+            chipsHeading={row.subServices.length > 0 ? "Includes" : undefined}
+            chips={row.subServices.map((s) => s.name)}
+            primaryCta={{ label: hasDetailPage ? "Learn More" : "Get a Quote", href }}
+          />
         );
       })}
     </ol>
