@@ -1,0 +1,208 @@
+---
+/**
+ * ServiceCardsTeal, full-bleed teal section with image-first service cards.
+ *
+ * Each card shows a photo of the service with the title overlay always
+ * visible at the bottom. On hover (or focus / tap on mobile), a teal
+ * description overlay slides up from the bottom revealing the description
+ * and a "Learn More" button.
+ *
+ * Pattern is universal, works for any home service vertical. The icon
+ * registry below covers the most common categories.
+ */
+import { business } from "@/data/business";
+import WaveDivider from "@/components/global/WaveDivider.astro";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Card {
+  name: string;
+  slug: string;
+  icon?: string;
+  description: string;
+  /** Override for the card's link target. Defaults to `/services/[slug]`,
+   *  pass a different prefix to reuse this grid for service areas, etc. */
+  href?: string;
+  /** Override the photo placeholder hint, useful when the grid is being
+   *  reused for non-service content (e.g. cities). */
+  hint?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  cards?: Card[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Hide the top wave divider, useful when the previous section is
+   *  already on brand color (e.g., reviews → other-services on the
+   *  service detail page) so we don't render a white "oval" between
+   *  two teal sections. */
+  omitTopWave?: boolean;
+  /** Hide the bottom wave divider when the next section is also on
+   *  brand color or wraps the transition itself. */
+  omitBottomWave?: boolean;
+  /** Hide the bottom "View All …" CTA pill. Use when the section
+   *  flows directly into a FinalCTA / other-CTA block so we don't
+   *  stack two big CTA buttons back to back. */
+  omitCta?: boolean;
+  /** Compress the section's bottom padding so it reads as one
+   *  continuous block with the next teal section, instead of two
+   *  separately-padded sections separated by a teal void. */
+  tightBottom?: boolean;
+}
+
+const categories = business.services.filter((s) => s.tier === "category");
+const city = business.address?.city;
+
+// Default cap: show only the FIRST 3 categories on the home / service-area
+// grids, then let the CTA pill below carry visitors to /services for the
+// full list. Capping at 3 keeps the row visually balanced regardless of
+// how many services the business actually offers (3, 5, 7, etc.), the
+// 4-card grid would awkwardly orphan a 5th card on its own row.
+const TEASER_LIMIT = 3;
+
+const {
+  eyebrow,
+  heading = `Our Core Services`,
+  cards = categories.slice(0, TEASER_LIMIT).map((c) => ({
+    name: c.name,
+    slug: c.slug,
+    icon: (c as { icon?: string }).icon,
+    description: c.description,
+  })),
+  ctaLabel = "View All Services",
+  ctaHref = "/services",
+  omitTopWave = false,
+  omitBottomWave = false,
+  omitCta = false,
+  tightBottom = false,
+} = Astro.props;
+
+// Responsive grid columns based on card count, so 3 cards center as a
+// row of 3 instead of left-aligning in a 4-col grid with an empty cell.
+// Tailwind JIT needs literal class names, so map explicitly.
+const gridColsClass =
+  cards.length === 1
+    ? "grid-cols-1 max-w-sm mx-auto"
+    : cards.length === 2
+    ? "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto"
+    : cards.length === 3
+    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto"
+    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+
+const iconFor = (key: string | undefined) => {
+  switch (key) {
+    case "spray":
+      return "M12 3v3m0 12v3M5.636 5.636l2.122 2.122m8.485 8.485l2.122 2.122M3 12h3m12 0h3M5.636 18.364l2.122-2.122m8.485-8.485l2.122-2.122M9 12a3 3 0 116 0 3 3 0 01-6 0z";
+    case "house":
+      return "M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10";
+    case "roof":
+      return "M2 12L12 4l10 8M5 11v9h14v-9";
+    case "gutter":
+      return "M3 7h18M5 7v6a4 4 0 004 4h6a4 4 0 004-4V7M9 17v4M15 17v4";
+    case "pin":
+      // Map-pin icon, used when the grid is reused for service-area cities.
+      return "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z";
+    case "wrench":
+      // Wrench / handyman, generic 5th-service fallback.
+      return "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z";
+    default:
+      return "M5 13l4 4L19 7";
+  }
+};
+---
+
+<section class:list={[
+  "bg-surface relative",
+  tightBottom ? "pt-20 lg:pt-24 pb-6 lg:pb-8" : "py-20 lg:py-24",
+]}>
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Header -->
+    <div class="max-w-2xl mx-auto text-center mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-heading font-semibold text-sm tracking-widest uppercase text-brand mb-3"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold text-4xl lg:text-5xl text-text leading-[1.1] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+      >
+        {heading}
+      </h2>
+    </div>
+
+    <!-- Blocky pop service cards: photo top + icon + name + description -->
+    <ul
+      class:list={["grid gap-6 lg:gap-8", gridColsClass]}
+      role="list"
+    >
+      {cards.map((card, i) => (
+        <li
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(i * 100) as "0" | "100" | "200" | "300" | "500" | "700"}
+        >
+          <a
+            href={card.href ?? `/services/${card.slug}`}
+            class="group flex flex-col h-full bg-bg rounded-md ring-1 ring-text/10 shadow-pop overflow-hidden transition-transform duration-150 hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+          >
+            {/* Photo top */}
+            <div class="relative">
+              <ImagePlaceholder
+                aspect="4/3"
+                label={card.name.toUpperCase()}
+                hint={card.hint ?? "Photo of this service"}
+                bloomPosition="tl"
+              />
+              {/* Square icon tile, overlapping the photo's bottom-left */}
+              <span class="absolute -bottom-5 left-5 inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand text-brand-fg shadow-pop-sm">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d={iconFor(card.icon)} />
+                </svg>
+              </span>
+            </div>
+
+            {/* Body */}
+            <div class="p-6 pt-8 flex-1 flex flex-col">
+              <h3 class="font-heading font-bold text-lg lg:text-xl text-text leading-snug group-hover:text-brand transition-colors">
+                {card.name}
+              </h3>
+              <p class="font-body text-sm text-text-soft mt-2 leading-relaxed flex-1">
+                {card.description}
+              </p>
+              <span class="inline-flex items-center gap-1.5 mt-4 font-heading font-semibold text-sm text-brand">
+                Learn More
+                <span class="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+              </span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {/* Big CTA, hidden when omitCta=true. */}
+    {!omitCta && (
+      <div class="mt-12 text-center" data-reveal data-reveal-from="up">
+        <a
+          href={ctaHref}
+          class="btn-pop inline-flex items-center gap-2 bg-brand text-brand-fg font-heading font-semibold text-sm px-8 py-4 rounded-pill hover:bg-brand-deep"
+        >
+          {ctaLabel}
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </div>
+    )}
+
+  </div>
+</section>
+
+{!omitBottomWave && <WaveDivider direction="up" fill="brand" bgFrom="bg" />}

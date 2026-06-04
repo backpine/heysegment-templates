@@ -1,0 +1,97 @@
+---
+/**
+ * BusinessSchema, sitewide LocalBusiness JSON-LD.
+ *
+ * Emits a single <script type="application/ld+json"> describing the
+ * business as a HomeAndConstructionBusiness (a LocalBusiness subtype) so
+ * Google + LLMs can read the NAP (name / address / phone), hours, rating,
+ * service area, and social profiles directly.
+ *
+ * Built entirely from src/data/business.ts. Every sub-object is guarded so
+ * the schema only includes fields that actually have source data, no empty
+ * address / geo / rating blocks ever ship. Rendered ONCE per page via
+ * Layout.astro.
+ */
+import { business } from "@/data/business";
+
+const siteUrl = business.siteUrl.replace(/\/$/, "");
+
+// Base LocalBusiness node. Built up with optional sub-objects below.
+const schema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  name: business.name,
+  url: siteUrl,
+  image: `${siteUrl}/og-default.png`,
+};
+
+if (business.phone) {
+  schema.telephone = business.phone;
+}
+
+if (business.email) {
+  schema.email = business.email;
+}
+
+// PostalAddress, only when address exists.
+const address = business.address as
+  | {
+      street?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+      lat?: number;
+      lng?: number;
+    }
+  | undefined;
+
+if (address && (address.street || address.city || address.state || address.zip)) {
+  schema.address = {
+    "@type": "PostalAddress",
+    ...(address.street ? { streetAddress: address.street } : {}),
+    ...(address.city ? { addressLocality: address.city } : {}),
+    ...(address.state ? { addressRegion: address.state } : {}),
+    ...(address.zip ? { postalCode: address.zip } : {}),
+    addressCountry: "US",
+  };
+}
+
+// Geo coordinates, only when the address carries lat/lng.
+if (address && typeof address.lat === "number" && typeof address.lng === "number") {
+  schema.geo = {
+    "@type": "GeoCoordinates",
+    latitude: address.lat,
+    longitude: address.lng,
+  };
+}
+
+// Opening hours, mapped from the business.hours strings.
+if (Array.isArray(business.hours) && business.hours.length > 0) {
+  schema.openingHours = business.hours.map((h) => `${h.days}: ${h.time}`);
+}
+
+// Aggregate rating, from the reviews block (rating + total).
+const reviews = business.reviews as
+  | { rating?: number; total?: number }
+  | undefined;
+
+if (reviews && typeof reviews.rating === "number" && typeof reviews.total === "number") {
+  schema.aggregateRating = {
+    "@type": "AggregateRating",
+    ratingValue: reviews.rating,
+    reviewCount: reviews.total,
+  };
+}
+
+// Areas served, the list of city names.
+if (Array.isArray(business.serviceAreas) && business.serviceAreas.length > 0) {
+  schema.areaServed = business.serviceAreas;
+}
+
+// sameAs, social / profile links.
+if (Array.isArray(business.socialPlatforms) && business.socialPlatforms.length > 0) {
+  schema.sameAs = business.socialPlatforms.map((p) => p.href);
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

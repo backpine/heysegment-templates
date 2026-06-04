@@ -1,6 +1,6 @@
 ---
 /**
- * Other service areas — clean text list of sibling cities.
+ * Other service areas, clean text list of sibling cities.
  *
  * No cards, no per-city links. The template only ships a single location
  * page, so turning every city name into a link would create broken or
@@ -21,9 +21,9 @@ interface Props {
 
 const {
   eyebrow = "Other Areas",
-  heading = "Servimus et urbes vicinas.",
+  heading = "We serve nearby cities too.",
   subtext =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit — eandem curam per omnes urbes in regione nostra.",
+    "Same care, same honest pricing, in every city across our region.",
   currentArea,
   overviewHref = "/service-area",
   overviewLabel = "View our full coverage map",
@@ -55,7 +55,7 @@ const others = business.serviceAreas.filter((area) => area !== currentArea);
       </p>
     )}
 
-    <!-- Plain-text city list — just names, separated by generous spacing -->
+    <!-- Plain-text city list, just names, separated by generous spacing -->
     <ul
       class="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-left"
       role="list"

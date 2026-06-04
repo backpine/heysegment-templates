@@ -1,0 +1,60 @@
+---
+/**
+ * ServiceDetailHero — dark navy page-header for /services/[slug].
+ *
+ * Thin wrapper around PageHero that:
+ *   - Computes the local-SEO H1 pill ("[Service] in [City, State]")
+ *   - Forwards the optional 4-up keyPoints checklist (trust markers
+ *     specific to this service)
+ *   - Carries the service-page-specific placeholder hint
+ *
+ * Structure (placeholder bg, overlay, breadcrumbs-inside, dual CTA)
+ * lives in PageHero so this hero rhythms with every other page.
+ */
+import { business } from "@/data/business";
+import PageHero from "@/components/global/PageHero.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  serviceName: string;
+  /** Bold visual tagline beneath the H1 pill. */
+  tagline?: string;
+  /** Short subhead paragraph below the tagline. */
+  subtext?: string;
+  /** 4-up checklist of key inclusions or differentiators. */
+  keyPoints?: string[];
+  primaryCta?: { label: string; href: string };
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+}
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const {
+  serviceName,
+  tagline = "Lorem ipsum dolor sit amet.",
+  subtext,
+  keyPoints = [],
+  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
+  breadcrumbs,
+} = Astro.props;
+
+const h1Pill = `${serviceName} in ${cityState}`;
+---
+
+<PageHero
+  h1Pill={h1Pill}
+  tagline={tagline}
+  subtext={subtext}
+  keyPoints={keyPoints}
+  primaryCta={primaryCta}
+  breadcrumbs={breadcrumbs}
+  placeholderLabel="SERVICE PAGE BACKGROUND"
+  placeholderHint="Wide hero photo, technician performing this specific service"
+/>

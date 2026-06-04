@@ -1,126 +1,191 @@
 ---
 /**
- * Hero — image on the right, copy on the left.
+ * Hero — the home page hero, full-bleed dark navy with optional quote form.
  *
- * The image column renders an obvious placeholder that makes it clear where
- * a real photo should go. Local-business sites live or die on strong imagery.
+ * Renders via PageHero so the structural shell (background, overlay,
+ * H1 pill, big visual tagline, key-points checklist) matches every
+ * other hero on the site. The differences this component owns:
+ *
+ *   - Default H1 pill follows local-SEO pattern:
+ *     "Top Rated [Service] in [City], [State]"
+ *   - The tagline supports a "REVIVE" accent — when the literal
+ *     " REVIVE " appears in the string, it's rendered as a
+ *     brand-color italic span (the home page's signature flourish)
+ *   - showForm=true splits the hero (PageHero `withAside`) and
+ *     suppresses the dual CTA pair, since the right-column form is
+ *     the conversion target. The trust markers stay in the LEFT col.
+ *   - showForm=false renders a single primary CTA pill only — no
+ *     secondary phone CTA — because the home hero leads with one
+ *     clear conversion path.
  */
 import { business } from "@/data/business";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import PageHero from "@/components/global/PageHero.astro";
 
-interface Stat {
-  value: string;
+interface TrustMarker {
   label: string;
 }
 
 interface Props {
-  eyebrow?: string;
-  headline?: string;
-  subtext?: string;
+  /** H1 (rendered as a compact pill). Pattern: "Top Rated [Service] in [City], [State]". */
+  h1Pill?: string;
+  /** Big visual tagline beneath the H1, the emotional hook. */
+  tagline?: string;
   primaryCta?: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  stats?: Stat[];
-  imageSrc?: string;
-  imageAlt?: string;
-  imageLabel?: string;
+  trustMarkers?: TrustMarker[];
+  backgroundImage?: string | null;
+  /** Placeholder note shown when no backgroundImage is supplied. */
+  placeholderHint?: string;
+  /** When true, splits the hero into headline-LEFT + form-RIGHT layout
+   *  and OMITS the primary CTA pill (the form replaces it). */
+  showForm?: boolean;
+  /** Form post target for the quote form, defaults to "#". */
+  formAction?: string;
 }
 
+const primaryCategory = business.services.find((s) => s.tier === "category");
+const city = business.address?.city;
+const state = business.address?.state;
+
+const defaultH1Service = primaryCategory?.name ?? "Exterior Cleaning";
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+const defaultH1Pill = `Top Rated ${defaultH1Service} in ${cityState}`;
+
 const {
-  eyebrow = "Licensed · Insured · Local",
-  headline = "Lorem ipsum dolor sit amet consectetur.",
-  subtext = "Adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
-  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
-  secondaryCta = { label: "View Services", href: "/services" },
-  stats = business.stats.slice(0, 3),
-  imageSrc,
-  imageAlt = "Business hero image",
-  imageLabel = "Hero Image",
+  h1Pill = defaultH1Pill,
+  tagline = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  primaryCta = { label: "Get A Fast Quote", href: business.ctaHref },
+  trustMarkers = (business as { heroTrust?: TrustMarker[] }).heroTrust ?? [
+    { label: "Trust Signal 1" },
+    { label: "Trust Signal 2" },
+    { label: "Trust Signal 3" },
+    { label: "Trust Signal 4" },
+  ],
+  backgroundImage = null,
+  placeholderHint = "Wide hero photo, technician at work on a home exterior, sky background, golden-hour light",
+  showForm = false,
+  formAction = business.formEndpoint ?? "#",
 } = Astro.props;
 
-const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+// "REVIVE" accent — replace the literal token with a styled span when
+// it appears in the tagline. Other taglines pass through unchanged.
+const taglineHtml = tagline.includes(" REVIVE ")
+  ? tagline.replace(" REVIVE ", ` <span class="text-brand italic">REVIVE</span> `)
+  : tagline;
+
+const keyPoints = trustMarkers.map((m) => m.label);
+
+const serviceOptions = business.services
+  .filter((s) => s.tier === "category")
+  .map((s) => ({ value: s.slug, label: s.name }));
 ---
 
-<section class="relative overflow-hidden bg-surface">
-  <!-- Ambient brand glow — ties copy and image together visually -->
-  <div
-    class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[700px] rounded-full bg-brand/[0.05] blur-3xl pointer-events-none"
-    aria-hidden="true"
-  ></div>
-
-  {/* Top padding clears the floating nav pill (~4.25rem) + breathing room.
-      The section's bg-surface paints the whole area, so the translucent pill
-      floats over the hero cleanly — no color break at the top of the page. */}
-  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-28 lg:pt-36 pb-16 lg:pb-24">
-    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-
-      <!-- Copy -->
-      <div class="lg:col-span-6">
-
-        {eyebrow && (
-          <div class="inline-flex items-center gap-2.5 mb-6">
-            <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
-            <span class="font-body text-sm font-semibold tracking-widest uppercase text-brand">
-              {eyebrow}
-            </span>
-          </div>
-        )}
-
-        <h1 class="font-heading text-3xl sm:text-4xl lg:text-hero text-text leading-[1.05] tracking-tight">
-          {headline}
-        </h1>
-
-        <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed max-w-xl">
-          {subtext}
+<PageHero
+  h1Pill={h1Pill}
+  tagline={taglineHtml}
+  keyPoints={keyPoints}
+  primaryCta={primaryCta}
+  withAside={showForm}
+  taglineSize={showForm ? "compact" : "default"}
+  backgroundImage={backgroundImage}
+  placeholderLabel="HERO BACKGROUND"
+  placeholderHint={placeholderHint}
+>
+  {showForm && (
+    <form
+      slot="aside"
+      action={formAction}
+      method="post"
+      class="bg-surface rounded-2xl shadow-2xl ring-1 ring-border p-5 lg:p-6"
+      aria-label="Get a free quote"
+    >
+      <div class="mb-5 text-center">
+        <h2 class="font-heading font-extrabold text-2xl lg:text-3xl text-text leading-tight">
+          Get A Free Quote
+        </h2>
+        <p class="font-body text-sm text-text-soft mt-1.5">
+          Same-day response, usually within an hour.
         </p>
+      </div>
 
-        <!-- CTAs -->
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-9">
-          <a
-            href={primaryCta.href}
-            class="inline-flex items-center justify-center gap-2 bg-brand text-brand-fg font-body font-semibold text-base px-6 py-3.5 rounded-md shadow-sm hover:bg-brand/90 transition-colors"
-          >
-            {primaryCta.label}
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </a>
-          <a
-            href={phoneHref}
-            class="inline-flex items-center gap-2 font-body font-semibold text-text underline decoration-brand decoration-2 underline-offset-[6px] hover:decoration-brand/60 transition-colors"
-          >
-            <svg class="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            Call {business.phone}
-          </a>
-        </div>
+      <div class="space-y-2.5">
+        <label class="block">
+          <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+            Full Name <span class="text-brand">*</span>
+          </span>
+          <input
+            type="text"
+            name="name"
+            required
+            autocomplete="name"
+            placeholder="Your full name"
+            class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+          />
+        </label>
 
-        <!-- Stats row — plain text, no cards -->
-        {stats.length > 0 && (
-          <dl class="mt-12 pt-8 border-t border-border flex flex-wrap gap-x-10 gap-y-5">
-            {stats.map((stat) => (
-              <div>
-                <dt class="font-heading text-2xl text-text leading-none">{stat.value}</dt>
-                <dd class="font-body text-sm text-text-soft mt-2">{stat.label}</dd>
-              </div>
+        <label class="block">
+          <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+            Phone <span class="text-brand">*</span>
+          </span>
+          <input
+            type="tel"
+            name="phone"
+            required
+            autocomplete="tel"
+            placeholder="(555) 555-5555"
+            class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow"
+          />
+        </label>
+
+        <label class="block">
+          <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+            Service Needed
+          </span>
+          <select
+            name="service"
+            class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3 py-2 text-base text-text focus:ring-2 focus:ring-brand focus:outline-none transition-shadow appearance-none bg-[url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2364748b%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25em_1.25em] pr-10"
+          >
+            <option value="" disabled selected>Choose a service…</option>
+            {serviceOptions.map((opt) => (
+              <option value={opt.value}>{opt.label}</option>
             ))}
-          </dl>
-        )}
+            <option value="not-sure">Not sure yet</option>
+          </select>
+        </label>
 
+        <label class="block">
+          <span class="font-body text-xs font-bold text-text uppercase tracking-wider">
+            What do you need?
+          </span>
+          <textarea
+            name="message"
+            rows="2"
+            placeholder="Briefly describe what you're looking for"
+            class="mt-1 w-full bg-bg ring-1 ring-border rounded-lg px-3.5 py-2.5 text-base text-text placeholder:text-text-soft/60 focus:ring-2 focus:ring-brand focus:outline-none transition-shadow resize-y"
+          ></textarea>
+        </label>
       </div>
 
-      <!-- Image placeholder — clearly shows where a real photo goes -->
-      <div class="lg:col-span-6">
-        <ImagePlaceholder
-          aspect="5/4"
-          imageSrc={imageSrc}
-          imageAlt={imageAlt}
-          label={imageLabel}
-          hint="A photo of your team, storefront, or best work fits here."
-          bloomPosition="tl"
+      <label class="flex items-start gap-2.5 mt-4 cursor-pointer">
+        <input
+          type="checkbox"
+          name="sms_consent"
+          value="yes"
+          class="mt-0.5 w-4 h-4 rounded text-brand border-border focus:ring-2 focus:ring-brand cursor-pointer shrink-0"
         />
-      </div>
+        <span class="font-body text-xs text-text-soft leading-snug">
+          I agree to receive SMS messages from {business.name} about my quote. Reply STOP to opt out.
+        </span>
+      </label>
 
-    </div>
-  </div>
-</section>
+      <button
+        type="submit"
+        class="mt-5 w-full inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-body font-bold text-base lg:text-lg px-7 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all"
+      >
+        Send My Quote Request
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+    </form>
+  )}
+</PageHero>

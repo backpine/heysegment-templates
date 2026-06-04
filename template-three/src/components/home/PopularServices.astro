@@ -1,6 +1,6 @@
 ---
 /**
- * Popular services — numbered editorial grid.
+ * Popular services, numbered editorial grid.
  *
  * Intentionally uncarded: each service is anchored only by a hairline top
  * border and a numbered label. The section reads like a well-set magazine
@@ -22,11 +22,19 @@ interface Props {
   viewAllHref?: string;
 }
 
+// In the Mirror Strategy, broad GBP categories (tier="category") get their
+// own dedicated home-page section via CategoriesOverview. This section
+// surfaces specific services and critical services, not the categories,
+// which would duplicate content above.
+const defaultServices = business.services.filter(
+  (s) => !("tier" in s) || s.tier !== "category"
+);
+
 const {
-  eyebrow = "Popular Services",
-  heading = "Quod optime facimus.",
-  subtext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.",
-  services = business.services,
+  eyebrow = "Specific Services",
+  heading = "What we do best.",
+  subtext = "Specific services within our main categories. If you don't see what you need, give us a call, chances are we do that too.",
+  services = defaultServices,
   viewAllHref = "/services",
 } = Astro.props;
 
@@ -56,7 +64,7 @@ const detailSlugs = new Set(business.serviceDetails.map((d) => d.slug));
       )}
     </div>
 
-    <!-- Service grid — no cards; each item anchored by a brand hairline -->
+    <!-- Service grid, no cards; each item anchored by a brand hairline -->
     <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10" role="list">
       {services.map((service, i) => (
         <li class="group relative pt-6 border-t-2 border-brand/25">

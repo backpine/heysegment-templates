@@ -1,0 +1,21 @@
+---
+/**
+ * WaveDivider, NO-OP variant for template-three.
+ *
+ * Template-three uses a blocky, neo-brutalist-lite layout with HARD
+ * straight edges between solid colour bands — no curvy/flowy waves
+ * (that's template-one's signature). To preserve the import surface so
+ * every page that uses ServiceCardsTeal / TestimonialsTeal / the
+ * directory lists keeps building, this file accepts the same props as
+ * template-one's version but renders nothing.
+ */
+interface Props {
+  direction?: "down" | "up";
+  fill?: "brand" | "surface" | "bg" | "text";
+  bgFrom?: "surface" | "bg" | "text" | "transparent";
+  heightClass?: string;
+}
+
+const _props = Astro.props as Props;
+void _props;
+---

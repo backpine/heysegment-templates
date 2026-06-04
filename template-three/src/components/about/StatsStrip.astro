@@ -1,0 +1,125 @@
+---
+/**
+ * StatsStrip, full-bleed dark band of big-number trust signals
+ * (template-three).
+ *
+ * Template-three reskin — blocky pop language, deliberately
+ * restructured away from t1/t2 (which both render a plain centered ROW
+ * of bare big numbers over a blur-3xl radial glow):
+ *
+ *   - The forbidden radial blur glow is gone; the dark band carries the
+ *     static bg-accent-dots-light icon texture instead (matches
+ *     TestimonialsTeal / FinalCTA).
+ *   - Each stat is its own blocky pop number TILE (a surface card with
+ *     the brand-offset shadow-pop-brand so it stays visible on the dark
+ *     band), not a bare number. Tiles hover-lift.
+ *   - Tiles alternate fill — every other tile flips to a solid brand
+ *     fill to break the rhythm (echoes TestimonialsTeal's highlight).
+ *   - Header is LEFT-aligned with the eyebrow chip-rule, not centered.
+ *
+ * Reads `business.stats` (array of `{ value, label }`).
+ */
+import { business } from "@/data/business";
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  items?: Stat[];
+}
+
+const data = (business as { stats?: Stat[] }).stats;
+
+const {
+  eyebrow,
+  heading,
+  items = data ?? [],
+} = Astro.props;
+---
+
+<section class="bg-text text-surface py-16 lg:py-24 relative overflow-hidden">
+
+  {/* Faint static icon-accent texture (replaces the t1/t2 blur glow) */}
+  <div class="absolute inset-0 bg-accent-dots-light opacity-60 pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+
+    {(eyebrow || heading) && (
+      <div class="max-w-2xl mb-10 lg:mb-14">
+        {eyebrow && (
+          <div
+            class="inline-flex items-center gap-2.5 mb-4"
+            data-reveal
+            data-reveal-from="up"
+          >
+            <span class="block w-1.5 h-6 bg-brand rounded-sm" aria-hidden="true"></span>
+            <span class="font-heading text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+        {heading && (
+          <h2
+            class="font-heading font-extrabold text-2xl lg:text-4xl text-surface leading-tight tracking-tight"
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="100"
+          >
+            {heading}
+          </h2>
+        )}
+      </div>
+    )}
+
+    <!-- Blocky pop number tiles, alternating fill -->
+    <ul
+      class="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7"
+      role="list"
+    >
+      {items.map((stat, i) => {
+        const highlight = i % 2 === 1;
+        return (
+          <li
+            class:list={[
+              "rounded-md shadow-pop-brand p-6 lg:p-7 transition-transform duration-150 hover:-translate-y-1",
+              highlight ? "bg-brand text-brand-fg" : "bg-surface text-text",
+            ]}
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay={String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300"}
+          >
+            {/* Tiny square accent dot, top of tile */}
+            <span
+              class:list={[
+                "block w-8 h-1.5 rounded-sm mb-5",
+                highlight ? "bg-brand-fg/50" : "bg-brand",
+              ]}
+              aria-hidden="true"
+            ></span>
+            <p
+              class:list={[
+                "font-heading font-extrabold text-4xl lg:text-5xl leading-none tracking-tight tabular-nums",
+                highlight ? "text-brand-fg" : "text-text",
+              ]}
+            >
+              {stat.value}
+            </p>
+            <p
+              class:list={[
+                "font-heading text-xs lg:text-sm font-semibold tracking-widest uppercase mt-3",
+                highlight ? "text-brand-fg/80" : "text-text-soft",
+              ]}
+            >
+              {stat.label}
+            </p>
+          </li>
+        );
+      })}
+    </ul>
+
+  </div>
+</section>

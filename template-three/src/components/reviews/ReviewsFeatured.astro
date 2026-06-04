@@ -1,10 +1,10 @@
 ---
 /**
- * Reviews — single-spotlight pull quote. Used on the location detail pages.
+ * Reviews, single-spotlight pull quote. Used on the location detail pages.
  *
  * One review is centered in an editorial pull-quote format with a soft
  * decorative quotation mark behind it. Dot navigation below cycles through
- * the set; Prev/Next arrows work with keyboard too. No cards — just big
+ * the set; Prev/Next arrows work with keyboard too. No cards, just big
  * typography, the stars, and the attribution.
  *
  * Reviews are stacked in a CSS grid so the container auto-sizes to the
@@ -30,7 +30,7 @@ interface Props {
 
 const {
   eyebrow = "Google Reviews",
-  heading = "Voces clientium nostrorum.",
+  heading = "The voices of our customers.",
   rating = business.reviews.rating,
   total = business.reviews.total,
   reviews = business.reviews.items,
@@ -63,7 +63,7 @@ const {
       </span>
     </div>
 
-    <!-- Spotlight stack — all reviews share one grid cell so the container
+    <!-- Spotlight stack, all reviews share one grid cell so the container
          sizes to the tallest quote and swaps without layout shift. -->
     <div
       class="relative mt-14 lg:mt-16 spotlight-stack"
@@ -95,7 +95,7 @@ const {
 
           <!-- Attribution -->
           <footer class="mt-8 font-body text-sm">
-            <span class="font-semibold text-text">— {review.name}</span>
+            <span class="font-semibold text-text">{review.name}</span>
             <span class="text-text-soft">&nbsp;·&nbsp;via Google</span>
           </footer>
         </article>

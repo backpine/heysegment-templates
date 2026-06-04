@@ -1,0 +1,165 @@
+---
+/**
+ * OwnerStory, the founder/owner block (template-three). The single
+ * biggest trust driver on the About page.
+ *
+ * Template-three reskin — playful "blocky pop" language, deliberately
+ * restructured away from t1/t2 (which both use a 5/7 grid with the photo
+ * LEFT under a circular portrait overlay + italic heading):
+ *
+ *   - Columns are FLIPPED: copy LEFT (7), photo cluster RIGHT (5).
+ *   - The photo is a tilted "snapshot stack" — a tall portrait anchor
+ *     with a solid brand accent block (carrying the dot texture) peeking
+ *     behind top-LEFT, and a small square "signed" owner snapshot card
+ *     dropped over the bottom-RIGHT corner. This is composed differently
+ *     from the home WelcomeIntro stack (which offsets the inset photo
+ *     bottom-LEFT and the accent block top-RIGHT).
+ *   - NO circular overlay, NO italic display type, NO shadow-xl. Hard
+ *     pop shadows, blocky rounded-md, and a square signature tile.
+ *   - A drifting AccentField gives the section the playful t3 vibe.
+ *
+ * Reads `business.owner` and `business.story`.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import AccentField from "@/components/global/AccentField.astro";
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  /** Accent line beneath the heading (rendered as a brand sub-headline). */
+  accent?: string;
+  /** Body paragraphs. Pass an array, each becomes its own <p>. */
+  paragraphs?: string[];
+}
+
+const story = (business as { story?: { eyebrow?: string; heading?: string; body?: string; bodySecond?: string } }).story;
+const owner = business.owner;
+
+const {
+  eyebrow = story?.eyebrow ?? "Our Story",
+  heading = story?.heading ?? "Lorem ipsum dolor sit amet.",
+  accent,
+  paragraphs = [story?.body, story?.bodySecond].filter((p): p is string => Boolean(p)),
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28 relative overflow-hidden">
+
+  {/* Living background accents — drifting service icons (playful t3 vibe) */}
+  <AccentField tone="brand" />
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+      <!-- LEFT: eyebrow + heading + accent + paragraphs + square signature -->
+      <div class="lg:col-span-7 order-2 lg:order-1">
+        {eyebrow && (
+          <div
+            class="inline-flex items-center gap-2.5 mb-4"
+            data-reveal
+            data-reveal-from="left"
+          >
+            <span class="block w-1.5 h-6 bg-brand rounded-sm" aria-hidden="true"></span>
+            <span class="font-heading text-sm font-semibold tracking-widest uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2
+          class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1] tracking-tight"
+          data-reveal
+          data-reveal-from="left"
+          data-reveal-delay="100"
+        >
+          {heading}
+        </h2>
+
+        {accent && (
+          <p
+            class="font-heading font-bold text-xl lg:text-2xl text-brand mt-4 leading-snug"
+            data-reveal
+            data-reveal-from="left"
+            data-reveal-delay="200"
+          >
+            {accent}
+          </p>
+        )}
+
+        <div class="mt-6 space-y-4">
+          {paragraphs.map((p, i) => (
+            <p
+              class="font-body text-base lg:text-lg text-text-soft leading-relaxed"
+              data-reveal
+              data-reveal-from="left"
+              data-reveal-delay={String(Math.min(200 + i * 100, 300)) as "0" | "100" | "200" | "300"}
+            >
+              {p}
+            </p>
+          ))}
+        </div>
+
+        <!-- Signature block: square (blocky) tile + name/role -->
+        <div
+          class="mt-8 inline-flex items-center gap-4 bg-surface rounded-md ring-1 ring-text/10 shadow-pop-sm px-5 py-4"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="300"
+        >
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand text-brand-fg shadow-pop-sm font-heading font-bold text-base shrink-0">
+            {owner.initials}
+          </span>
+          <div>
+            <p class="font-heading font-bold text-base text-text leading-tight">
+              {owner.name}
+            </p>
+            <p class="font-body text-sm text-text-soft mt-0.5">
+              {owner.role}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: tilted "snapshot stack" photo cluster -->
+      <div class="lg:col-span-5 order-1 lg:order-2">
+        <div
+          class="relative px-2 sm:px-8 lg:px-4"
+          data-reveal
+          data-reveal-from="right"
+        >
+          {/* Solid brand accent block behind, top-left, carrying dot texture */}
+          <div
+            class="absolute -top-5 -left-3 lg:-left-6 w-28 h-28 lg:w-36 lg:h-36 rounded-md bg-brand bg-accent-dots-light shadow-pop-sm z-0 hidden sm:block"
+            aria-hidden="true"
+          ></div>
+
+          <!-- Main portrait, slight playful tilt -->
+          <div class="relative z-10 -rotate-1 rounded-md overflow-hidden ring-1 ring-text/10 shadow-pop">
+            <ImagePlaceholder
+              aspect="4/5"
+              label="OWNER PHOTO"
+              hint={`Portrait of ${owner.name}`}
+              bloomPosition="tr"
+            />
+          </div>
+
+          <!-- Small square "signed" snapshot card, dropped over the
+               bottom-right corner like a polaroid. Doubles as an owner
+               name-tag, replacing t1/t2's circular portrait overlay. -->
+          <div
+            class="absolute -bottom-7 -right-2 lg:-right-7 w-2/5 z-20 rotate-3 bg-surface ring-4 ring-bg rounded-md shadow-pop p-3 text-center"
+          >
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-md bg-brand-tint text-brand font-heading font-extrabold text-lg">
+              {owner.initials}
+            </span>
+            <p class="font-heading text-[10px] font-semibold tracking-widest uppercase text-brand mt-1.5">
+              Owner
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

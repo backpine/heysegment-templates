@@ -1,0 +1,118 @@
+---
+/**
+ * Privacy Policy page, lorem ipsum placeholder.
+ *
+ * Real sites replace the body content with their actual privacy policy.
+ * Layout, breadcrumbs, and standard page structure inherited from the
+ * shared Layout component.
+ *
+ * Template-three "playful / blocky / pop-shadow" treatment: a line-eyebrow
+ * + square brand icon tile + blocky Poppins heading on the cream page,
+ * then the legal copy wrapped in a single blocky pop-shadow surface card
+ * with clean, readable section spacing.
+ */
+import Layout from "@/layouts/Layout.astro";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import { business } from "@/data/business";
+
+const sections = [
+  {
+    heading: "Lorem ipsum dolor sit amet",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  },
+  {
+    heading: "Information we collect",
+    body: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  },
+  {
+    heading: "How we use information",
+    body: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+  },
+  {
+    heading: "Cookies and tracking",
+    body: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.",
+  },
+  {
+    heading: "Your rights",
+    body: "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.",
+  },
+  {
+    heading: "Contact us",
+    body: `For questions about this policy, contact us at ${business.email} or call ${business.phone}.`,
+  },
+];
+
+const lastUpdated = "January 1, 2025";
+---
+
+<Layout
+  title={`Privacy Policy, ${business.name}`}
+  description={`Privacy policy for ${business.name}.`}
+  robots="noindex"
+>
+
+  <Breadcrumbs trail={[{ label: "Privacy Policy", href: "/privacy-policy" }]} />
+
+  <section class="relative bg-bg pt-12 lg:pt-16 pb-20 lg:pb-28 overflow-hidden">
+    {/* Faint icon-accent texture behind the page header for a playful backdrop. */}
+    <div class="absolute inset-0 bg-accent-dots pointer-events-none" aria-hidden="true"></div>
+
+    <div class="relative max-w-3xl mx-auto px-6 lg:px-10">
+
+      {/* Page header — line eyebrow + square icon tile + blocky heading */}
+      <header data-reveal data-reveal-from="up">
+        <div class="inline-flex items-center gap-2.5 mb-5">
+          <span class="block w-5 h-px bg-brand" aria-hidden="true"></span>
+          <span class="font-heading font-semibold text-sm tracking-widest uppercase text-brand">
+            Legal
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span
+            class="inline-flex items-center justify-center w-12 h-12 shrink-0 rounded-md bg-brand text-brand-fg shadow-pop-sm"
+            aria-hidden="true"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </span>
+
+          <h1 class="font-heading font-extrabold text-3xl sm:text-4xl lg:text-5xl text-text leading-[1.05] tracking-tight">
+            Privacy Policy
+          </h1>
+        </div>
+
+        <p class="font-body text-sm text-text-soft mt-5">
+          Last updated: {lastUpdated}
+        </p>
+      </header>
+
+      {/* Legal body wrapped in a blocky pop-shadow surface card */}
+      <div
+        class="mt-10 bg-surface rounded-md ring-1 ring-text/10 shadow-pop p-7 sm:p-9 lg:p-11"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="150"
+      >
+        <p class="font-body text-base lg:text-lg text-text-soft leading-relaxed">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </p>
+
+        <div class="mt-10 space-y-10 divide-y divide-border">
+          {sections.map((section, i) => (
+            <section class={i === 0 ? "" : "pt-10"}>
+              <h2 class="font-heading font-bold text-xl lg:text-2xl text-text leading-snug">
+                {section.heading}
+              </h2>
+              <p class="font-body text-base text-text-soft mt-3 leading-relaxed">
+                {section.body}
+              </p>
+            </section>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </section>
+</Layout>

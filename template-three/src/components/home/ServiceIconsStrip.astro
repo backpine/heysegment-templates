@@ -1,0 +1,101 @@
+---
+/**
+ * ServiceIconsStrip, template-three variant: full-bleed ORANGE band of
+ * service icon tiles (Smart Scoops style).
+ *
+ * A solid brand-orange section with a bold white heading and a centered
+ * row of white icon tiles — each a chunky pop-shadow card with a brand
+ * icon disc + service name, linking to that service's detail page.
+ *
+ * Replaces template-one's white sliding-marquee card. Static, centered,
+ * playful. Caps at 5 tiles so the row stays balanced; a "View all
+ * services" link sits below for the rest.
+ */
+import { business } from "@/data/business";
+
+interface Item {
+  name: string;
+  slug: string;
+  icon?: string;
+}
+
+interface Props {
+  heading?: string;
+  items?: Item[];
+}
+
+const categories = business.services.filter((s) => s.tier === "category");
+
+const {
+  heading = `${business.name} has the right services for you!`,
+  items = categories.slice(0, 5).map((c) => ({
+    name: c.name,
+    slug: c.slug,
+    icon: (c as { icon?: string }).icon,
+  })),
+} = Astro.props;
+
+const iconFor = (key: string | undefined) => {
+  switch (key) {
+    case "spray":
+      return "M12 3v3m0 12v3M5.636 5.636l2.122 2.122m8.485 8.485l2.122 2.122M3 12h3m12 0h3M5.636 18.364l2.122-2.122m8.485-8.485l2.122-2.122M9 12a3 3 0 116 0 3 3 0 01-6 0z";
+    case "house":
+      return "M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10";
+    case "roof":
+      return "M2 12L12 4l10 8M5 11v9h14v-9";
+    case "gutter":
+      return "M3 7h18M5 7v6a4 4 0 004 4h6a4 4 0 004-4V7M9 17v4M15 17v4";
+    case "wrench":
+      return "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z";
+    case "pin":
+      return "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z";
+    default:
+      return "M5 13l4 4L19 7";
+  }
+};
+---
+
+<section class="bg-brand text-brand-fg py-12 lg:py-16 relative overflow-hidden">
+
+  {/* Faint icon-accent texture behind the band */}
+  <div class="absolute inset-0 bg-accent-dots-light opacity-70 pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+
+    <h2
+      class="font-heading font-extrabold text-2xl lg:text-3xl text-brand-fg text-center leading-tight max-w-3xl mx-auto mb-8 lg:mb-10"
+      data-reveal
+      data-reveal-from="up"
+    >
+      {heading}
+    </h2>
+
+    <ul
+      class="flex flex-wrap items-stretch justify-center gap-4 lg:gap-5"
+      role="list"
+    >
+      {items.map((item, i) => (
+        <li
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay={String(Math.min(i * 75, 300)) as "0" | "75" | "150" | "225" | "300"}
+        >
+          <a
+            href={`/services/${item.slug}`}
+            class="btn-pop group flex flex-col items-center gap-3 w-[140px] lg:w-[160px] bg-surface text-text rounded-md px-4 py-5 hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-fg"
+          >
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand-tint text-brand group-hover:bg-brand group-hover:text-brand-fg transition-colors shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d={iconFor(item.icon)} />
+              </svg>
+            </span>
+            <span class="font-heading font-semibold text-sm text-text text-center leading-tight">
+              {item.name}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>

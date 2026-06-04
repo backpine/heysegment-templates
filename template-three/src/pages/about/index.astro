@@ -1,29 +1,130 @@
 ---
 /**
- * About page — who we are.
+ * About page, who we are.
  *
- * Nav + Footer come from Layout automatically. Section rhythm alternates
- * surface → bg → surface → bg so the dark footer finishes the page cleanly.
+ * Composition mirrors the home / services / service-area pages so the
+ * page rhythm and visual language stay unified across the site:
+ *
+ *   1.  AboutHero               , dark navy hero with H1 pill + dual CTA + breadcrumbs
+ *   2.  OwnerStory              , founder photo + portrait overlay + signed-off paragraphs
+ *   3.  ValuesGrid              , 4-up icon-card grid (what we believe)
+ *   5.  StatsStrip              , dark navy band of big-number trust signals
+ *   9.  TrustChecklist          , reused (Why locals choose us)
+ *  11.  ResultsGrid             , reused as a behind-the-scenes photo slider
+ *  10.  ServiceAreaMap          , reused, "where we work" teaser
+ *   6.  TestimonialsTeal        , reused (bottom wave omitted, flows into FinalCTA)
+ *   7.  FinalCTA                , reused
+ *
+ * Sections 4 (TeamGrid), 8 (Timeline), 12 (Awards), 13 (Community),
+ * 14-16 are intentionally NOT included on this build, leaving them
+ * open for a later add.
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import AboutHeader from "@/components/about/AboutHeader.astro";
-import OurStory from "@/components/about/OurStory.astro";
-import TeamGrid from "@/components/about/TeamGrid.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import AboutHero from "@/components/about/AboutHero.astro";
+import OwnerStory from "@/components/about/OwnerStory.astro";
+import ValuesGrid from "@/components/about/ValuesGrid.astro";
+import StatsStrip from "@/components/about/StatsStrip.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import ResultsGrid from "@/components/home/ResultsGrid.astro";
+import ServiceAreaMap from "@/components/home/ServiceAreaMap.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// Behind-the-scenes tiles, reused ResultsGrid slider but with team /
+// vehicle / equipment captions instead of project captions.
+const behindScenesTiles = [
+  { label: "TEAM PHOTO 1", hint: "Crew at work in the field", caption: `${business.name} crew on site` },
+  { label: "VEHICLE",      hint: "Branded service vehicle",  caption: `Branded fleet, fully stocked` },
+  { label: "EQUIPMENT",    hint: "Pro-grade tools / gear",   caption: `Pro-grade equipment we use daily` },
+  { label: "TEAM PHOTO 2", hint: "Owner with the team",      caption: `Owner with the crew` },
+  { label: "BEFORE AFTER", hint: "Finished result",          caption: `Finished result we're proud of` },
+  { label: "TRAINING",     hint: "Crew training / huddle",   caption: `Daily huddle, training, safety` },
+];
 ---
 
 <Layout
-  title={`About — ${business.name}`}
-  description={`Meet the team behind ${business.name} — ${business.tagline}`}
+  title={`About ${business.name}`}
+  description={`Meet the team behind ${business.name}, ${business.tagline}`}
 >
-  <AboutHeader />
-  <OurStory />
-  <TeamGrid />
-  <CheckAvailability
-    heading="Paratus laborare nobiscum?"
-    subtext="Lorem ipsum dolor sit amet — voca hodie et conveni gregem."
+  {/* 1. About hero, breadcrumbs INSIDE so the dark bg paints to the
+       very top of the page. */}
+  <AboutHero
+    tagline="Local crew, real people."
+    subtext="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore."
+    breadcrumbs={[{ label: "About", href: "/about" }]}
+  />
+
+  {/* 2. Owner / founder story, single biggest trust driver here. */}
+  <OwnerStory accent="Built on a handshake. Run on referrals." />
+
+  {/* 3. Brand values, 4-up icon card grid. */}
+  <ValuesGrid />
+
+  {/* 5. Big-number trust signals on dark navy band. */}
+  <StatsStrip
+    eyebrow="By The Numbers"
+    heading={`A decade of work behind every job.`}
+  />
+
+  {/* 9. Why locals choose us, reused TrustChecklist with about-scoped
+       heading so the section reads as About-page-native rather than a
+       lift from the home page. */}
+  <TrustChecklist heading="Why locals choose us." />
+
+  {/* 11. Behind the scenes, reused ResultsGrid SLIDER pointed at team /
+       vehicle / equipment tiles instead of project tiles. Same hover-pause
+       infinite-scroll treatment, just different content. */}
+  <ResultsGrid
+    eyebrow="Behind the Scenes"
+    heading="A look inside the crew."
+    tiles={behindScenesTiles}
+    ctaLabel="View All Services"
+    ctaHref="/services"
+  />
+
+  {/* 10. Service-area teaser, reused ServiceAreaMap as the "where we
+       work" block. Same coverage map that lives on the home and
+       service-area pages, no duplicate component needed. */}
+  <ServiceAreaMap />
+
+  {/* 6. Reviews, reused. Section transitions explained:
+         - topWaveBg="bg"      , the wave above this section meets
+                                 ServiceAreaMap (bg-bg). Default would
+                                 be "surface" which leaves a white
+                                 strip between gray and the teal wave.
+                                 Setting to "bg" removes that strip,
+                                 the gray flows continuously into the
+                                 teal section.
+         - omitBottomWave=true , no white wave between this section
+                                 and the FinalCTA (also teal).
+         - tightBottom=true    , compresses the bottom padding so the
+                                 two teal sections flow as one block.
+                                 Top + bottom tight padding values
+                                 inside the component give ~3rem of
+                                 breathing room before the FinalCTA. */}
+  <TestimonialsTeal
+    eyebrow="Customer Stories"
+    heading="What people say about us."
+    topWaveBg="bg"
+    omitBottomWave={true}
+    tightBottom={true}
+  />
+
+  {/* 7. Final CTA. eyebrow={null} so we don't show "About Business
+       Name" right above "Want to work with us?", it makes no sense
+       there. tightTop matches the previous section's tightBottom so
+       the two sections truly flow as one continuous teal block. */}
+  <FinalCTA
+    eyebrow={null}
+    heading={`Want to work with us?`}
+    subtext="Free quote. Honest pricing. Real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+    tightTop={true}
   />
 </Layout>

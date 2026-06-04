@@ -1,34 +1,85 @@
 ---
 /**
- * Services overview page — catalog of every service we offer.
+ * All Services directory page.
  *
- * Nav + Footer come from Layout automatically. Section rhythm alternates
- * surface → bg → surface → bg so the dark footer finishes the page cleanly.
+ * Composition (top → bottom):
+ *   1. Inline page header (compact Hero-style, dark navy + teal pill H1)
+ *   2. ServiceDirectoryList , dark navy continuation, horizontal list cards
+ *                             with full service details (no white seam from
+ *                             the hero, transitions text → brand at the
+ *                             bottom).
+ *   3. TestimonialsTeal     , reused on teal, top wave omitted because the
+ *                             directory's own bottom wave already lands on
+ *                             the brand color.
+ *   4. TrustChecklist       , reused (Why Choose Us)
+ *   5. ProcessSteps         , reused
+ *   6. FAQ                  , reused
+ *   7. FinalCTA             , reused with dual CTA enabled
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import ServicesHeader from "@/components/services/ServicesHeader.astro";
-import ServicesList from "@/components/services/ServicesList.astro";
-import HowWeWork from "@/components/services/HowWeWork.astro";
-import ReviewsMarquee from "@/components/reviews/ReviewsMarquee.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import PageHero from "@/components/global/PageHero.astro";
+import ServiceDirectoryList from "@/components/services/ServiceDirectoryList.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// H1 pill, mirrors home Hero pattern but scoped to the directory page.
+const h1Pill = `All Services in ${cityState}`;
 ---
 
 <Layout
-  title={`Services — ${business.name}`}
-  description={`Every service offered by ${business.name}. Licensed, insured, and backed by a 1-year guarantee.`}
+  title={`Services, ${business.name}`}
+  description={`Every service offered by ${business.name}. Browse the full lineup, then click any service to learn more.`}
 >
-  <ServicesHeader />
-  <ServicesList />
-  <HowWeWork />
-  <ReviewsMarquee
-    eyebrow="Work We've Done"
-    heading="Quid clientes de opere nostro dicunt."
+  {/* Compact page header, dark navy hero pattern. Shorter than home so
+      ServiceDirectoryList can continue on the same dark bg with no
+      break. PageHero owns the structural duplication (placeholder bg,
+      overlay, breadcrumbs-inside, H1 pill, dual CTA). */}
+  <PageHero
+    h1Pill={h1Pill}
+    tagline={`Everything we do, <span class="text-brand italic">all in one place.</span>`}
+    subtext="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the full lineup below and click any service to learn more."
+    breadcrumbs={[{ label: "Services", href: "/services" }]}
+    placeholderHint="Wide hero photo, lineup of service vehicles or a wide branded shot"
   />
-  <CheckAvailability
-    heading="Don't see the service you need?"
-    subtext="Lorem ipsum dolor sit amet — give us a call and we'll tell you whether it's in our wheelhouse."
+
+  {/* Directory list, continues on the same dark navy bg (no white seam),
+      then transitions text → brand into the teal reviews section below. */}
+  <ServiceDirectoryList bottomTransition="brand" />
+
+  {/* Reviews on teal. Top wave omitted because the directory's bottom
+      wave already lands on brand-color. */}
+  <TestimonialsTeal omitTopWave={true} />
+
+  {/* Why Choose Us, social proof + trust signals. */}
+  <TrustChecklist />
+
+  {/* The 3 big differentiators, reused from home. */}
+  <WhatMakesUsDifferent />
+
+  {/* How we work, 3-step process. */}
+  <ProcessSteps />
+
+  {/* Frequently asked questions. */}
+  <FAQ />
+
+  {/* Final CTA closer with dual CTA enabled. */}
+  <FinalCTA
+    heading={`Not sure which service you need?`}
+    subtext="Tell us what's going on and we'll point you to the right fix. Free quotes, honest pricing, real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
   />
 </Layout>

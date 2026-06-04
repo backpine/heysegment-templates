@@ -1,0 +1,58 @@
+---
+/**
+ * ServiceAreaHero — dark navy page-header for /service-area/[slug].
+ *
+ * Thin wrapper around PageHero that:
+ *   - Computes the local-SEO H1 pill from `cityName` and the primary
+ *     service category ("[Service] in [City], [State]") so Google
+ *     gets the exact-match keyword for ranking
+ *   - Forwards the optional 4-up keyPoints checklist
+ *   - Carries the service-area-specific placeholder hint
+ *
+ * Structure (placeholder bg, overlay, breadcrumbs-inside, dual CTA)
+ * lives in PageHero so the page reads as a sibling of /services/[slug]
+ * and every other hub page.
+ */
+import { business } from "@/data/business";
+import PageHero from "@/components/global/PageHero.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  cityName: string;
+  /** Bold visual tagline beneath the H1 pill, max ~7 words. */
+  tagline?: string;
+  /** 4-up checklist of key trust markers / inclusions. */
+  keyPoints?: string[];
+  primaryCta?: { label: string; href: string };
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+}
+
+const {
+  cityName,
+  tagline = "Lorem ipsum dolor sit amet.",
+  keyPoints = [],
+  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
+  breadcrumbs,
+} = Astro.props;
+
+const state = business.address?.state;
+const cityState = state ? `${cityName}, ${state}` : cityName;
+
+const primaryCategory = business.services.find((s) => s.tier === "category")?.name ?? "Home Service";
+const h1Pill = `${primaryCategory} in ${cityState}`;
+---
+
+<PageHero
+  h1Pill={h1Pill}
+  tagline={tagline}
+  keyPoints={keyPoints}
+  primaryCta={primaryCta}
+  breadcrumbs={breadcrumbs}
+  placeholderLabel="SERVICE AREA BACKGROUND"
+  placeholderHint={`Wide hero photo, city skyline / neighborhood / branded vehicle in ${cityName}`}
+/>

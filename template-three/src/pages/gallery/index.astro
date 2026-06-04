@@ -1,0 +1,74 @@
+---
+/**
+ * Gallery page, visual portfolio of completed projects.
+ *
+ * Composition mirrors the home / services / service-area page style.
+ * Photo-first, conversion-tail.
+ *
+ *   1. Inline page header        , dark navy + pill H1 + dual CTA + breadcrumbs INSIDE
+ *   2. GalleryGrid               , Pinterest-style mixed-aspect tiles with hover overlay
+ *   3. TestimonialsTeal          , reused (social proof for visitors who scrolled the gallery)
+ *   4. WhatMakesUsDifferent      , reused (3 differentiators)
+ *   5. FinalCTA                  , reused with dual CTA enabled
+ *
+ * Intentionally tight composition, gallery is the focus, the rest is
+ * conversion tail.
+ */
+export const prerender = true;
+
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/global/PageHero.astro";
+import GalleryGrid from "@/components/gallery/GalleryGrid.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
+import { business } from "@/data/business";
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const h1Pill = `Project Gallery in ${cityState}`;
+---
+
+<Layout
+  title={`Project Gallery, ${business.name}`}
+  description={`See completed work by ${business.name}, real projects across ${cityState} and surrounding areas. Hover any photo to see what we did.`}
+>
+  {/* 1. Page header, dark navy hero pattern with breadcrumbs INSIDE so
+       the dark bg paints to the very top of the page. */}
+  <PageHero
+    h1Pill={h1Pill}
+    tagline={`See the work, <span class="text-brand italic">in pixels.</span>`}
+    subtext={`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Real projects, real homes, real results across ${cityState}.`}
+    breadcrumbs={[{ label: "Gallery", href: "/gallery" }]}
+    placeholderHint="Wide hero photo, hero project / branded vehicle / crew at work"
+  />
+
+  {/* 2. The gallery itself, photo-first masonry. */}
+  <GalleryGrid />
+
+  {/* 3. Reviews, social proof for visitors who just browsed the gallery.
+         - topWaveBg="bg"      , GalleryGrid above is bg-bg, so the wave
+                                 has to match (default would leave a
+                                 white strip between bg-bg and the teal
+                                 wave).
+         - bottomWaveBg="surface" , the wave transitions cleanly into
+                                 the bg-surface WhatMakesUsDifferent
+                                 section below. */}
+  <TestimonialsTeal topWaveBg="bg" bottomWaveBg="surface" />
+
+  {/* 4. The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* 5. Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    eyebrow={null}
+    heading={`Like what you see?`}
+    subtext="Free quote on your project. Honest pricing, no pressure."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
+</Layout>

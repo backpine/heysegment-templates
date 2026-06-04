@@ -1,0 +1,195 @@
+---
+/**
+ * GalleryGrid, the visual portfolio for the /gallery page.
+ *
+ * Template-three "playful / blocky / pop-shadow" treatment:
+ *   - The section sits on cream with a drifting AccentField texture.
+ *   - A row of blocky pop FILTER PILLS (one per service, plus "All")
+ *     lets visitors jump to a service via in-page anchors — zero-JS,
+ *     pure `:target`-free anchor scroll.
+ *   - Photos render in a FIXED MOSAIC GRID (not CSS-columns masonry):
+ *     a 6-column grid where a recurring rhythm makes some tiles span
+ *     two columns / two rows, giving an editorial block-collage feel
+ *     while every tile stays a hard-edged rounded-md pop card.
+ *   - Each tile carries an always-visible blocky brand caption chip
+ *     (service · area) like the home ResultsGrid — no dark hover wash,
+ *     no gradient-reveal overlay. Hover simply lifts the tile.
+ *
+ * Reads `business.gallery`. Anti-fragile to count — the mosaic rhythm
+ * cycles so any number of tiles tiles cleanly.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface GalleryItem {
+  service: string;
+  serviceSlug: string;
+  area: string;
+  areaSlug: string;
+  label: string;
+  hint: string;
+  description: string;
+  aspect?: "1/1" | "4/5" | "16/9" | "5/4" | "4/3";
+  bloom?: "tl" | "tr" | "bl" | "br";
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  items?: GalleryItem[];
+}
+
+const data = (business as { gallery?: GalleryItem[] }).gallery;
+
+const {
+  eyebrow = "Recent Projects",
+  heading = "Work we're proud of.",
+  subtext = "Every photo is a real job we've done. Browse by service, then tap a tile to see what we offer.",
+  items = data ?? [],
+} = Astro.props;
+
+// Distinct, ordered list of services for the blocky filter pills. The
+// pills are in-page anchors that scroll to the matching mosaic block.
+const services = items.reduce<{ name: string; slug: string }[]>((acc, it) => {
+  if (!acc.some((s) => s.slug === it.serviceSlug)) {
+    acc.push({ name: it.service, slug: it.serviceSlug });
+  }
+  return acc;
+}, []);
+
+// Anchor id only on the FIRST tile of each service so each pill jumps to
+// the start of that service's run — and so the page never emits a
+// duplicate id (invalid HTML) when a service appears on multiple tiles.
+const seen = new Set<string>();
+const anchorFor = (slug: string) => {
+  if (seen.has(slug)) return undefined;
+  seen.add(slug);
+  return `service-${slug}`;
+};
+
+// Banded mosaic rhythm. On the 6-col desktop grid, rows are built from
+// EQUAL-width tiles that share one aspect ratio, so each row's tiles
+// render at the exact same height and the wall stays gapless — no
+// row-span trickery, no fixed pixel heights. A 6-tile cycle alternates a
+// full-bleed banner, a three-up thirds row, and a two-up halves row, and
+// the pattern repeats for any tile count. On the 2-col mobile grid the
+// banner goes full width and the rest stack two-up.
+const layout = [
+  { span: "col-span-2 sm:col-span-6", aspect: "16/9" as const }, // full-width banner
+  { span: "sm:col-span-2", aspect: "1/1" as const },  // ⅓
+  { span: "sm:col-span-2", aspect: "1/1" as const },  // ⅓
+  { span: "sm:col-span-2", aspect: "1/1" as const },  // ⅓
+  { span: "sm:col-span-3", aspect: "4/3" as const },  // ½
+  { span: "sm:col-span-3", aspect: "4/3" as const },  // ½
+];
+const slot = (i: number) => layout[i % layout.length];
+---
+
+<section class="relative bg-bg py-20 lg:py-28">
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Left-aligned blocky header with an eyebrow tile -->
+    <div class="max-w-3xl mb-10 lg:mb-12">
+      {eyebrow && (
+        <p
+          class="font-heading font-semibold text-sm tracking-widest uppercase text-brand mb-4"
+          data-reveal
+          data-reveal-from="left"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold tracking-tight text-3xl lg:text-5xl text-text leading-[1.1]"
+        data-reveal
+        data-reveal-from="left"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+      {subtext && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed"
+          data-reveal
+          data-reveal-from="left"
+          data-reveal-delay="200"
+        >
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- Blocky pop filter pills, in-page anchors to each service block -->
+    {services.length > 1 && (
+      <div
+        class="flex flex-wrap items-center gap-2.5 mb-10 lg:mb-12"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="200"
+      >
+        <a
+          href="#gallery-all"
+          class="btn-pop inline-flex items-center bg-brand text-brand-fg font-heading text-xs font-semibold rounded-pill px-4 py-2 hover:bg-brand-deep"
+        >
+          All Work
+        </a>
+        {services.map((s) => (
+          <a
+            href={`#service-${s.slug}`}
+            class="btn-pop inline-flex items-center bg-surface text-text font-heading text-xs font-semibold rounded-pill px-4 py-2 ring-1 ring-text/10 hover:bg-brand-tint"
+          >
+            {s.name}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- Brick mosaic grid: 6 columns, rows that always sum to 6 -->
+    <div
+      id="gallery-all"
+      class="grid grid-cols-2 sm:grid-cols-6 gap-4 lg:gap-6 scroll-mt-28"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="300"
+    >
+      {items.map((item, i) => (
+        <a
+          href={`/services/${item.serviceSlug}`}
+          id={anchorFor(item.serviceSlug)}
+          class:list={[
+            "group relative block overflow-hidden rounded-md ring-1 ring-text/10 shadow-pop bg-surface scroll-mt-28 transition-transform duration-150 hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand",
+            slot(i).span,
+          ]}
+          aria-label={`${item.service} project in ${item.area}`}
+        >
+          <!-- Photo fills the whole block. Aspect comes from the brick
+               slot (not the per-item data aspect) so every tile in a row
+               renders at the same height and the wall stays gapless. -->
+          <ImagePlaceholder
+            aspect={slot(i).aspect}
+            label={item.label}
+            hint={item.hint}
+            bloomPosition={item.bloom ?? (i % 2 === 0 ? "tl" : "tr")}
+          />
+
+          <!-- Always-visible blocky brand caption chip -->
+          <div class="absolute bottom-3 left-3 right-3 z-10 flex items-end justify-between gap-2 pointer-events-none">
+            <span class="inline-flex items-center bg-brand text-brand-fg rounded-md shadow-pop-sm px-3 py-1.5 font-heading text-xs font-semibold leading-tight">
+              {item.service} <span class="opacity-60 mx-1">·</span> {item.area}
+            </span>
+            <span
+              class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-surface text-brand shadow-pop-sm ring-1 ring-text/10 opacity-0 translate-y-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100"
+              aria-hidden="true"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</section>

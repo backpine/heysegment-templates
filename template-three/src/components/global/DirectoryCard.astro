@@ -1,0 +1,162 @@
+---
+/**
+ * DirectoryCard — horizontal detail card used in the light directory
+ * lists (/services, /service-area) for template-three.
+ *
+ * Template-three treatment (distinct from the dark editorial row other
+ * templates use):
+ *   - Light blocky "pop" card (bg-surface, ring, hard offset shadow),
+ *     lifts on hover.
+ *   - ZIGZAG layout: the image alternates left / right every row so the
+ *     directory reads as a lively path down the page instead of a
+ *     uniform stack. Driven by `index`.
+ *   - Blocky picture treatment: pop-framed photo + a solid brand accent
+ *     block peeking behind it, a square number badge, and a square icon
+ *     tile that overlaps the photo edge.
+ *   - Blocky chips + a btn-pop primary CTA.
+ *
+ * Both directories bind the same card; they differ only in the data
+ * (services vs cities) and a couple of labels.
+ *
+ * Slots:
+ *   default — overrides the body copy with custom markup if needed.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Cta {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  /** 0-indexed position in the list. Drives the badge ("01", "02", …)
+   *  and the zigzag image side. */
+  index: number;
+  /** Small uppercase eyebrow above the name, e.g. "Service" / "Service Area". */
+  eyebrowLabel: string;
+  name: string;
+  body: string;
+  /** SVG path `d` for the icon shown in the square tile on the image. */
+  iconPath: string;
+  imageHint?: string;
+  /** Optional chip list — heading + items (+ optional "rest count"). */
+  chipsHeading?: string;
+  chips?: string[];
+  chipsRestCount?: number;
+  primaryCta: Cta;
+  /** Defaults to "Get a Free Quote" linking to business.ctaHref. */
+  secondaryCta?: Cta;
+  revealDelay?: "0" | "100" | "200" | "300";
+}
+
+const {
+  index,
+  eyebrowLabel,
+  name,
+  body,
+  iconPath,
+  imageHint,
+  chipsHeading,
+  chips = [],
+  chipsRestCount = 0,
+  primaryCta,
+  secondaryCta = { label: "Get a Free Quote", href: business.ctaHref },
+  revealDelay = "0",
+} = Astro.props;
+
+// Zigzag: even rows keep the image on the left, odd rows flip it right.
+const imageRight = index % 2 === 1;
+---
+
+<li class="group relative" data-reveal data-reveal-from="up" data-reveal-delay={revealDelay}>
+  <article class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center bg-surface rounded-md ring-1 ring-text/10 shadow-pop p-5 lg:p-7 transition-transform duration-150 hover:-translate-y-1">
+
+    <!-- IMAGE column (side flips per row for the zigzag) -->
+    <div class:list={["lg:col-span-5 relative", imageRight && "lg:order-2"]}>
+      <div class="relative rounded-md overflow-hidden ring-1 ring-text/10 shadow-pop-sm">
+        <ImagePlaceholder
+          aspect="16/9"
+          label={name.toUpperCase()}
+          hint={imageHint}
+          bloomPosition="tl"
+        />
+      </div>
+
+      {/* A single playful accent on the photo — the square icon tile
+          overlapping the bottom edge, exactly like the home service
+          cards. (The number is already in the eyebrow, so no badge.) */}
+      <span
+        class:list={[
+          "absolute -bottom-4 z-20 inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand text-brand-fg shadow-pop-sm ring-2 ring-surface",
+          imageRight ? "left-4" : "right-4",
+        ]}
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d={iconPath} />
+        </svg>
+      </span>
+    </div>
+
+    <!-- CONTENT column. No eyebrow — the headline leads, with the
+         column vertically centered against the photo so the two sides
+         stay visually even. -->
+    <div class:list={["lg:col-span-7", imageRight && "lg:order-1"]}>
+      <h3 class="font-heading font-extrabold text-2xl lg:text-3xl text-text leading-tight tracking-tight">
+        {name}
+      </h3>
+      <p class="font-body text-sm lg:text-base text-text-soft mt-3 leading-relaxed">
+        {body}
+      </p>
+
+      {chips.length > 0 && (
+        <div class="mt-5">
+          {chipsHeading && (
+            <p class="font-heading text-[11px] font-semibold tracking-widest uppercase text-text-soft mb-2">
+              {chipsHeading}
+            </p>
+          )}
+          <ul class="flex flex-wrap gap-2" role="list">
+            {chips.map((chip) => (
+              <li>
+                <span class="inline-flex items-center gap-1.5 bg-brand-tint text-text font-heading text-xs font-semibold px-3 py-1.5 rounded-md ring-1 ring-text/10">
+                  <svg class="w-3.5 h-3.5 text-brand shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  {chip}
+                </span>
+              </li>
+            ))}
+            {chipsRestCount > 0 && (
+              <li>
+                <span class="inline-flex items-center text-text-soft font-heading text-xs font-semibold px-2 py-1.5">
+                  + {chipsRestCount} more
+                </span>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <a
+          href={primaryCta.href}
+          class="btn-pop inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-heading font-semibold text-sm px-6 py-3 rounded-pill"
+        >
+          {primaryCta.label}
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+        <a
+          href={secondaryCta.href}
+          class="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-text hover:text-brand transition-colors"
+        >
+          {secondaryCta.label}
+          <span class="inline-block transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+  </article>
+</li>

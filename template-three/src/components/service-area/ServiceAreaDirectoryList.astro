@@ -1,0 +1,126 @@
+---
+/**
+ * ServiceAreaDirectoryList — full directory of every city we cover,
+ * rendered as a horizontal list of detail cards on a dark navy
+ * background.
+ *
+ * Mirrors ServiceDirectoryList exactly so /service-area reads as a
+ * sibling to /services, just scoped to cities instead of services.
+ * Both share the DirectoryCard component, which owns the row-card
+ * layout (image LEFT with badge + icon disc, copy/chips/CTA RIGHT).
+ *
+ * The map-pin icon disc and "Service Area NN" eyebrow are this
+ * component's only visual differentiators from the services version.
+ *
+ * Reads `business.locations`. Bottom wave divider transitions text →
+ * brand so the section flows cleanly into the next teal section.
+ */
+import { business } from "@/data/business";
+import WaveDivider from "@/components/global/WaveDivider.astro";
+import DirectoryCard from "@/components/global/DirectoryCard.astro";
+
+interface LocationRow {
+  name: string;
+  slug: string;
+  tagline?: string;
+  intro?: string;
+  neighborhoods?: string[];
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  /** Whether the next section is the brand-color teal (controls the bottom wave). */
+  bottomTransition?: "brand" | "bg" | "none";
+  /** Cap the number of neighborhood chips shown per row (avoids visual blowout). */
+  neighborhoodPreviewLimit?: number;
+}
+
+const rows: LocationRow[] = business.locations.map((l) => ({
+  name: l.name,
+  slug: l.slug,
+  tagline: l.tagline,
+  intro: l.intro,
+  neighborhoods: l.neighborhoods,
+}));
+
+const {
+  eyebrow = "Our Coverage Map",
+  heading = "Every Area We Serve",
+  subtext = "Tap any city to see local reviews, projects, and the services we offer there. Don't see your area? Give us a call, we may still cover you.",
+  bottomTransition = "brand",
+  neighborhoodPreviewLimit = 4,
+} = Astro.props;
+
+const mapPinPath = "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z";
+---
+
+<section class="bg-bg text-text relative">
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-16 lg:pt-20 pb-20 lg:pb-28">
+
+    <!-- Section header -->
+    <div class="max-w-3xl mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-heading text-sm font-semibold tracking-widest uppercase text-brand mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold text-4xl lg:text-5xl text-text leading-[1.1] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+      {subtext && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-2xl"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- City rows -->
+    <ul class="space-y-6 lg:space-y-8" role="list">
+      {rows.map((row, i) => {
+        const previewHoods = (row.neighborhoods ?? []).slice(0, neighborhoodPreviewLimit);
+        const restCount = (row.neighborhoods?.length ?? 0) - previewHoods.length;
+        const delay = String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300";
+
+        return (
+          <DirectoryCard
+            index={i}
+            eyebrowLabel="Service Area"
+            name={row.name}
+            body={row.intro ?? row.tagline ?? ""}
+            iconPath={mapPinPath}
+            imageHint={`Wide shot of ${row.name}`}
+            chipsHeading="Neighborhoods"
+            chips={previewHoods}
+            chipsRestCount={restCount}
+            primaryCta={{ label: "Learn More", href: `/service-area/${row.slug}` }}
+            revealDelay={delay}
+          />
+        );
+      })}
+    </ul>
+
+  </div>
+
+  {bottomTransition === "brand" && (
+    <WaveDivider direction="down" fill="brand" bgFrom="text" />
+  )}
+  {bottomTransition === "bg" && (
+    <WaveDivider direction="down" fill="bg" bgFrom="text" />
+  )}
+</section>

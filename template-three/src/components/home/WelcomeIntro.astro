@@ -1,0 +1,132 @@
+---
+/**
+ * WelcomeIntro, two-column intro section.
+ *
+ * Revive structure (left column):
+ *   1. Eyebrow tag, "Pressure Washing in Surrey BC"
+ *   2. Big bold H2, "Dirty Home? Don't Have Time?"
+ *   3. Italic accent line, "Let us handle the dirty work."
+ *   4. Body paragraph, voice + value prop
+ *   5. Two Google rating badges side-by-side at the bottom
+ *
+ * Right column: stacked photo collage (front team + offset vehicle).
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+import GoogleLogo from "@/components/ui/GoogleLogo.astro";
+import StarRating from "@/components/ui/StarRating.astro";
+
+interface RatingBadge {
+  rating: number;
+  count: number;
+  platform: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  body?: string;
+  ratings?: RatingBadge[];
+}
+
+const city = business.address?.city;
+const primaryCategory = business.services.find((s) => s.tier === "category")?.name ?? "Exterior Cleaning";
+
+const {
+  eyebrow = `${primaryCategory} in ${city} ${business.address?.state ?? ""}`.trim(),
+  headline = "Lorem ipsum dolor sit amet.",
+  body = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+  ratings = (business as { ratingBadges?: RatingBadge[] }).ratingBadges ?? [
+    { rating: business.reviews.rating, count: business.reviews.total, platform: "Google" },
+  ],
+} = Astro.props;
+---
+
+<section class="bg-bg pt-12 lg:pt-16 pb-20 lg:pb-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- COPY LEFT -->
+      <div>
+        {eyebrow && (
+          <div class="inline-flex items-center gap-2.5 mb-4">
+            <span class="block w-1.5 h-6 bg-brand rounded-sm" aria-hidden="true"></span>
+            <span class="font-heading text-sm font-semibold tracking-wider uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2 class="font-heading font-extrabold text-3xl lg:text-5xl text-text leading-[1.1] tracking-tight">
+          {headline}
+        </h2>
+
+        <p class="font-body text-base lg:text-lg text-text-soft mt-6 leading-relaxed">
+          {body}
+        </p>
+
+        <!-- Google rating badges row -->
+        {ratings.length > 0 && (
+          <div class="mt-8 pt-6 border-t border-border flex flex-wrap gap-x-10 gap-y-5">
+            {ratings.map((badge) => (
+              <div class="flex items-center gap-3">
+                <GoogleLogo class="w-9 h-9 shrink-0" />
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-heading font-bold text-xl text-text leading-none tabular-nums">
+                      {badge.rating.toFixed(1)}
+                    </span>
+                    <StarRating
+                      ariaLabel={`${badge.rating} out of 5 stars on ${badge.platform}`}
+                      class="flex gap-0.5"
+                      starClass="w-4 h-4"
+                    />
+                  </div>
+                  <p class="font-body text-xs text-text-soft mt-1">
+                    Based on <strong class="text-text font-semibold">{badge.count} {badge.platform} reviews</strong>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- PHOTO CLUSTER RIGHT — template-three signature: a playful
+           blocky "snapshot stack". Two lightly-tilted pop-shadow photos
+           plus a solid brand accent block (carrying the icon-dot texture)
+           peeking behind for depth. Deliberately different from
+           template-one's clean offset collage and template-two's single
+           centered photo. -->
+      <div class="relative px-2 sm:px-6 lg:px-4">
+        {/* Solid brand accent block behind, with the dot texture */}
+        <div
+          class="absolute -top-5 -right-3 lg:-right-6 w-28 h-28 lg:w-40 lg:h-40 rounded-md bg-brand bg-accent-dots-light shadow-pop-sm z-0 hidden sm:block"
+          aria-hidden="true"
+        ></div>
+
+        <!-- Main team photo, slight playful tilt -->
+        <div class="relative z-10 rotate-1 rounded-md overflow-hidden ring-1 ring-text/10 shadow-pop">
+          <ImagePlaceholder
+            aspect="5/4"
+            label="TEAM PHOTO"
+            hint="Photo of your team or owner"
+            bloomPosition="tr"
+          />
+        </div>
+
+        <!-- Inset vehicle photo, opposite corner, tilted the other way
+             like a snapshot dropped on top of the stack. -->
+        <div class="absolute -bottom-8 -left-3 lg:-left-8 w-2/5 z-20 -rotate-3 ring-4 ring-bg rounded-md overflow-hidden shadow-pop">
+          <ImagePlaceholder
+            aspect="4/3"
+            label="VEHICLE PHOTO"
+            hint="Branded vehicle or van"
+            bloomPosition="bl"
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

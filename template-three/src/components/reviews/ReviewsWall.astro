@@ -1,0 +1,251 @@
+---
+/**
+ * ReviewsWall, the "wall of love" used on /reviews — template-three.
+ *
+ * Template-three treatment (blocky / pop-shadow design language, kept
+ * deliberately distinct from the other templates AND from the dark home
+ * reviews band):
+ *   - LIGHT `bg-bg` section with a drifting AccentField texture, not the
+ *     bare cream wall the other templates use.
+ *   - A blocky aggregate-rating "stat strip" sits beside the header so the
+ *     page opens on hard social-proof numbers (none of the other versions
+ *     or the home band have this).
+ *   - A balanced CSS-columns masonry of POP review cards: hard ring +
+ *     solid offset shadow, lifting on hover. Every Nth card flips to a
+ *     solid brand block to break the rhythm across the whole wall (the
+ *     home band only highlights one fixed middle card).
+ *   - Each card leads with a big blocky quote glyph, then a SQUARE avatar
+ *     tile (not a round disc), name + StarRating, and the service/city
+ *     rendered as a blocky t3 chip (not an uppercase border-bottom label).
+ *
+ * Reads `business.reviews.items`. Designed to scroll for a long time on
+ * /reviews so the page feels saturated with social proof.
+ */
+import { business } from "@/data/business";
+import StarRating from "@/components/ui/StarRating.astro";
+import AccentField from "@/components/global/AccentField.astro";
+
+interface Review {
+  name: string;
+  rating: number;
+  text: string;
+  subheading?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  reviews?: Review[];
+}
+
+const {
+  eyebrow,
+  heading,
+  subtext,
+  reviews = business.reviews.items,
+} = Astro.props;
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+// Aggregate stat strip values, derived from the review set so the numbers
+// always match the wall below.
+const reviewCount = reviews.length;
+const avgRating =
+  reviewCount > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : 5;
+const avgRatingLabel = avgRating.toFixed(1);
+
+const stats = [
+  { value: avgRatingLabel, label: "Average rating" },
+  { value: `${reviewCount}+`, label: "Happy customers" },
+  { value: "100%", label: "Would recommend" },
+];
+
+// Highlight cadence: every 4th card flips to a solid brand block so the
+// pop-orange accent recurs down the whole masonry instead of sitting in a
+// single fixed slot.
+const isHighlight = (i: number) => i % 4 === 2;
+---
+
+<section class="bg-bg py-20 lg:py-28 relative overflow-hidden">
+
+  {/* Living icon-accent texture — light tone for the cream background. */}
+  <AccentField tone="brand" />
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+
+    {/* Header — copy on the left, blocky aggregate stat strip on the right,
+        so the wall opens on hard social proof instead of a plain centered
+        title like the home band. */}
+    {(eyebrow || heading || subtext) && (
+      <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end mb-12 lg:mb-16">
+        <div class="lg:col-span-7">
+          {eyebrow && (
+            <p
+              class="font-heading font-semibold text-sm tracking-widest uppercase text-brand mb-4"
+              data-reveal
+              data-reveal-from="up"
+            >
+              {eyebrow}
+            </p>
+          )}
+          {heading && (
+            <h2
+              class="font-heading font-extrabold tracking-tight text-3xl lg:text-5xl text-text leading-[1.1]"
+              data-reveal
+              data-reveal-from="up"
+              data-reveal-delay="100"
+            >
+              {heading}
+            </h2>
+          )}
+          {subtext && (
+            <p
+              class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-xl"
+              data-reveal
+              data-reveal-from="up"
+              data-reveal-delay="200"
+            >
+              {subtext}
+            </p>
+          )}
+        </div>
+
+        {/* Blocky stat strip — three pop tiles. */}
+        <div
+          class="lg:col-span-5"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="200"
+        >
+          <ul class="grid grid-cols-3 gap-3 lg:gap-4" role="list">
+            {stats.map((stat, i) => (
+              <li
+                class:list={[
+                  "rounded-md p-4 lg:p-5 text-center ring-1 ring-text/10",
+                  i === 1
+                    ? "bg-brand text-brand-fg shadow-pop-brand"
+                    : "bg-surface text-text shadow-pop-sm",
+                ]}
+              >
+                <p class="font-heading font-extrabold text-2xl lg:text-3xl tracking-tight leading-none">
+                  {stat.value}
+                </p>
+                <p
+                  class:list={[
+                    "font-heading text-xs font-semibold tracking-widest uppercase mt-2 leading-tight",
+                    i === 1 ? "text-brand-fg/90" : "text-text-soft",
+                  ]}
+                >
+                  {stat.label}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
+
+    {/* Masonry-feel CSS-columns wall, balances naturally and never leaves
+        orphan rows. Each card stays intact across column boundaries via
+        break-inside-avoid. */}
+    <div
+      class="columns-1 sm:columns-2 lg:columns-3 gap-5 lg:gap-6"
+      data-reveal
+      data-reveal-from="up"
+      data-reveal-delay="200"
+    >
+      {reviews.map((review, i) => {
+        const highlight = isHighlight(i);
+        return (
+          <article
+            class:list={[
+              "break-inside-avoid mb-5 lg:mb-6 rounded-md p-6 lg:p-7 transition-transform duration-150 hover:-translate-y-1",
+              highlight
+                ? "bg-brand text-brand-fg shadow-pop-brand"
+                : "bg-surface text-text ring-1 ring-text/10 shadow-pop",
+            ]}
+          >
+            {/* Big blocky quote glyph leading each card. */}
+            <span
+              class:list={[
+                "block font-heading font-extrabold text-5xl leading-none mb-2 select-none",
+                highlight ? "text-brand-fg/40" : "text-brand/30",
+              ]}
+              aria-hidden="true"
+            >
+              &ldquo;
+            </span>
+
+            {/* Quote */}
+            <p
+              class:list={[
+                "font-body text-sm lg:text-base leading-relaxed",
+                highlight ? "text-brand-fg/95" : "text-text-soft",
+              ]}
+            >
+              {review.text}
+            </p>
+
+            {/* Optional service/city rendered as a blocky chip. */}
+            {review.subheading && (
+              <p class="mt-4">
+                <span
+                  class:list={[
+                    "inline-flex items-center rounded-md px-3 py-1.5 font-heading text-xs font-semibold ring-1",
+                    highlight
+                      ? "bg-brand-fg/15 text-brand-fg ring-brand-fg/25"
+                      : "bg-brand-tint text-text ring-text/10",
+                  ]}
+                >
+                  {review.subheading}
+                </span>
+              </p>
+            )}
+
+            {/* Footer — square avatar tile + name + stars. */}
+            <footer
+              class:list={[
+                "flex items-center gap-3 mt-5 pt-5 border-t",
+                highlight ? "border-brand-fg/25" : "border-border",
+              ]}
+            >
+              <span
+                class:list={[
+                  "inline-flex items-center justify-center w-11 h-11 rounded-md font-heading font-bold text-base shrink-0",
+                  highlight ? "bg-brand-fg/20 text-brand-fg" : "bg-brand-tint text-brand",
+                ]}
+              >
+                {initials(review.name)}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p
+                  class:list={[
+                    "font-heading font-bold text-sm leading-tight truncate",
+                    highlight ? "text-brand-fg" : "text-text",
+                  ]}
+                >
+                  {review.name}
+                </p>
+                <StarRating
+                  count={review.rating}
+                  class="flex gap-0.5 mt-1"
+                  starClass="w-3.5 h-3.5"
+                />
+              </div>
+            </footer>
+          </article>
+        );
+      })}
+    </div>
+
+  </div>
+</section>

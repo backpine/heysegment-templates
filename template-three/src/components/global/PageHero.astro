@@ -1,0 +1,306 @@
+---
+/**
+ * PageHero — the dark navy page-header used on every hub and detail page.
+ *
+ * Replaces what was previously an inline duplicate across 10 places
+ * (5 page-level inline heroes + 5 named *Hero components). Owns:
+ *
+ *   - Full-bleed dark navy bg + brand-deep gradient placeholder
+ *     (with a small bottom-right hint label so the design system is
+ *     self-explanatory in the unbranded template)
+ *   - Optional background photo override (replaces the placeholder)
+ *   - Dark gradient overlay for copy readability
+ *   - Breadcrumbs INSIDE the hero (overlay variant) so the dark bg
+ *     extends to the very top of the page behind the floating nav
+ *   - H1 pill + tagline + optional subtext + optional key-points
+ *     checklist + dual CTA
+ *
+ * Layout knobs:
+ *
+ *   align="left" (default)   , standard hub-page layout
+ *   align="centered"         , reviews-style (also flips overlay to
+ *                              top-to-bottom and adds an ambient glow)
+ *   withAside=true           , two-column grid; the dual CTA is
+ *                              suppressed because the aside slot
+ *                              (typically a quote form) is the CTA
+ *
+ * H1 strategy:
+ *
+ *   If `h1Pill` is set, it is rendered as the <h1> (small local-SEO
+ *   pill) and the `tagline` becomes a big visual <p>. If `h1Pill` is
+ *   omitted, `tagline` itself is rendered as the <h1>. Reviews uses
+ *   the second mode so the centered Google rating badge can sit above
+ *   the headline without competing for the H1 role.
+ *
+ * Slots:
+ *
+ *   before-h1   , content rendered above the H1 (e.g. centered Google
+ *                 rating badge on /reviews).
+ *   default     , content rendered between subtext and the dual CTA
+ *                 (e.g. "Or call now" inline phone link in ContactHero).
+ *   aside       , right-column content when `withAside=true` (the
+ *                 quote form on /contact and the home Hero).
+ */
+import { business } from "@/data/business";
+import Breadcrumbs from "@/components/global/Breadcrumbs.astro";
+import Eyebrow from "@/components/ui/Eyebrow.astro";
+import PillButton from "@/components/ui/PillButton.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Cta {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  /** H1 pill text (local-SEO keyword pattern). If omitted, `tagline` is the <h1>. */
+  h1Pill?: string;
+  /** Big visual tagline (max ~7 words). */
+  tagline: string;
+  /** Optional short subhead paragraph below the tagline. */
+  subtext?: string;
+  /** Optional 4-up trust-marker / key-points checklist. */
+  keyPoints?: string[];
+  /** Defaults to the global ctaLabel/ctaHref from business data. */
+  primaryCta?: Cta;
+  /** Defaults to a Call CTA. Pass `false` to suppress. */
+  secondaryCta?: Cta | false;
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+  align?: "left" | "centered";
+  /** When true, splits the hero into content-LEFT + aside-RIGHT and
+      hides the dual CTA pair (the aside is the CTA). */
+  withAside?: boolean;
+  /** Tagline scale: "default" = 4xl/5xl/6xl, "compact" = 3xl/4xl/5xl. */
+  taglineSize?: "default" | "compact";
+  /** Bottom-right placeholder label shown when no backgroundImage is set. */
+  placeholderLabel?: string;
+  /** Bottom-right placeholder hint text. */
+  placeholderHint?: string;
+  /** Replaces the gradient placeholder with a real image. */
+  backgroundImage?: string | null;
+  /** Direction of the readability overlay. Defaults: left → "to-r", centered → "to-b". */
+  overlay?: "to-r" | "to-b";
+  /** Shows a soft ambient brand-glow behind the content. Default true for centered. */
+  ambientGlow?: boolean;
+}
+
+const {
+  h1Pill,
+  tagline,
+  subtext,
+  keyPoints,
+  breadcrumbs,
+  align = "left",
+  withAside = false,
+  taglineSize = "default",
+  placeholderLabel = "PAGE HEADER BACKGROUND",
+  placeholderHint = "Wide hero photo, owner / team / branded vehicle",
+  backgroundImage = null,
+  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
+} = Astro.props;
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const secondaryCta: Cta | false =
+  Astro.props.secondaryCta === undefined
+    ? { label: `Call ${business.phone}`, href: phoneHref }
+    : Astro.props.secondaryCta;
+
+const overlay = Astro.props.overlay ?? (align === "centered" ? "to-b" : "to-r");
+
+const isCentered = align === "centered";
+const showCtaRow = !withAside;
+
+const taglineSizeClass =
+  taglineSize === "compact"
+    ? "text-3xl sm:text-4xl lg:text-5xl"
+    : "text-4xl sm:text-5xl lg:text-6xl";
+
+const overlayClass =
+  overlay === "to-b"
+    ? "bg-gradient-to-b from-text/85 via-text/65 to-text/85"
+    : "bg-gradient-to-r from-text/90 via-text/65 to-text/30";
+
+const contentMaxWidth = isCentered ? "" : "max-w-3xl";
+const contentAlign = isCentered ? "text-center mx-auto" : "";
+
+const ctaWrapperClass = [
+  "flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-10",
+  isCentered ? "justify-center" : "",
+].filter(Boolean).join(" ");
+
+const subtextClass = [
+  "font-body text-base lg:text-lg text-brand-fg/80 mt-6 leading-relaxed",
+  isCentered ? "max-w-2xl mx-auto" : "max-w-2xl",
+].join(" ");
+
+const taglineColorClass = "font-heading font-extrabold text-brand-fg leading-[1.05] tracking-tight";
+const taglineMaxWidthClass = isCentered ? "max-w-4xl mx-auto" : "";
+const taglineFullClass = [taglineColorClass, taglineSizeClass, taglineMaxWidthClass]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<section class="relative bg-text overflow-hidden isolate">
+
+  {/* Background photo OR gradient placeholder with hint label */}
+  {backgroundImage ? (
+    <img
+      src={backgroundImage}
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover z-0"
+      aria-hidden="true"
+    />
+  ) : (
+    <div class="absolute inset-0 z-0 bg-gradient-to-br from-text via-text to-brand-deep">
+      <div class="absolute bottom-3 right-3 z-30 max-w-[260px] text-right">
+        <p class="font-body text-[10px] uppercase tracking-widest text-brand-fg/40">
+          {placeholderLabel}
+        </p>
+        <p class="font-body text-[11px] text-brand-fg/40 mt-1 leading-snug">
+          {placeholderHint}
+        </p>
+      </div>
+    </div>
+  )}
+
+  {/* Dark gradient overlay for readability */}
+  <div
+    class:list={["absolute inset-0 z-10", overlayClass]}
+    aria-hidden="true"
+  ></div>
+
+  {/* Faint dot-accent texture for a playful, blocky backdrop — replaces
+      the old radial blur glow (a template-one "flowy" tell). */}
+  <div
+    class="absolute inset-0 z-10 bg-accent-dots-light pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  {/* Breadcrumbs overlaid on the dark hero so the bg paints to the top */}
+  {breadcrumbs && (
+    <div class="relative z-20 pt-24 lg:pt-28">
+      <Breadcrumbs trail={breadcrumbs} variant="overlay" />
+    </div>
+  )}
+
+  {/* Content */}
+  <div
+    class:list={[
+      "relative z-20 max-w-7xl mx-auto px-6 lg:px-10 pb-24 lg:pb-32",
+      breadcrumbs ? "pt-12 lg:pt-16" : "pt-32 lg:pt-40",
+    ]}
+  >
+    <div class:list={withAside ? "grid lg:grid-cols-12 gap-8 lg:gap-10 items-center" : ""}>
+
+      {/* MAIN column */}
+      <div class:list={[withAside ? "lg:col-span-7" : "", contentMaxWidth, contentAlign]}>
+
+        <slot name="before-h1" />
+
+        {h1Pill ? (
+          <Fragment>
+            <Eyebrow
+              label={h1Pill}
+              variant="pill"
+              as="h1"
+              class="mb-6"
+            />
+            <p
+              class:list={taglineFullClass}
+              data-reveal
+              data-reveal-from="up"
+              data-reveal-delay="100"
+              set:html={tagline}
+            />
+          </Fragment>
+        ) : (
+          <h1
+            class:list={taglineFullClass}
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="100"
+            set:html={tagline}
+          />
+        )}
+
+        {subtext && (
+          <p
+            class={subtextClass}
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="200"
+          >
+            {subtext}
+          </p>
+        )}
+
+        {keyPoints && keyPoints.length > 0 && (
+          <ul
+            class:list={[
+              "mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-xl",
+              isCentered ? "mx-auto" : "",
+            ]}
+            role="list"
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="300"
+          >
+            {keyPoints.map((point) => (
+              <li class="inline-flex items-center gap-2 font-body text-sm font-semibold text-brand-fg whitespace-nowrap">
+                <svg class="w-5 h-5 text-brand shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                {point}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <slot />
+
+        {showCtaRow && (
+          <div
+            class={ctaWrapperClass}
+            data-reveal
+            data-reveal-from="up"
+            data-reveal-delay="400"
+          >
+            <PillButton href={primaryCta.href} variant="primary" iconRight="arrow">
+              {primaryCta.label}
+            </PillButton>
+            {secondaryCta && (
+              <PillButton
+                href={secondaryCta.href}
+                variant="outline-fg"
+                iconLeft="phone"
+                nowrap
+              >
+                {secondaryCta.label}
+              </PillButton>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {/* ASIDE column (form, etc.) */}
+      {withAside && (
+        <div
+          class="lg:col-span-5 mt-10 lg:mt-0"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          <slot name="aside" />
+        </div>
+      )}
+
+    </div>
+  </div>
+</section>

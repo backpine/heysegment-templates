@@ -1,0 +1,173 @@
+---
+/**
+ * ServiceDirectoryList — full directory of every service rendered as a
+ * horizontal list of detail cards on a dark navy background.
+ *
+ * Visual pattern:
+ *   - Dark navy section background (continues from the page header so
+ *     the dark color flows through without a white seam between
+ *     sections).
+ *   - Each row is a DirectoryCard: image LEFT with number badge +
+ *     service-icon disc, copy/chips/CTA RIGHT.
+ *   - Cards stack vertically so any number of services can be added
+ *     to the data layer without breaking the layout.
+ *   - Bottom wave divider transitions text → brand so the section
+ *     flows directly into the next teal section with no light gap.
+ *
+ * No hover-overlay animation, this is a content-rich directory, not
+ * the compact home-page teaser grid.
+ *
+ * Reads `business.services` (categories only, sub-services rendered
+ * as chips on their parent's card). Visual structure (cards + chip
+ * list + CTA pair) is shared with /service-area's DirectoryCard.
+ */
+import { business } from "@/data/business";
+import WaveDivider from "@/components/global/WaveDivider.astro";
+import DirectoryCard from "@/components/global/DirectoryCard.astro";
+
+interface SubService {
+  name: string;
+  slug: string;
+}
+
+interface ServiceRow {
+  name: string;
+  slug: string;
+  icon?: string;
+  description: string;
+  body?: string;
+  subServices: SubService[];
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  subtext?: string;
+  /** Whether the next section is the brand-color teal (controls the bottom wave). */
+  bottomTransition?: "brand" | "bg" | "none";
+}
+
+// Build the directory rows. Categories first, with their sub-services
+// attached as chips so the list reads like a real catalog.
+const categories = business.services.filter((s) => s.tier === "category");
+const allServices = business.services;
+const detailSlugs = new Set(business.serviceDetails.map((d) => d.slug));
+
+const rows: ServiceRow[] = categories.map((cat) => {
+  const subServices = allServices
+    .filter((s) => "parentSlug" in s && s.parentSlug === cat.slug)
+    .map((s) => ({ name: s.name, slug: s.slug }));
+  return {
+    name: cat.name,
+    slug: cat.slug,
+    icon: (cat as { icon?: string }).icon,
+    description: cat.description,
+    body: (cat as { body?: string }).body,
+    subServices,
+  };
+});
+
+const {
+  eyebrow = "Our Lineup",
+  heading = "Browse Every Service",
+  subtext = "Tap any service to see what's included, common questions, and pricing notes. Don't see what you need? Give us a call.",
+  bottomTransition = "brand",
+} = Astro.props;
+
+// Cap the "Includes" chips so they stay within ~2 rows and never crowd
+// the card's CTA. Remaining sub-services collapse into a "+N more" chip.
+const SUBSERVICE_PREVIEW_LIMIT = 4;
+
+const iconFor = (key: string | undefined) => {
+  switch (key) {
+    case "spray":
+      return "M12 3v3m0 12v3M5.636 5.636l2.122 2.122m8.485 8.485l2.122 2.122M3 12h3m12 0h3M5.636 18.364l2.122-2.122m8.485-8.485l2.122-2.122M9 12a3 3 0 116 0 3 3 0 01-6 0z";
+    case "house":
+      return "M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10";
+    case "roof":
+      return "M2 12L12 4l10 8M5 11v9h14v-9";
+    case "gutter":
+      return "M3 7h18M5 7v6a4 4 0 004 4h6a4 4 0 004-4V7M9 17v4M15 17v4";
+    case "wrench":
+      return "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z";
+    case "pin":
+      return "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z";
+    default:
+      return "M5 13l4 4L19 7";
+  }
+};
+---
+
+<section class="bg-bg text-text relative">
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-16 lg:pt-20 pb-20 lg:pb-28">
+
+    <!-- Section header -->
+    <div class="max-w-3xl mb-12 lg:mb-16">
+      {eyebrow && (
+        <p
+          class="font-heading text-sm font-semibold tracking-widest uppercase text-brand mb-4"
+          data-reveal
+          data-reveal-from="up"
+        >
+          {eyebrow}
+        </p>
+      )}
+      <h2
+        class="font-heading font-extrabold text-4xl lg:text-5xl text-text leading-[1.1] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        {heading}
+      </h2>
+      {subtext && (
+        <p
+          class="font-body text-base lg:text-lg text-text-soft mt-5 leading-relaxed max-w-2xl"
+          data-reveal
+          data-reveal-from="up"
+          data-reveal-delay="200"
+        >
+          {subtext}
+        </p>
+      )}
+    </div>
+
+    <!-- List of service rows -->
+    <ul class="space-y-6 lg:space-y-8" role="list">
+      {rows.map((row, i) => {
+        const hasDetailPage = detailSlugs.has(row.slug);
+        const href = hasDetailPage ? `/services/${row.slug}` : "/contact";
+        const delay = String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300";
+        const previewSubs = row.subServices.slice(0, SUBSERVICE_PREVIEW_LIMIT);
+        const restCount = row.subServices.length - previewSubs.length;
+
+        return (
+          <DirectoryCard
+            index={i}
+            eyebrowLabel="Service"
+            name={row.name}
+            body={row.body ?? row.description}
+            iconPath={iconFor(row.icon)}
+            imageHint="Photo of this service"
+            chipsHeading="Includes"
+            chips={previewSubs.map((s) => s.name)}
+            chipsRestCount={restCount}
+            primaryCta={{
+              label: hasDetailPage ? "Learn More" : "Get a Quote",
+              href,
+            }}
+            revealDelay={delay}
+          />
+        );
+      })}
+    </ul>
+
+  </div>
+
+  {bottomTransition === "brand" && (
+    <WaveDivider direction="down" fill="brand" bgFrom="text" />
+  )}
+  {bottomTransition === "bg" && (
+    <WaveDivider direction="down" fill="bg" bgFrom="text" />
+  )}
+</section>

@@ -1,0 +1,164 @@
+---
+/**
+ * ContactInfo, "other ways to reach us" block below the contact hero.
+ *
+ * Template-three composition (deliberately different from t1/t2's
+ * "centered header → 3 cards in a row → full-width hours strip"):
+ *   - A 12-col split: the contact-method cards (call / email / visit)
+ *     stack on the LEFT, and a solid brand-colored "Hours of operation"
+ *     panel anchors the RIGHT as a tall sidebar.
+ *   - Method cards are blocky pop cards with SQUARE icon tiles (not
+ *     round discs), tile flips brand on hover.
+ *   - A drifting AccentField textures the section.
+ *
+ * Reads `business.phone`, `business.email`, `business.address`,
+ * `business.hours`.
+ */
+import { business } from "@/data/business";
+import AccentField from "@/components/global/AccentField.astro";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+const mailtoHref = `mailto:${business.email}`;
+const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address.full)}`;
+
+const methods = [
+  {
+    href: phoneHref,
+    eyebrow: "Call",
+    value: business.phone,
+    note: "Real person picks up during business hours.",
+    icon: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z",
+    valueClass: "font-heading font-extrabold text-xl lg:text-2xl text-text leading-snug",
+    external: false,
+    cta: null,
+  },
+  {
+    href: mailtoHref,
+    eyebrow: "Email",
+    value: business.email,
+    note: "Same-day response, usually within an hour.",
+    icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+    valueClass: "font-heading font-extrabold text-base lg:text-lg text-text leading-snug break-all",
+    external: false,
+    cta: null,
+  },
+  {
+    href: directionsHref,
+    eyebrow: "Visit / Directions",
+    value: business.address.full,
+    note: null,
+    icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z",
+    valueClass: "font-heading font-bold text-base text-text leading-snug",
+    external: true,
+    cta: "Get directions",
+  },
+];
+---
+
+<section class="bg-surface py-20 lg:py-28 relative overflow-hidden">
+  {/* Living background accents — drifting service icons. */}
+  <AccentField tone="brand" />
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Centered header -->
+    <div class="max-w-2xl mx-auto text-center mb-12 lg:mb-16">
+      <p
+        class="font-heading font-semibold text-sm tracking-widest uppercase text-brand mb-4"
+        data-reveal
+        data-reveal-from="up"
+      >
+        Other Ways To Reach Us
+      </p>
+      <h2
+        class="font-heading font-extrabold text-3xl lg:text-4xl text-text leading-[1.1] tracking-tight"
+        data-reveal
+        data-reveal-from="up"
+        data-reveal-delay="100"
+      >
+        Prefer the phone? Email? Just walk in?
+      </h2>
+    </div>
+
+    <!-- 12-col split: method cards LEFT, hours panel RIGHT -->
+    <div class="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+      <!-- LEFT: stacked blocky method cards with square icon tiles -->
+      <ul class="lg:col-span-7 space-y-5" role="list">
+        {methods.map((m, i) => (
+          <li
+            data-reveal
+            data-reveal-from="left"
+            data-reveal-delay={String(Math.min(i * 100, 300)) as "0" | "100" | "200" | "300"}
+          >
+            <a
+              href={m.href}
+              {...(m.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              class="group flex items-start gap-5 bg-surface rounded-md ring-1 ring-text/10 shadow-pop p-6 lg:p-7 transition-transform duration-150 hover:-translate-y-1"
+            >
+              <span class="inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand-tint text-brand shadow-pop-sm shrink-0 group-hover:bg-brand group-hover:text-brand-fg transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d={m.icon} />
+                </svg>
+              </span>
+              <div class="min-w-0">
+                <p class="font-heading text-xs font-semibold tracking-widest uppercase text-brand mb-1">
+                  {m.eyebrow}
+                </p>
+                <p class={m.valueClass}>
+                  {m.value}
+                </p>
+                {m.note && (
+                  <p class="font-body text-sm text-text-soft mt-2 leading-snug">
+                    {m.note}
+                  </p>
+                )}
+                {m.cta && (
+                  <span class="inline-flex items-center gap-1.5 mt-3 font-heading font-semibold text-sm text-brand">
+                    {m.cta}
+                    <span class="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                  </span>
+                )}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <!-- RIGHT: solid brand hours panel, tall sidebar -->
+      {business.hours && business.hours.length > 0 && (
+        <div
+          class="lg:col-span-5 relative bg-brand text-brand-fg bg-accent-dots-light rounded-md shadow-pop overflow-hidden p-7 lg:p-8"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="100"
+        >
+          <div class="flex items-center gap-4 mb-6">
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand-fg/20 text-brand-fg shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <p class="font-heading font-extrabold text-xl lg:text-2xl text-brand-fg leading-tight">
+              Hours of operation
+            </p>
+          </div>
+          <ul class="divide-y divide-brand-fg/20" role="list">
+            {business.hours.map((row) => (
+              <li class="flex items-baseline justify-between gap-3 py-2.5">
+                <span class="font-heading font-semibold text-sm text-brand-fg">
+                  {row.days}
+                </span>
+                <span class="font-body text-sm text-brand-fg/85 tabular-nums">
+                  {row.time}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+    </div>
+
+  </div>
+</section>

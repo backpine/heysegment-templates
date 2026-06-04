@@ -1,0 +1,105 @@
+---
+/**
+ * TrustChecklist, split section.
+ *
+ * Left column: tall house photo placeholder + circular technician
+ *   portrait overlay.
+ * Right column: short heading + vertical stack of brand-color checklist
+ *   pills (8 items by default from business.whyChooseUs.features).
+ *
+ * Reads from business.whyChooseUs.features. Each pill animates in with
+ * a staggered slide-from-right reveal as the user scrolls into view.
+ */
+import { business } from "@/data/business";
+import ImagePlaceholder from "@/components/ui/ImagePlaceholder.astro";
+
+interface Item {
+  title: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  heading?: string;
+  items?: Item[];
+}
+
+const {
+  eyebrow = business.whyChooseUs?.eyebrow ?? "Why Trust Us?",
+  heading = `Why Trust ${business.name.split(" ")[0]}?`,
+  items = business.whyChooseUs?.features ?? [],
+} = Astro.props;
+---
+
+<section class="bg-bg py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+      <!-- LEFT: blocky photo with a chunky pop badge overlapping it -->
+      <div
+        class="lg:col-span-5 relative"
+        data-reveal
+        data-reveal-from="left"
+      >
+        <div class="rounded-md overflow-hidden ring-1 ring-text/10 shadow-pop">
+          <ImagePlaceholder
+            aspect="4/5"
+            label="FEATURED PHOTO"
+            hint="Finished work or branded shot"
+            bloomPosition="tl"
+          />
+        </div>
+        {/* Chunky orange badge overlapping the bottom-left */}
+        <div class="absolute -bottom-6 -left-2 lg:-left-6 z-20 bg-brand text-brand-fg rounded-md shadow-pop p-5 max-w-[200px]">
+          <p class="font-heading font-extrabold text-2xl leading-none">100%</p>
+          <p class="font-heading font-semibold text-sm mt-1 leading-tight">Satisfaction guaranteed</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: heading + blocky check list -->
+      <div class="lg:col-span-7">
+        {eyebrow && (
+          <div
+            class="inline-flex items-center gap-2.5 mb-3"
+            data-reveal
+            data-reveal-from="right"
+          >
+            <span class="block w-1.5 h-6 bg-brand rounded-sm" aria-hidden="true"></span>
+            <span class="font-heading font-semibold text-sm tracking-wider uppercase text-brand">
+              {eyebrow}
+            </span>
+          </div>
+        )}
+
+        <h2
+          class="font-heading font-extrabold text-4xl lg:text-5xl text-text leading-[1.1] tracking-tight mb-8"
+          data-reveal
+          data-reveal-from="right"
+          data-reveal-delay="100"
+        >
+          {heading}
+        </h2>
+
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+          {items.map((item, i) => (
+            <li
+              class="flex items-center gap-3 bg-surface rounded-md ring-1 ring-text/10 shadow-pop-sm px-4 py-3"
+              data-reveal
+              data-reveal-from="right"
+              data-reveal-delay={String(Math.min(i * 75, 700)) as "0" | "100" | "200" | "300" | "500" | "700"}
+            >
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-brand text-brand-fg shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <span class="font-heading font-semibold text-sm lg:text-base text-text leading-snug">
+                {item.title}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>

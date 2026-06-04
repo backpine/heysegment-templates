@@ -1,28 +1,99 @@
 ---
 /**
- * FAQ page — full categorized question list.
+ * FAQ page, comprehensive categorized question list.
  *
- * FAQHeader opens with stats + framing, FAQList renders every category
- * from business.faqs using native <details>/<summary> (zero JS),
- * CheckAvailability closes with the phone/contact CTA.
+ * Composition mirrors the home / services / service-area / about / gallery
+ * page style:
+ *
+ *   1. Inline page header     , dark navy + pill H1 + dual CTA + breadcrumbs INSIDE
+ *   2. FAQList                , reused, every category from business.faqs
+ *                               (Scheduling & Pricing first, then General,
+ *                                then services, then Service Areas)
+ *   3. TestimonialsTeal       , reused, social proof
+ *   4. WhatMakesUsDifferent   , reused, 3 differentiators
+ *   5. FinalCTA               , reused, dual CTA closer
+ *
+ * Includes JSON-LD FAQPage schema so Google + LLMs can read the
+ * question/answer pairs directly. Schema is built from business.faqs
+ * so swapping in real questions auto-updates the structured data with
+ * no extra work.
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import FAQHeader from "@/components/faq/FAQHeader.astro";
+import PageHero from "@/components/global/PageHero.astro";
 import FAQList from "@/components/faq/FAQList.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const h1Pill = `Questions About ${business.name}`;
+
+// Build JSON-LD FAQPage schema from every Q&A across every category.
+// Google reads this for rich snippets; LLMs use it to extract clean
+// Q/A pairs without fighting the page DOM. Flatten all categories
+// into one list of mainEntity items.
+const allQuestions = business.faqs.flatMap((cat) => cat.questions);
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: allQuestions.map((q) => ({
+    "@type": "Question",
+    name: q.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: q.answer,
+    },
+  })),
+};
 ---
 
 <Layout
-  title={`FAQ — ${business.name}`}
-  description={`Answers to the most common questions about ${business.name}.`}
+  title={`FAQ, ${business.name}`}
+  description={`Common questions about ${business.name}, scheduling and pricing, services we offer, and the areas we cover.`}
 >
-  <FAQHeader />
+  {/* JSON-LD FAQPage schema, machine-readable Q&A pairs for Google
+      rich snippets and LLM extraction. */}
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  {/* 1. Dark navy hero with breadcrumbs INSIDE so the dark bg paints to
+       the very top of the page. Same pattern as every other hub page. */}
+  <PageHero
+    h1Pill={h1Pill}
+    tagline={`Got questions? <span class="text-brand italic">We've got answers.</span>`}
+    subtext="The most common questions we hear from customers, organized by topic. Don't see yours? Give us a call, we answer the phone."
+    breadcrumbs={[{ label: "FAQ", href: "/faq" }]}
+    placeholderHint="Wide hero photo, owner / team / branded vehicle"
+  />
+
+  {/* 2. Full categorized FAQ list, every question from business.faqs.
+       Order: Scheduling & Pricing first, General, Service 1-5,
+       Service Areas. Native <details>/<summary>, zero JS. */}
   <FAQList />
-  <CheckAvailability
-    heading="Still have questions?"
-    subtext="Lorem ipsum dolor sit amet — phones answered in under an hour during business hours, often in minutes."
+
+  {/* 3. Reviews, social proof.
+         - topWaveBg="bg"      , FAQList above is bg-bg (gray), so the
+                                 wave's transparent half has to match.
+                                 Default would be "surface" which leaves
+                                 a different-tone strip between the gray
+                                 FAQ section and the teal wave.
+         - bottomWaveBg="surface" , the wave transitions cleanly into
+                                 the bg-surface WhatMakesUsDifferent
+                                 section below. */}
+  <TestimonialsTeal topWaveBg="bg" bottomWaveBg="surface" />
+
+  {/* 4. The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* 5. Final CTA. */}
+  <FinalCTA
+    eyebrow={null}
+    heading={`Still have questions?`}
+    subtext="Free quote. Honest pricing. Real people answering the phone."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
   />
 </Layout>

@@ -1,0 +1,235 @@
+---
+/**
+ * ContactHero — dark navy page-header for /contact, with a compact
+ * "small but mighty" quote form sitting INSIDE the hero on the right.
+ *
+ * Renders via PageHero with `withAside`, so the structural shell
+ * (background, overlay, breadcrumbs-inside, H1 pill, tagline, subtext)
+ * is shared with every other hero on the site. The form card and an
+ * inline "Or call now" phone CTA are this component's job.
+ *
+ * Layout:
+ *   lg+ : 7/5 split, headline LEFT, form card RIGHT
+ *   sm  : single column, headline → form card
+ *
+ * Form fields (intentionally short):
+ *   - Full Name                        (required)
+ *   - Email                            (required)
+ *   - Phone                            (required)
+ *   - Service Needed                   (required, select pulls from
+ *                                       business.services categories)
+ *   - Tell us more about [service]     (optional textarea)
+ *   - SMS consent checkbox             (legal-required for SMS marketing)
+ *   - Submit, "Get My Quote"
+ *
+ * Form posts to nothing by default — the site owner wires it to their
+ * CRM / email service (Formspree, Netlify Forms, custom endpoint).
+ */
+import { business } from "@/data/business";
+import PageHero from "@/components/global/PageHero.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  /** Bold visual tagline beneath the H1 pill, max ~7 words. */
+  tagline?: string;
+  /** Short subhead paragraph below the tagline. */
+  subtext?: string;
+  /** Form post target. Defaults to "#", swap for your real endpoint. */
+  formAction?: string;
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+}
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const {
+  tagline = "Lorem ipsum dolor sit amet.",
+  subtext,
+  formAction = business.formEndpoint ?? "#",
+  breadcrumbs,
+} = Astro.props;
+
+const h1Pill = `Contact ${business.name} in ${cityState}`;
+
+// Service options pulled from business categories so the dropdown
+// auto-stays in sync with the rest of the site.
+const serviceOptions = business.services
+  .filter((s) => s.tier === "category")
+  .map((s) => ({ value: s.slug, label: s.name }));
+---
+
+<PageHero
+  h1Pill={h1Pill}
+  tagline={tagline}
+  subtext={subtext}
+  taglineSize="compact"
+  withAside
+  breadcrumbs={breadcrumbs}
+  placeholderLabel="CONTACT PAGE BACKGROUND"
+  placeholderHint="Wide hero photo, owner / team smiling, branded vehicle, or workspace"
+>
+  {/* "Or call now" inline phone CTA — a blocky pill chip with a square
+      icon tile, distinct from t1/t2's plain inline link. The form is the
+      conversion target so a full dual-CTA pair would compete with it. */}
+  <a
+    href={phoneHref}
+    class="btn-pop mt-6 inline-flex items-center gap-3 bg-surface text-text rounded-pill pl-3 pr-6 py-3"
+    data-reveal
+    data-reveal-from="up"
+    data-reveal-delay="300"
+  >
+    <span class="inline-flex items-center justify-center w-10 h-10 rounded-md bg-brand text-brand-fg shrink-0">
+      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" clip-rule="evenodd"/>
+      </svg>
+    </span>
+    <span class="flex flex-col leading-tight">
+      <span class="font-heading text-[11px] font-semibold tracking-widest uppercase text-text-soft">
+        Or call now
+      </span>
+      <span class="font-heading font-bold text-lg lg:text-xl text-text">
+        {business.phone}
+      </span>
+    </span>
+  </a>
+
+  {/* Quote form card, fills the right column on lg+. Blocky t3 pop card:
+      a solid brand header strip up top with a square icon tile, then the
+      blocky form fields on a cream body. */}
+  <form
+    slot="aside"
+    action={formAction}
+    method="post"
+    class="bg-surface rounded-md ring-1 ring-text/10 shadow-pop overflow-hidden"
+    aria-label="Get a fast quote"
+  >
+    {/* Solid brand header strip with square icon tile */}
+    <div class="relative bg-brand text-brand-fg bg-accent-dots-light px-5 lg:px-6 py-5 flex items-center gap-4">
+      <span class="inline-flex items-center justify-center w-12 h-12 rounded-md bg-brand-fg/20 text-brand-fg shrink-0">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM8 11h8M8 15h5" />
+        </svg>
+      </span>
+      <div>
+        <p class="font-heading text-[11px] font-semibold tracking-widest uppercase text-brand-fg/85">
+          Get a Fast Quote
+        </p>
+        <h2 class="font-heading font-extrabold text-xl lg:text-2xl text-brand-fg leading-tight">
+          Free, no commitment.
+        </h2>
+      </div>
+    </div>
+
+    <div class="p-5 lg:p-6">
+      {/* Name + Phone share a row on the blocky t3 form; Email + Service
+          full width. */}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="block">
+          <span class="font-heading text-sm font-semibold text-text">
+            Full Name <span class="text-brand">*</span>
+          </span>
+          <input
+            type="text"
+            name="name"
+            required
+            autocomplete="name"
+            placeholder="Your full name"
+            class="mt-1.5 w-full rounded-md bg-bg ring-1 ring-text/15 px-4 py-3 font-body text-text placeholder:text-text-soft/60 focus:outline-none focus:ring-2 focus:ring-brand"
+          />
+        </label>
+
+        <label class="block">
+          <span class="font-heading text-sm font-semibold text-text">
+            Phone <span class="text-brand">*</span>
+          </span>
+          <input
+            type="tel"
+            name="phone"
+            required
+            autocomplete="tel"
+            placeholder="(555) 555-5555"
+            class="mt-1.5 w-full rounded-md bg-bg ring-1 ring-text/15 px-4 py-3 font-body text-text placeholder:text-text-soft/60 focus:outline-none focus:ring-2 focus:ring-brand"
+          />
+        </label>
+      </div>
+
+      <label class="block mt-3">
+        <span class="font-heading text-sm font-semibold text-text">
+          Email <span class="text-brand">*</span>
+        </span>
+        <input
+          type="email"
+          name="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="mt-1.5 w-full rounded-md bg-bg ring-1 ring-text/15 px-4 py-3 font-body text-text placeholder:text-text-soft/60 focus:outline-none focus:ring-2 focus:ring-brand"
+        />
+      </label>
+
+      <label class="block mt-3">
+        <span class="font-heading text-sm font-semibold text-text">
+          Service Needed <span class="text-brand">*</span>
+        </span>
+        <select
+          name="service"
+          required
+          class="mt-1.5 w-full rounded-md bg-bg ring-1 ring-text/15 px-4 py-3 font-body text-text focus:outline-none focus:ring-2 focus:ring-brand appearance-none bg-[url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2364748b%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.85rem_center] bg-[length:1.25em_1.25em] pr-10"
+        >
+          <option value="" disabled selected>Choose a service…</option>
+          {serviceOptions.map((opt) => (
+            <option value={opt.value}>{opt.label}</option>
+          ))}
+          <option value="not-sure">Not sure yet</option>
+        </select>
+      </label>
+
+      <label class="block mt-3">
+        <span class="font-heading text-sm font-semibold text-text">
+          Tell us more
+          <span class="font-body font-normal text-text-soft/70">(optional)</span>
+        </span>
+        <textarea
+          name="details"
+          rows="2"
+          placeholder="Anything we should know about your project?"
+          class="mt-1.5 w-full rounded-md bg-bg ring-1 ring-text/15 px-4 py-3 font-body text-text placeholder:text-text-soft/60 focus:outline-none focus:ring-2 focus:ring-brand resize-y"
+        ></textarea>
+      </label>
+
+      <label class="flex items-start gap-2.5 mt-4 cursor-pointer">
+        <input
+          type="checkbox"
+          name="sms_consent"
+          value="yes"
+          class="mt-0.5 w-4 h-4 rounded-sm text-brand border-border focus:ring-2 focus:ring-brand cursor-pointer shrink-0"
+        />
+        <span class="font-body text-xs text-text-soft leading-snug">
+          I agree to receive SMS messages from {business.name} about my quote. Message and data rates may apply. Reply STOP to opt out.
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        class="btn-pop mt-4 w-full inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-deep text-brand-fg font-heading font-semibold rounded-pill px-6 py-3"
+      >
+        Get My Quote
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+
+      <p class="font-body text-[11px] text-text-soft/80 text-center mt-3">
+        Same-day response, usually within an hour. No spam, ever.
+      </p>
+    </div>
+  </form>
+</PageHero>

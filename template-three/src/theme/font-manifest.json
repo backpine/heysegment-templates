@@ -8,9 +8,9 @@
     "cssVariable": "--font-provider-body"
   },
   "heading": {
-    "name": "DM Serif Display",
-    "weights": [400],
-    "fallback": ["Georgia", "serif"],
+    "name": "Poppins",
+    "weights": [500, 600, 700, 800],
+    "fallback": ["system-ui", "sans-serif"],
     "cssVariable": "--font-provider-heading"
   }
 }

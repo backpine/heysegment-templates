@@ -1,60 +1,85 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   THEME
-   Edit this file to restyle the site. Each token maps directly to a Tailwind
-   utility class: --color-brand → bg-brand, text-brand, border-brand.
+   THEME — Template Three: "Smart Scoops / playful local-service" identity.
+
+   Energetic, friendly, neo-brutalist-lite. Warm orange + near-black on a
+   warm off-white page. The signature move is the HARD OFFSET "pop"
+   shadow (a solid, blur-less dark shadow offset down-left) that makes
+   buttons and cards feel raised and playful. Faint icon-accent patterns
+   sit behind some sections.
+
+   Distinct from template-one (bright teal, corporate) and template-two
+   (gold + serif, editorial). Used for fun, approachable local home
+   services (pet waste removal, junk hauling, pressure washing, etc.).
+
+   Edit this file to restyle the site. Each token maps directly to a
+   Tailwind utility class: --color-brand → bg-brand, text-brand,
+   border-brand; --shadow-pop → shadow-pop; etc.
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* Fonts are self-hosted via Astro's Google Font Provider.
-   The source of truth is src/theme/font-manifest.json, and astro.config.mjs
-   derives its fonts array from that manifest. Keep the theme tokens below
-   pointing at the provider variables rather than storing literal font stacks. */
+   Source of truth: src/theme/font-manifest.json. Keep the tokens below
+   pointed at the provider variables, not literal font stacks. */
 
 @theme {
 
   /* ── Brand ──────────────────────────────────────────────────────────────────
-     The one color that defines the business identity.
-     Used for: buttons, links, active nav, accent borders.                    */
-  --color-brand:      #2563eb;  /* main brand color */
-  --color-brand-fg:   #ffffff;  /* text/icons on top of brand color */
-  --color-brand-tint: #eff6ff;  /* very light brand — backgrounds, badges */
+     Warm, friendly orange. Neutral enough to swap for any vertical, but
+     reads energetic and approachable out of the box. */
+  --color-brand:      #ee7b22;  /* warm orange — CTAs, accents, icon discs */
+  --color-brand-fg:   #ffffff;  /* text/icons on top of brand orange */
+  --color-brand-tint: #fdeede;  /* pale peach — backgrounds, badges */
+  --color-brand-deep: #c95f12;  /* darker orange — hover states, depth */
+  --color-brand-dark: #1b1815;  /* near-black — dark sections, footer */
 
   /* ── Page ───────────────────────────────────────────────────────────────────
-     The base layer of every page.                                            */
-  --color-bg:      #fafafa;  /* page background */
-  --color-surface: #ffffff;  /* cards, modals, panels — sits on top of bg */
-  --color-border:  #e5e5e5;  /* dividers, input outlines */
+     Warm off-white base, friendlier than a cold grey. */
+  --color-bg:      #faf7f2;  /* warm off-white — page background */
+  --color-surface: #ffffff;  /* pure white — cards, modals, panels */
+  --color-border:  #e9e2d8;  /* warm light — dividers, input outlines */
 
   /* ── Text ───────────────────────────────────────────────────────────────────
-     Two text colors covers the vast majority of cases.                       */
-  --color-text:      #171717;  /* headings, body copy, labels */
-  --color-text-soft: #737373;  /* captions, helper text, secondary info */
+     Near-black carries most weight, both as text on light surfaces AND
+     as the full-bleed dark sections. Warm-tinted soft grey for captions. */
+  --color-text:      #1b1815;  /* near-black — headings, body, dark sections */
+  --color-text-soft: #6b6358;  /* warm grey — captions, helper text */
 
   /* ── Fonts ──────────────────────────────────────────────────────────────────
-     heading: used on h1–h3, hero text, section titles
-     body:    everything else — paragraphs, labels, buttons, nav
-     Values come from the provider vars wired from font-manifest.json.       */
+     heading: Poppins — rounded geometric sans, bold weights, friendly.
+     body:    Inter — clean and neutral so the personality lives in the
+              headings + the playful shadows, not the body copy.
+     Values come from the provider vars wired from font-manifest.json. */
   --font-heading: var(--font-provider-heading);
   --font-body:    var(--font-provider-body);
 
   /* ── Type scale ─────────────────────────────────────────────────────────────
-     Seven sizes. sm → base → lg covers UI. xl → hero covers sections.       */
-  --text-sm:   0.875rem;  /* 14px — captions, labels, fine print */
-  --text-base: 1rem;      /* 16px — body copy */
-  --text-lg:   1.25rem;   /* 20px — lead paragraphs, card titles */
-  --text-xl:   1.625rem;  /* 26px — subheadings */
-  --text-2xl:  2.125rem;  /* 34px — section headings */
-  --text-3xl:  2.875rem;  /* 46px — page headings */
-  --text-hero: 3.75rem;   /* 60px — hero headline */
+     Same scale as the other templates for layout parity; the identity
+     comes from the rounded sans + heavy weights + pop shadows. */
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.625rem;
+  --text-2xl:  2.125rem;
+  --text-3xl:  2.875rem;
+  --text-hero: 3.75rem;
 
   /* ── Radius ─────────────────────────────────────────────────────────────────
-     Three steps. sm for small UI, md for most things, lg for big panels.    */
-  --radius-sm: 0.375rem;  /*  6px — inputs, small buttons, tags */
-  --radius-md: 0.625rem;  /* 10px — cards, buttons */
-  --radius-lg: 1rem;      /* 16px — feature panels, hero cards */
+     Friendly, chunky rounding — bigger than corporate, not full-round.
+     `--radius-pill` is a chunky 0.625rem so the shared PillButton renders
+     as a playful rounded-rectangle (matching the reference) rather than a
+     true 9999px pill. */
+  --radius-sm: 0.5rem;     /*  8px — inputs, tags, small chips */
+  --radius-md: 0.875rem;   /* 14px — cards, panels */
+  --radius-lg: 1.25rem;    /* 20px — feature panels, hero cards */
+  --radius-pill: 0.625rem; /* 10px — primary CTAs (chunky rounded-rect) */
 
   /* ── Shadow ─────────────────────────────────────────────────────────────────
-     Two levels. sm for subtle depth, md for cards that need more presence.  */
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+     The signature move: shadow-pop is a SOLID, blur-less dark shadow
+     offset down-and-right so elements look raised and playful. shadow-sm
+     / shadow-md stay soft for subtle depth on cards that don't pop. */
+  --shadow-sm: 0 1px 3px 0 rgb(27 24 21 / 0.08), 0 1px 2px -1px rgb(27 24 21 / 0.06);
+  --shadow-md: 0 6px 18px -4px rgb(27 24 21 / 0.14), 0 2px 6px -2px rgb(27 24 21 / 0.08);
+  --shadow-pop: 4px 4px 0 0 var(--color-text);
+  --shadow-pop-sm: 3px 3px 0 0 var(--color-text);
+  --shadow-pop-brand: 4px 4px 0 0 var(--color-brand);
 
 }

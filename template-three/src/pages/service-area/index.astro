@@ -1,26 +1,100 @@
 ---
 /**
- * Service area page — where the business operates.
+ * All Service Areas directory page.
  *
- * Nav and Footer come from Layout.astro automatically. Sections read from
- * src/data/business.ts so swapping a site is a single-file change.
+ * Composition mirrors the /services directory page structure (hero +
+ * directory list + reused home sections + closer) so the two hub pages
+ * read as siblings:
+ *
+ *   1. Inline page header        , dark navy + pill H1 + dual CTA + breadcrumbs
+ *   2. ServiceAreaDirectoryList  , dark navy continuation, horizontal city cards
+ *   3. TestimonialsTeal          , reused (top wave omitted, directory's wave handles it)
+ *   4. TrustChecklist            , reused (Why Choose Us)
+ *   5. WhatMakesUsDifferent      , reused (3 differentiators)
+ *   6. ProcessSteps              , reused (universal 3-step)
+ *   7. ServiceAreaMap            , embedded coverage map
+ *   8. FAQ                       , reused, FILTERED to "Service Areas" + general
+ *   9. FinalCTA                  , reused with dual CTA enabled
  */
 export const prerender = true;
 
 import Layout from "@/layouts/Layout.astro";
-import PageHeader from "@/components/service-area/PageHeader.astro";
-import ServiceMap from "@/components/service-area/ServiceMap.astro";
-import CoverageDetails from "@/components/service-area/CoverageDetails.astro";
-import CheckAvailability from "@/components/service-area/CheckAvailability.astro";
+import PageHero from "@/components/global/PageHero.astro";
+import ServiceAreaDirectoryList from "@/components/service-area/ServiceAreaDirectoryList.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import ServiceAreaMap from "@/components/home/ServiceAreaMap.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
 import { business } from "@/data/business";
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+const h1Pill = `Service Areas We Cover in ${cityState}`;
+
+// Directory FAQ uses the same buckets as the per-city pages:
+// General + Service Areas + Scheduling & Pricing.
+const matchingCats = ["General", "Service Areas", "Scheduling & Pricing"];
+const directoryFaqs = business.faqs
+  .filter((cat) => matchingCats.includes(cat.category))
+  .flatMap((cat) => cat.questions);
 ---
 
 <Layout
-  title={`Service Area — ${business.name}`}
-  description={`Cities served by ${business.name}, coverage map, and what to expect.`}
+  title={`Service Areas, ${business.name}`}
+  description={`Every city served by ${business.name}. Browse the full coverage list and click any city to learn more about local service.`}
 >
-  <PageHeader />
-  <ServiceMap />
-  <CoverageDetails />
-  <CheckAvailability />
+  {/* Compact page header, Hero-style but shorter than home so
+      ServiceAreaDirectoryList can continue on the same dark bg with no
+      break. PageHero owns the structural duplication. */}
+  <PageHero
+    h1Pill={h1Pill}
+    tagline={`Local crew, <span class="text-brand italic">whole region.</span>`}
+    subtext="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse the cities below and click any area to see local reviews, projects, and the services we offer there."
+    breadcrumbs={[{ label: "Service Area", href: "/service-area" }]}
+    placeholderHint="Wide hero photo, regional skyline, map shot, or branded vehicle"
+  />
+
+  {/* Directory of every city, dark navy continuation from the hero,
+      transitions text → brand at the bottom. */}
+  <ServiceAreaDirectoryList bottomTransition="brand" />
+
+  {/* Reviews on teal. Top wave omitted because the directory's bottom
+      wave already lands on brand-color. */}
+  <TestimonialsTeal omitTopWave={true} />
+
+  {/* Why Choose Us, social proof + trust signals. */}
+  <TrustChecklist />
+
+  {/* The 3 big differentiators. */}
+  <WhatMakesUsDifferent />
+
+  {/* How we work, 3-step process. */}
+  <ProcessSteps />
+
+  {/* Coverage map. */}
+  <ServiceAreaMap />
+
+  {/* Service-area FAQ, filtered. */}
+  <FAQ
+    eyebrow="Service Area FAQ"
+    heading="Common questions about coverage."
+    subtext="If your question isn't here, give us a call, we answer the phone."
+    questions={directoryFaqs}
+    limit={10}
+  />
+
+  {/* Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    heading={`Ready to work with us?`}
+    subtext="Local crew, fast response, honest pricing. Free quote with no commitment."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
 </Layout>

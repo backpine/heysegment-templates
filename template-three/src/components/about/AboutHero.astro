@@ -1,0 +1,65 @@
+---
+/**
+ * AboutHero — dark page-header for /about (template-three).
+ *
+ * A thin wrapper around the shared PageHero. Structure (background,
+ * overlay, breadcrumbs-inside, pill H1, CTA pair) all lives in PageHero
+ * so the hero rhythms with every other page.
+ *
+ * Template-three differentiator (vs t1/t2, which are bare wrappers):
+ * this hero feeds PageHero a 3-up `keyPoints` trust-marker row — derived
+ * from the business `stats` — so the About header opens with a blocky
+ * row of proof chips in the playful pop language. No italic taglines.
+ */
+import { business } from "@/data/business";
+import PageHero from "@/components/global/PageHero.astro";
+
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  /** Bold visual tagline beneath the H1 pill, max ~7 words. */
+  tagline?: string;
+  /** Short subhead paragraph below the tagline. */
+  subtext?: string;
+  primaryCta?: { label: string; href: string };
+  /** Breadcrumb trail rendered INSIDE the hero (overlay variant). */
+  breadcrumbs?: Crumb[];
+  /** Optional override for the trust-marker row. */
+  keyPoints?: string[];
+}
+
+const city = business.address?.city;
+const state = business.address?.state;
+const cityState = state ? `${city}, ${state}` : city ?? "Your Area";
+
+// Pull the most concrete proof points from the business stats so the
+// hero opens with a blocky trust-marker row ("10+ Years in Business",
+// etc.) instead of just a tagline + CTA. Falls back to nothing if the
+// site has no stats configured.
+const stats = (business as { stats?: { value: string; label: string }[] }).stats ?? [];
+const defaultKeyPoints = stats.slice(0, 3).map((s) => `${s.value} ${s.label}`);
+
+const {
+  tagline = "Lorem ipsum dolor sit amet.",
+  subtext,
+  primaryCta = { label: business.ctaLabel, href: business.ctaHref },
+  breadcrumbs,
+  keyPoints = defaultKeyPoints,
+} = Astro.props;
+
+const h1Pill = `About ${business.name} in ${cityState}`;
+---
+
+<PageHero
+  h1Pill={h1Pill}
+  tagline={tagline}
+  subtext={subtext}
+  keyPoints={keyPoints}
+  primaryCta={primaryCta}
+  breadcrumbs={breadcrumbs}
+  placeholderLabel="ABOUT PAGE BACKGROUND"
+  placeholderHint="Wide hero photo, owner / team shot or branded vehicle"
+/>

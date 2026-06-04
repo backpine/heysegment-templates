@@ -1,0 +1,251 @@
+---
+/**
+ * Service-area detail pages, one URL per entry in business.locations.
+ *
+ * Composition mirrors the home page Revive style and reuses home /
+ * service-detail sections where it makes sense. Every "content" section
+ * is filtered or scoped to this specific city so the page reads as
+ * written for the location, not copy-pasted across cities.
+ *
+ *   1. ServiceAreaHero      , dark navy hero with H1 pill + dual CTAs + key points
+ *   2. LocationAbout        , About [City] - intro, why we serve here, history,
+ *                             local landmarks, neighborhoods
+ *   3. ServiceCardsTeal     , reused, services we offer in this city
+ *   4. TrustChecklist       , reused (Why Choose Us)
+ *   5. WhatMakesUsDifferent , reused, 3 differentiators
+ *   6. ProcessSteps         , service-area-specific 3-step verbiage
+ *   7. TestimonialsTeal     , reused, FILTERED to reviews tagged with this city
+ *   8. ResultsGrid          , reused, FILTERED to projects in this city
+ *   9. ServiceAreaMap       , embedded coverage map
+ *  10. FAQ                  , reused, FILTERED to "Service Areas" + general
+ *  11. OtherServiceAreas    , cross-link grid to OTHER cities (current excluded)
+ *  12. FinalCTA             , reused with dual CTA enabled
+ *
+ * Dynamic route: getStaticPaths builds /service-area/[slug] for every
+ * location. To add a city, add an entry to business.locations - no new
+ * file needed.
+ */
+import type { GetStaticPaths } from "astro";
+import Layout from "@/layouts/Layout.astro";
+import ServiceAreaHero from "@/components/service-area/location/ServiceAreaHero.astro";
+import LocationAbout from "@/components/service-area/location/LocationAbout.astro";
+import ServiceCardsTeal from "@/components/home/ServiceCardsTeal.astro";
+import TrustChecklist from "@/components/home/TrustChecklist.astro";
+import WhatMakesUsDifferent from "@/components/home/WhatMakesUsDifferent.astro";
+import ProcessSteps from "@/components/home/ProcessSteps.astro";
+import TestimonialsTeal from "@/components/home/TestimonialsTeal.astro";
+import ResultsGrid from "@/components/home/ResultsGrid.astro";
+import ServiceAreaMap from "@/components/home/ServiceAreaMap.astro";
+import FAQ from "@/components/home/FAQ.astro";
+import FinalCTA from "@/components/global/FinalCTA.astro";
+import { business } from "@/data/business";
+import type { Location } from "@/data/business";
+
+export const prerender = true;
+
+export const getStaticPaths = (() => {
+  return business.locations.map((location) => ({
+    params: { slug: location.slug },
+    props: { location },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  location: Location;
+}
+
+const { location } = Astro.props;
+
+const phoneHref = "tel:+1" + business.phone.replace(/\D/g, "");
+
+// Hero key points, reuse a consistent set of trust markers across all
+// city pages. Keeps the hero scannable and the local-SEO H1 carries
+// the keyword weight.
+const keyPoints = [
+  "Locally Owned",
+  "Licensed & Insured",
+  "Same-Day Quotes",
+  "100% Satisfaction Guaranteed",
+];
+
+// City-specific reviews: review subheadings follow "Service N in [City]"
+// pattern, so we filter by suffix.
+const allReviews = business.reviews?.items ?? [];
+const cityReviews = allReviews
+  .filter((r) => r.subheading?.endsWith(location.name))
+  .slice(0, 3);
+// Fall back to padding with general reviews if there aren't 3 city
+// reviews yet, so the section never renders empty.
+const reviewsToShow = cityReviews.length >= 3
+  ? cityReviews
+  : [
+      ...cityReviews,
+      ...allReviews.filter((r) => !r.subheading?.endsWith(location.name)),
+    ].slice(0, 3);
+
+// City-specific project tiles, captioned with this city so the section
+// reads as a local results gallery.
+const cityTiles = [
+  { label: "PROJECT 1", hint: "Recent project photo", caption: `Service 1 · ${location.name}` },
+  { label: "PROJECT 2", hint: "Recent project photo", caption: `Service 2 · ${location.name}` },
+  { label: "PROJECT 3", hint: "Recent project photo", caption: `Service 3 · ${location.name}` },
+  { label: "PROJECT 4", hint: "Recent project photo", caption: `Service 4 · ${location.name}` },
+  { label: "PROJECT 5", hint: "Recent project photo", caption: `Service 1 · ${location.name}` },
+  { label: "PROJECT 6", hint: "Recent project photo", caption: `Service 2 · ${location.name}` },
+];
+
+// City-specific FAQs: include the universal "General", "Scheduling &
+// Pricing", and the new "Service Areas" bucket.
+const matchingCats = ["General", "Service Areas", "Scheduling & Pricing"];
+const cityFaqs = business.faqs
+  .filter((cat) => matchingCats.includes(cat.category))
+  .flatMap((cat) => cat.questions);
+
+// City-specific Easy-as-1-2-3 process. Bake the city name into each
+// step so the process feels written for [City] rather than universal.
+const cityProcessSteps = [
+  {
+    title: `Get a Free ${location.name} Quote`,
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tell us about your project in ${location.name} and we'll send pricing same day.`,
+    icon: "quote" as const,
+  },
+  {
+    title: `Schedule Your ${location.name} Visit`,
+    description: `Duis aute irure dolor in reprehenderit. Pick a date that works for you and our local crew will roll up to your ${location.name} address ready to work.`,
+    icon: "calendar" as const,
+  },
+  {
+    title: `Relax While We Handle ${location.name}`,
+    description: `Excepteur sint occaecat cupidatat non proident. Sit back, our crew will take care of every detail at your ${location.name} home.`,
+    icon: "check" as const,
+  },
+];
+
+const cityName = location.name;
+
+// Other nearby service areas, cross-link grid to OTHER location detail
+// pages so visitors who land on the wrong city can pivot to the right
+// one. Big SEO + UX win, mirrors the cross-sell `Other Services` grid
+// on /services/[slug] but scoped to cities. Capped at 3 cards (with a
+// "View All Service Areas" CTA below) so the row stays visually
+// balanced no matter how many cities the business covers.
+const otherAreaCards = business.locations
+  .filter((l) => l.slug !== location.slug)
+  .slice(0, 3)
+  .map((l) => ({
+    name: l.name,
+    slug: l.slug,
+    icon: "pin" as const,
+    description: l.tagline ?? l.intro ?? "",
+    href: `/service-area/${l.slug}`,
+    hint: `Photo of ${l.name}`,
+  }));
+---
+
+<Layout
+  title={`${cityName}, ${business.name}`}
+  description={`${business.name} serves ${cityName}. ${location.tagline}`}
+>
+  {/* 1. Service-area hero, breadcrumbs INSIDE so the dark bg paints to
+       the very top of the page. */}
+  <ServiceAreaHero
+    cityName={cityName}
+    tagline={location.tagline}
+    keyPoints={keyPoints}
+    breadcrumbs={[
+      { label: "Service Area", href: "/service-area" },
+      { label: cityName, href: `/service-area/${location.slug}` },
+    ]}
+  />
+
+  {/* 2. About the city, intro + why we serve here + history + landmarks
+       + neighborhoods, anchors the page in the local community. */}
+  <LocationAbout
+    cityName={cityName}
+    intro={location.intro}
+    whyHere={(location as { whyHere?: string }).whyHere}
+    history={(location as { history?: string }).history}
+    landmarks={(location as { landmarks?: string[] }).landmarks ?? []}
+    neighborhoods={location.neighborhoods}
+  />
+
+  {/* 3. Services we offer in this city, reused home grid. */}
+  <ServiceCardsTeal
+    eyebrow={`Services in ${cityName}`}
+    heading={`What we do in ${cityName}.`}
+    ctaLabel="View All Services"
+    ctaHref="/services"
+  />
+
+  {/* 4. Why locals choose us, reused TrustChecklist with city-scoped heading. */}
+  <TrustChecklist heading={`Why ${cityName} chooses us.`} />
+
+  {/* 5. The 3 big differentiators, reused. */}
+  <WhatMakesUsDifferent />
+
+  {/* 6. How we work, with city-specific verbiage baked in. */}
+  <ProcessSteps
+    eyebrow={`Working With Us In ${cityName} Is Easy As 1-2-3`}
+    heading={`How we serve ${cityName}.`}
+    subtext={`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Three steps from quote to finished work in ${cityName}.`}
+    steps={cityProcessSteps}
+  />
+
+  {/* 7. Localized reviews, filtered to this city. */}
+  <TestimonialsTeal
+    eyebrow={`${cityName} Reviews`}
+    heading={`What your neighbors in ${cityName} say.`}
+    reviews={reviewsToShow}
+  />
+
+  {/* 8. Local projects, before/after grid scoped to this city. */}
+  <ResultsGrid
+    eyebrow={`${cityName} Projects`}
+    heading={`Recent work in ${cityName}.`}
+    tiles={cityTiles}
+  />
+
+  {/* 9. Coverage map. */}
+  <ServiceAreaMap />
+
+  {/* 10. City-specific FAQ, filtered to General + Service Areas + Scheduling. */}
+  <FAQ
+    eyebrow={`${cityName} FAQ`}
+    heading={`Common questions about ${cityName} service.`}
+    subtext={`If your question isn't here, give us a call, we answer the phone.`}
+    questions={cityFaqs}
+    limit={10}
+  />
+
+  {/* 11. Other nearby service areas. Reuses the home ServiceCardsTeal
+       grid pointed at /service-area/[slug] links with a map-pin icon.
+       Capped at 3 cards (handled in frontmatter) with a "View All
+       Service Areas" CTA pill that links to the directory. Both this
+       section and the FinalCTA below are on brand color, so:
+         - omitBottomWave : no white wave between the two teal sections
+         - tightBottom    : compresses the bottom padding so the CTA
+                            pill flows directly into the FinalCTA below
+                            instead of leaving a tall teal void
+       Result: one continuous teal block from the nearby grid through
+       the FinalCTA closer, with the View-All pill bridging them. */}
+  {otherAreaCards.length > 0 && (
+    <ServiceCardsTeal
+      eyebrow="Nearby Service Areas"
+      heading={`We also serve nearby ${cityName}.`}
+      cards={otherAreaCards}
+      ctaLabel="View All Service Areas"
+      ctaHref="/service-area"
+      omitBottomWave={true}
+      tightBottom={true}
+    />
+  )}
+
+  {/* 12. Final CTA, dual CTA enabled. */}
+  <FinalCTA
+    eyebrow={`Serving ${cityName}`}
+    heading={`Ready to work with us in ${cityName}?`}
+    subtext="Local crew, fast response, honest pricing. Free quote with no commitment."
+    primaryCta={{ label: business.ctaLabel, href: business.ctaHref }}
+    secondaryCta={{ label: `Call ${business.phone}`, href: phoneHref }}
+  />
+</Layout>
